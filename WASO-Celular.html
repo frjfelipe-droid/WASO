@@ -1,0 +1,561 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0d0f13">
+<title>WASO Cortador</title>
+<style>
+:root{
+  --bg:#0d0f13; --card:#161920; --card2:#1d212a; --ink:#eef1f6; --muted:#98a0ad; --line:#272c36;
+  --acc:#25d39b; --acc2:#16b383; --acc-ink:#04140e; --keep:#25d39b; --cut:#ff5d6c; --warn:#ffb347;
+  --r:18px;
+}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){ --bg:#f3f5f8; --card:#ffffff; --card2:#f0f2f6; --ink:#12151b; --muted:#5f6775; --line:#e1e5eb;
+    --acc:#0fa678; --acc2:#0c8c65; --acc-ink:#ffffff; --keep:#12a36f; --cut:#e5484d; --warn:#c26a00; }
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+body{padding-bottom:110px}
+.wrap{max-width:760px;margin:0 auto;padding:0 16px}
+header{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:18px 0 10px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:21px;letter-spacing:-.02em}
+.logo .ic{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,var(--acc),#3aa0ff);color:#fff;font-size:20px}
+.logo small{display:block;font-weight:500;font-size:12px;color:var(--muted);letter-spacing:0}
+.chip{font-size:12.5px;padding:6px 11px;border-radius:99px;background:var(--card2);color:var(--muted);border:1px solid var(--line);white-space:nowrap}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-top:14px}
+.step{display:flex;align-items:center;gap:10px;font-weight:750;font-size:17px;margin:0 0 12px}
+.step .n{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:var(--acc);color:var(--acc-ink);font-size:14px;font-weight:800;flex:none}
+.muted{color:var(--muted);font-size:13.5px}
+.pick{display:flex;flex-direction:column;align-items:center;gap:6px;width:100%;padding:26px 14px;border:2px dashed var(--line);border-radius:16px;background:var(--card2);color:var(--ink);font:inherit;cursor:pointer;text-align:center}
+.pick b{font-size:18px}
+.pick .big{font-size:34px}
+.vids{display:grid;gap:10px;margin-top:12px}
+.vid{display:flex;gap:12px;align-items:center;background:var(--card2);border-radius:14px;padding:8px;border:1px solid var(--line)}
+.vid img,.vid .ph{width:62px;height:62px;border-radius:10px;object-fit:cover;background:#000;flex:none}
+.vid .info{flex:1;min-width:0}
+.vid .nm{font-weight:650;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}
+.tag{font-size:11.5px;padding:2px 8px;border-radius:99px;background:var(--bg);color:var(--muted)}
+.tag.g{color:var(--keep)} .tag.w{color:var(--warn)}
+.x{background:none;border:none;color:var(--muted);font-size:20px;padding:8px;cursor:pointer}
+.recipes{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.rc{border:1.5px solid var(--line);background:var(--card2);border-radius:14px;padding:12px;text-align:left;color:var(--ink);font:inherit;cursor:pointer;display:flex;flex-direction:column;gap:3px;min-height:92px}
+.rc .e{font-size:22px}
+.rc b{font-size:14.5px}
+.rc span{font-size:12px;color:var(--muted)}
+.rc.on{border-color:var(--acc);box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 22%,transparent)}
+details.adv{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
+details.adv summary{cursor:pointer;font-weight:650;list-style:none;display:flex;justify-content:space-between}
+details.adv summary::after{content:"＋";color:var(--muted)}
+details.adv[open] summary::after{content:"－"}
+.fields{display:grid;gap:14px;margin-top:12px}
+.f{display:flex;flex-direction:column;gap:6px;font-size:13.5px;color:var(--muted)}
+.f b{color:var(--ink);font-size:14.5px;font-weight:600;display:flex;justify-content:space-between}
+.f b em{font-style:normal;color:var(--acc)}
+input[type=range]{width:100%;accent-color:var(--acc);height:28px}
+select,input[type=number]{width:100%;padding:11px 12px;border-radius:12px;border:1px solid var(--line);background:var(--card2);color:var(--ink);font:inherit}
+.seg{display:flex;background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:3px;gap:3px;overflow-x:auto}
+.seg button{flex:1;border:none;background:none;color:var(--muted);font:inherit;font-size:13.5px;padding:9px 6px;border-radius:9px;cursor:pointer;white-space:nowrap}
+.seg button.on{background:var(--acc);color:var(--acc-ink);font-weight:700}
+.sw{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:14.5px}
+.sw input{appearance:none;width:46px;height:28px;border-radius:99px;background:var(--line);position:relative;cursor:pointer;flex:none;transition:.2s}
+.sw input::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:.2s}
+.sw input:checked{background:var(--acc)} .sw input:checked::after{left:21px}
+.tl-h{display:flex;justify-content:space-between;gap:8px;font-size:13.5px;margin:14px 0 6px}
+.tl-h b{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.tl{position:relative;height:38px;border-radius:10px;overflow:hidden;background:var(--card2);touch-action:manipulation}
+.tl i{position:absolute;top:0;bottom:0;cursor:pointer}
+.tl i.k{background:var(--keep)} .tl i.c{background:var(--cut);opacity:.35}
+.tl .head{position:absolute;top:0;bottom:0;width:2px;background:var(--ink);pointer-events:none}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--muted);margin-top:10px;flex-wrap:wrap}
+.legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px;background:var(--keep)}
+.legend span.c::before{background:var(--cut);opacity:.5}
+video.pv{width:100%;max-height:60vh;border-radius:14px;background:#000;margin-top:12px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--line);background:var(--card2);color:var(--ink);font:inherit;font-weight:650;padding:12px 16px;border-radius:14px;cursor:pointer;text-decoration:none}
+.btn.pri{background:var(--acc);border-color:transparent;color:var(--acc-ink)}
+.btn.cap{background:#fff;color:#000;border-color:transparent}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.full{width:100%}
+.bar{position:fixed;left:0;right:0;bottom:0;padding:12px 16px calc(12px + env(safe-area-inset-bottom));background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--line);z-index:10}
+.bar .wrap{display:flex;gap:12px;align-items:center;padding:0}
+.bar .sum{flex:1;min-width:0;font-size:13px;color:var(--muted)}
+.bar .sum b{display:block;color:var(--ink);font-size:15px}
+.bar .btn{padding:14px 20px;font-size:16px}
+.prog{height:10px;border-radius:99px;background:var(--card2);overflow:hidden;margin-top:12px}
+.prog div{height:100%;width:0;background:linear-gradient(90deg,var(--acc),#3aa0ff);transition:width .25s}
+.res{background:var(--card2);border:1px solid var(--line);border-radius:16px;padding:12px;margin-top:12px}
+.res video{width:100%;max-height:55vh;border-radius:12px;background:#000}
+.res .acts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.res .acts .wide{grid-column:1/-1}
+.note{font-size:13px;color:var(--muted);background:var(--card2);border-radius:12px;padding:10px 12px;margin-top:10px}
+.note.w{color:var(--warn)}
+.hide{display:none!important}
+.empty{text-align:center;color:var(--muted);font-size:14px;padding:6px}
+.howto ol{margin:6px 0 0;padding-left:20px;font-size:14px}
+@media (min-width:640px){ .recipes{grid-template-columns:repeat(4,1fr)} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo"><div class="ic">✂</div><div>WASO<small>corta sozinho e manda pro CapCut</small></div></div>
+    <span class="chip" id="devChip">…</span>
+  </header>
+
+  <!-- 1 -->
+  <section class="card">
+    <div class="step"><span class="n">1</span>Seus vídeos</div>
+    <input type="file" id="fileIn" accept="video/*" multiple class="hide">
+    <button class="pick" id="pickBtn"><span class="big">🎬</span><b>Escolher vídeos</b><span class="muted">da galeria ou da pasta · pode escolher vários</span></button>
+    <div class="vids" id="vids"></div>
+  </section>
+
+  <!-- 2 -->
+  <section class="card">
+    <div class="step"><span class="n">2</span>O que fazer</div>
+    <div class="recipes" id="recipes"></div>
+    <details class="adv">
+      <summary>Ajustes finos</summary>
+      <div class="fields">
+        <label class="sw"><span><b>Tirar pausas e silêncios</b><br><span class="muted">jump cut automático</span></span><input type="checkbox" data-r="remover_silencio"></label>
+        <label class="f"><b>Sensibilidade <em id="o_limiar_db"></em></b><input type="range" min="-60" max="-15" step="1" data-r="limiar_db"><span>← corta só silêncio total · corta também ruído baixo →</span></label>
+        <label class="f"><b>Pausa mínima para cortar <em id="o_silencio_min"></em></b><input type="range" min="0.2" max="3" step="0.05" data-r="silencio_min"></label>
+        <label class="f"><b>Respiro antes/depois da fala <em id="o_margem"></em></b><input type="range" min="0" max="0.6" step="0.01" data-r="margem"></label>
+        <label class="f"><b>Ignorar ruídos menores que <em id="o_trecho_min"></em></b><input type="range" min="0" max="2" step="0.05" data-r="trecho_min"></label>
+        <label class="f"><b>Velocidade <em id="o_velocidade"></em></b><input type="range" min="0.75" max="2" step="0.05" data-r="velocidade"></label>
+        <div class="f"><b>Formato da tela</b><div class="seg" data-seg="formato">
+          <button data-v="original">Original</button><button data-v="9x16">9:16</button><button data-v="16x9">16:9</button><button data-v="1x1">1:1</button><button data-v="4x5">4:5</button></div></div>
+        <div class="f"><b>Como encaixar</b><div class="seg" data-seg="ajuste">
+          <button data-v="desfoque">Fundo desfocado</button><button data-v="cortar">Zoom</button><button data-v="barras">Barras</button></div></div>
+        <div class="f"><b>Qualidade</b><div class="seg" data-seg="resolucao">
+          <button data-v="720">720p (rápido)</button><button data-v="1080">1080p</button></div></div>
+        <div class="f"><b>Resultado</b><div class="seg" data-seg="modo_saida">
+          <button data-v="por_video">Um por vídeo</button><button data-v="juntar_tudo">Juntar tudo</button></div></div>
+        <label class="f"><b>Cortar do começo (s)</b><input type="number" min="0" step="0.5" data-r="cortar_inicio"></label>
+        <label class="f"><b>Cortar do final (s)</b><input type="number" min="0" step="0.5" data-r="cortar_fim"></label>
+        <label class="f"><b>Dividir em partes de até (s)</b><input type="number" min="0" step="5" data-r="dividir_cada"><span>0 = não dividir · 60 = Shorts. Divide só nas pausas.</span></label>
+      </div>
+    </details>
+  </section>
+
+  <!-- 3 -->
+  <section class="card">
+    <div class="step"><span class="n">3</span>Conferir os cortes</div>
+    <div id="tls"><div class="empty">Escolha os vídeos para ver o que será cortado.</div></div>
+    <div class="legend hide" id="legend"><span>fica</span><span class="c">sai</span><span>toque num trecho para trocar · ▶ para ver a prévia</span></div>
+    <video class="pv hide" id="pv" controls playsinline></video>
+  </section>
+
+  <!-- 4 -->
+  <section class="card" id="outCard">
+    <div class="step"><span class="n">4</span>Gerar e mandar pro CapCut</div>
+    <div id="genBox">
+      <button class="btn pri full" id="genBtn2" style="padding:15px;font-size:17px">✂️ Gerar vídeo</button>
+      <div class="note">O celular grava o vídeo cortado em tempo real (um vídeo de 1 min leva ~1 min). <b>Deixe esta tela aberta</b> enquanto gera.</div>
+    </div>
+    <div id="progBox" class="hide">
+      <div class="prog"><div id="progFill"></div></div>
+      <div class="muted" id="progMsg" style="margin-top:8px"></div>
+      <button class="btn" id="cancelBtn" style="margin-top:10px">Cancelar</button>
+    </div>
+    <div id="results"></div>
+    <details class="howto adv" id="howto"><summary>Como continuar no CapCut</summary><div id="howtoBody"></div></details>
+  </section>
+</div>
+
+<div class="bar"><div class="wrap">
+  <div class="sum" id="sum"><b>Nenhum vídeo</b>escolha seus vídeos brutos</div>
+  <button class="btn pri" id="genBtn" disabled>✂️ Gerar</button>
+</div></div>
+
+<script>
+"use strict";
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt = sec => { sec = Math.max(0, Math.round(sec||0)); const m = Math.floor(sec/60), s = sec%60; return m>=60 ? `${Math.floor(m/60)}:${String(m%60).padStart(2,'0')}:${String(s).padStart(2,'0')}` : `${m}:${String(s).padStart(2,'0')}`; };
+const store = { get(k){ try{ return JSON.parse(localStorage.getItem(k)); }catch(e){ return null; } }, set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} } };
+
+// ---------------- dispositivo ----------------
+const UA = navigator.userAgent;
+const DEV = /Android/i.test(UA) ? 'android' : (/iPhone|iPad|iPod/i.test(UA) || (/Macintosh/.test(UA) && navigator.maxTouchPoints > 1)) ? 'ios' : 'pc';
+$('#devChip').textContent = {android:'📱 Android · CapCut celular', ios:'📱 iPhone · CapCut celular', pc:'💻 PC · CapCut desktop'}[DEV];
+
+// ---------------- regras / receitas ----------------
+const BASE = { remover_silencio:true, limiar_db:-35, silencio_min:0.6, margem:0.15, trecho_min:0.4, cortar_inicio:0, cortar_fim:0,
+  formato:'original', ajuste:'desfoque', velocidade:1, resolucao:1080, modo_saida:'por_video', dividir_cada:0 };
+const RECIPES = [
+  { id:'auto', e:'✨', t:'Automático', d:'identifica o vídeo e escolhe sozinho', r:{} },
+  { id:'tiktok', e:'📱', t:'TikTok / Reels', d:'9:16, sem pausas, ritmo rápido', r:{formato:'9x16', ajuste:'cortar', silencio_min:0.4, margem:0.08, velocidade:1.1} },
+  { id:'vlog', e:'🎥', t:'Tirar pausas', d:'mantém o formato, só corta silêncios', r:{formato:'original'} },
+  { id:'shorts', e:'✂️', t:'Cortes de 60s', d:'9:16, divide em partes de 1 min', r:{formato:'9x16', ajuste:'desfoque', silencio_min:0.5, margem:0.1, dividir_cada:60} },
+  { id:'format', e:'🔲', t:'Só deixar 9:16', d:'não corta nada, só formata', r:{remover_silencio:false, formato:'9x16', ajuste:'desfoque', cortar_inicio:0, cortar_fim:0} },
+  { id:'mine', e:'⭐', t:'Meu jeito', d:'o que você ajustou por último', r:null },
+];
+let R = {...BASE, ...(store.get('waso_r') || {})};
+let recipe = store.get('waso_recipe') || 'auto';
+const FILES = [];   // {id,file,url,name,dur,w,h,thumb,env,audio,speech,iv,state}
+
+function autoRules(){
+  // identifica: vertical com fala -> TikTok; horizontal com fala -> tirar pausas; sem fala -> só formatar
+  const f = FILES.filter(x => x.state === 'ok');
+  if(!f.length) return {...BASE, formato:'9x16', ajuste:'cortar', silencio_min:0.45, margem:0.1};
+  const vertical = f.filter(x => x.h > x.w).length >= f.length/2;
+  const speech = f.some(x => x.audio && x.speech > 0.15);
+  if(!speech) return {...BASE, remover_silencio:false, formato:'9x16', ajuste: vertical?'cortar':'desfoque'};
+  return vertical ? {...BASE, formato:'9x16', ajuste:'cortar', silencio_min:0.45, margem:0.1, velocidade:1.05}
+                  : {...BASE, formato:'original', silencio_min:0.6, margem:0.15};
+}
+function applyRecipe(id, keep){
+  recipe = id; store.set('waso_recipe', id);
+  const rc = RECIPES.find(x => x.id === id);
+  if(id === 'auto') R = autoRules();
+  else if(id !== 'mine' && rc) R = {...BASE, ...rc.r};
+  else if(!keep) R = {...BASE, ...(store.get('waso_mine') || store.get('waso_r') || {})};
+  writeRules(); recompute();
+}
+function drawRecipes(){
+  $('#recipes').innerHTML = RECIPES.map(r => `<button class="rc ${r.id===recipe?'on':''}" data-id="${r.id}"><span class="e">${r.e}</span><b>${r.t}</b><span>${r.id==='auto' ? autoLabel() : r.d}</span></button>`).join('');
+  $('#recipes').querySelectorAll('.rc').forEach(b => b.onclick = () => { applyRecipe(b.dataset.id); drawRecipes(); });
+}
+function autoLabel(){
+  if(!FILES.some(f => f.state === 'ok')) return 'identifica o vídeo e escolhe sozinho';
+  const a = autoRules(); return a.remover_silencio ? (a.formato==='9x16' ? 'detectado: vertical com fala' : 'detectado: horizontal com fala') : 'detectado: vídeo sem fala';
+}
+function writeRules(){
+  document.querySelectorAll('[data-r]').forEach(el => { const v = R[el.dataset.r]; if(el.type==='checkbox') el.checked = !!v; else el.value = v; });
+  document.querySelectorAll('[data-seg]').forEach(s => s.querySelectorAll('button').forEach(b => b.classList.toggle('on', String(R[s.dataset.seg]) === b.dataset.v)));
+  $('#o_limiar_db').textContent = R.limiar_db + ' dB'; $('#o_silencio_min').textContent = (+R.silencio_min).toFixed(2) + ' s';
+  $('#o_margem').textContent = (+R.margem).toFixed(2) + ' s'; $('#o_trecho_min').textContent = (+R.trecho_min).toFixed(2) + ' s';
+  $('#o_velocidade').textContent = (+R.velocidade).toFixed(2) + 'x';
+  store.set('waso_r', R);
+}
+function userChanged(){
+  recipe = 'mine'; store.set('waso_recipe','mine'); store.set('waso_mine', R); drawRecipes(); writeRules(); recompute();
+}
+document.querySelectorAll('[data-r]').forEach(el => el.addEventListener(el.type==='checkbox' ? 'change' : 'input', () => {
+  R[el.dataset.r] = el.type==='checkbox' ? el.checked : (parseFloat(el.value) || 0); userChanged();
+}));
+document.querySelectorAll('[data-seg]').forEach(s => s.querySelectorAll('button').forEach(b => b.onclick = () => {
+  const k = s.dataset.seg; R[k] = (k==='resolucao') ? +b.dataset.v : b.dataset.v; userChanged();
+}));
+
+// ---------------- escolher e identificar vídeos ----------------
+$('#pickBtn').onclick = () => $('#fileIn').click();
+$('#fileIn').onchange = e => { [...e.target.files].forEach(addFile); e.target.value = ''; };
+let uid = 0;
+function addFile(file){
+  const f = { id: ++uid, file, url: URL.createObjectURL(file), name: file.name || ('video_' + uid + '.mp4'), state:'lendo', iv:[] };
+  FILES.push(f); drawVids(); identify(f);
+}
+function once(el, ev, ms){ return new Promise((res, rej) => { const t = ms ? setTimeout(() => rej(new Error('tempo esgotado')), ms) : 0;
+  el.addEventListener(ev, function h(){ clearTimeout(t); el.removeEventListener(ev, h); res(); }); }); }
+async function identify(f){
+  try{
+    const v = document.createElement('video'); v.muted = true; v.playsInline = true; v.preload = 'auto'; v.src = f.url;
+    await Promise.race([once(v,'loadedmetadata'), new Promise((_,j) => v.onerror = () => j(new Error('formato não suportado')))]);
+    f.dur = v.duration; f.w = v.videoWidth; f.h = v.videoHeight;
+    if(!isFinite(f.dur) || !f.w) throw new Error('não consegui ler este vídeo');
+    try{ v.currentTime = Math.min(1, f.dur/3); await once(v,'seeked',6000);
+      const c = document.createElement('canvas'); const sc = 120/Math.max(f.w,f.h); c.width = Math.round(f.w*sc); c.height = Math.round(f.h*sc);
+      c.getContext('2d').drawImage(v, 0, 0, c.width, c.height); f.thumb = c.toDataURL('image/jpeg', .7); }catch(e){}
+    v.removeAttribute('src'); v.load();
+    f.state = 'audio'; drawVids();
+    f.env = await audioEnvelope(f.file);
+    f.audio = !!f.env;
+    if(f.env){ let sp = 0; for(const x of f.env) if(x >= -40) sp++; f.speech = sp / Math.max(1, f.env.length); }
+    f.state = 'ok';
+  }catch(e){ f.state = 'erro'; f.err = e.message; }
+  drawVids(); if(recipe === 'auto') applyRecipe('auto'); else recompute(); drawRecipes();
+}
+async function audioEnvelope(file){
+  if(file.size > 1.6e9) return null; // grande demais para analisar na memória do celular
+  try{
+    const buf = await file.arrayBuffer();
+    const Ctx = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+    const ctx = new Ctx(1, 16000, 16000);
+    const ab = await new Promise((res, rej) => { const p = ctx.decodeAudioData(buf, res, rej); if(p && p.then) p.then(res, rej); });
+    const sr = ab.sampleRate, win = Math.max(1, Math.round(sr * 0.01)), n = Math.floor(ab.length / win);
+    const chs = []; for(let c = 0; c < ab.numberOfChannels; c++) chs.push(ab.getChannelData(c));
+    const env = new Float32Array(n);
+    for(let i = 0; i < n; i++){
+      let sum = 0; const a = i*win, b = a+win;
+      for(const ch of chs) for(let j = a; j < b; j++) sum += ch[j]*ch[j];
+      env[i] = 10 * Math.log10(sum / (win*chs.length) + 1e-12);
+    }
+    return env;
+  }catch(e){ return null; }
+}
+function drawVids(){
+  $('#vids').innerHTML = FILES.map(f => {
+    let tags = '';
+    if(f.state === 'lendo') tags = '<span class="tag">lendo…</span>';
+    else if(f.state === 'erro') tags = `<span class="tag w">⚠ ${esc(f.err)}</span>`;
+    else {
+      tags = `<span class="tag">${fmt(f.dur)}</span><span class="tag">${f.h > f.w ? 'Vertical' : f.h === f.w ? 'Quadrado' : 'Horizontal'} ${f.w}×${f.h}</span>`;
+      if(f.state === 'audio') tags += '<span class="tag">ouvindo o áudio…</span>';
+      else if(!f.audio) tags += '<span class="tag w">sem áudio legível</span>';
+      else tags += `<span class="tag g">${f.speech > 0.15 ? '🎙 com fala' : 'sem fala'}</span>`;
+    }
+    return `<div class="vid">${f.thumb ? `<img src="${f.thumb}" alt="">` : '<div class="ph"></div>'}
+      <div class="info"><div class="nm">${esc(f.name)}</div><div class="tags">${tags}</div></div>
+      <button class="x" data-del="${f.id}" aria-label="Remover">✕</button></div>`;
+  }).join('');
+  $('#vids').querySelectorAll('[data-del]').forEach(b => b.onclick = () => {
+    const i = FILES.findIndex(f => f.id == b.dataset.del); if(i >= 0){ URL.revokeObjectURL(FILES[i].url); FILES.splice(i, 1); }
+    drawVids(); recompute(); drawRecipes();
+  });
+  $('#pickBtn').querySelector('b').textContent = FILES.length ? 'Adicionar mais vídeos' : 'Escolher vídeos';
+}
+
+// ---------------- análise: silêncios -> trechos ----------------
+function silences(env, dur, th, dmin){
+  const out = []; let st = -1;
+  for(let i = 0; i < env.length; i++){
+    if(env[i] < th){ if(st < 0) st = i; }
+    else if(st >= 0){ if((i - st)*0.01 >= dmin) out.push([st*0.01, i*0.01]); st = -1; }
+  }
+  if(st >= 0 && (env.length - st)*0.01 >= dmin) out.push([st*0.01, dur]);
+  return out;
+}
+function buildIntervals(dur, sil, r){
+  const start = Math.max(0, +r.cortar_inicio || 0), end = dur - Math.max(0, +r.cortar_fim || 0);
+  if(end - start < 0.1) return [{s:0, e:dur, keep:false}];
+  const pad = Math.max(0, +r.margem), minSeg = Math.max(0, +r.trecho_min);
+  let keeps = [];
+  if(r.remover_silencio && sil.length){
+    let cur = start;
+    for(const [s0, s1] of sil){
+      let cs = s0 + pad, ce = s1 - pad;
+      if(s0 <= start + 0.01) cs = start;
+      if(s1 >= dur - 0.05) ce = end;
+      if(ce <= cs) continue;
+      if(cs > cur) keeps.push([cur, Math.min(cs, end)]);
+      cur = Math.max(cur, ce); if(cur >= end) break;
+    }
+    if(cur < end) keeps.push([cur, end]);
+  } else keeps = [[start, end]];
+  const merged = [];
+  for(let [s, e] of keeps){ s = Math.max(s, start); e = Math.min(e, end); if(e <= s) continue;
+    if(merged.length && s <= merged[merged.length-1][1] + 0.02) merged[merged.length-1][1] = Math.max(merged[merged.length-1][1], e);
+    else merged.push([s, e]); }
+  const kept = merged.filter(k => k[1] - k[0] >= minSeg);
+  const out = []; let cur = 0;
+  for(const [s, e] of kept){ if(s > cur + 0.001) out.push({s:cur, e:s, keep:false}); out.push({s, e, keep:true}); cur = e; }
+  if(cur < dur - 0.001) out.push({s:cur, e:dur, keep:false});
+  return out;
+}
+function recompute(){
+  for(const f of FILES){
+    if(f.state !== 'ok') continue;
+    const sil = (R.remover_silencio && f.env) ? silences(f.env, f.dur, +R.limiar_db, Math.max(0.05, +R.silencio_min)) : [];
+    f.iv = buildIntervals(f.dur, sil, R);
+  }
+  drawTimelines(); updateBar();
+}
+const keptDur = f => f.iv.filter(i => i.keep).reduce((a, i) => a + i.e - i.s, 0);
+function drawTimelines(){
+  const ok = FILES.filter(f => f.state === 'ok');
+  $('#legend').classList.toggle('hide', !ok.length);
+  if(!ok.length){ $('#tls').innerHTML = `<div class="empty">${FILES.length ? 'Analisando…' : 'Escolha os vídeos para ver o que será cortado.'}</div>`; return; }
+  $('#tls').innerHTML = ok.map(f => { const k = keptDur(f);
+    return `<div class="tl-h"><b>${esc(f.name)}</b><span class="muted">${fmt(f.dur)} → <b style="color:var(--keep)">${fmt(k / R.velocidade)}</b> · <a href="#" data-pv="${f.id}" style="color:var(--acc);font-weight:700;text-decoration:none">▶ Prévia</a></span></div>
+      <div class="tl" data-f="${f.id}">${f.iv.map((iv, j) => `<i class="${iv.keep?'k':'c'}" data-j="${j}" style="left:${iv.s/f.dur*100}%;width:${Math.max(.4,(iv.e-iv.s)/f.dur*100)}%"></i>`).join('')}<div class="head hide"></div></div>`; }).join('');
+  $('#tls').querySelectorAll('.tl i').forEach(el => el.onclick = () => {
+    const f = FILES.find(x => x.id == el.parentElement.dataset.f); const iv = f.iv[+el.dataset.j]; iv.keep = !iv.keep; drawTimelines(); updateBar();
+  });
+  $('#tls').querySelectorAll('[data-pv]').forEach(a => a.onclick = e => { e.preventDefault(); preview(FILES.find(x => x.id == a.dataset.pv)); });
+}
+let PVF = null;
+function preview(f){
+  PVF = f; const v = $('#pv'); v.classList.remove('hide'); v.src = f.url; v.playbackRate = R.velocidade;
+  v.onloadedmetadata = () => { const k = f.iv.find(i => i.keep); if(k) v.currentTime = k.s; v.playbackRate = R.velocidade; v.play().catch(() => {}); };
+  v.scrollIntoView({behavior:'smooth', block:'center'});
+}
+$('#pv').addEventListener('timeupdate', () => {
+  const v = $('#pv'); if(!PVF) return; const t = v.currentTime;
+  const h = document.querySelector(`.tl[data-f="${PVF.id}"] .head`); if(h){ h.classList.remove('hide'); h.style.left = (t / PVF.dur * 100) + '%'; }
+  const cur = PVF.iv.find(i => t >= i.s && t < i.e);
+  if(cur && !cur.keep){ const nx = PVF.iv.find(i => i.keep && i.s >= cur.e - 0.001); if(nx) v.currentTime = nx.s; else v.pause(); }
+});
+function plan(){
+  const ok = FILES.filter(f => f.state === 'ok');
+  const items = f => f.iv.filter(i => i.keep && i.e - i.s > 0.05).map(i => ({f, s:i.s, e:i.e}));
+  let groups = R.modo_saida === 'juntar_tudo' ? [{name:'video_unico', items: ok.flatMap(items)}]
+             : ok.map(f => ({name: f.name.replace(/\.[^.]+$/, '') + '_cortado', items: items(f)}));
+  groups = groups.filter(g => g.items.length);
+  const out = [], max = +R.dividir_cada || 0;
+  for(const g of groups){
+    if(!max){ out.push(g); continue; }
+    const parts = []; let cur = [], acc = 0;
+    for(const it of g.items){ const d = (it.e - it.s) / R.velocidade; if(cur.length && acc + d > max){ parts.push(cur); cur = []; acc = 0; } cur.push(it); acc += d; }
+    if(cur.length) parts.push(cur);
+    parts.forEach((p, i) => out.push({name: g.name + (parts.length > 1 ? `_parte${String(i+1).padStart(2,'0')}` : ''), items:p}));
+  }
+  return out;
+}
+function updateBar(){
+  const ok = FILES.filter(f => f.state === 'ok'); const busy = FILES.some(f => f.state === 'lendo' || f.state === 'audio');
+  const tin = ok.reduce((a, f) => a + f.dur, 0), tout = ok.reduce((a, f) => a + keptDur(f), 0) / R.velocidade;
+  const p = plan();
+  $('#sum').innerHTML = !FILES.length ? '<b>Nenhum vídeo</b>escolha seus vídeos brutos'
+    : busy ? '<b>Identificando…</b>lendo vídeo e áudio'
+    : `<b>${fmt(tin)} → ${fmt(tout)}</b>${p.length} vídeo(s) · corta ${tin ? Math.round((1 - tout*R.velocidade/tin)*100) : 0}%`;
+  const dis = busy || !p.length || RUNNING;
+  $('#genBtn').disabled = dis; $('#genBtn2').disabled = dis;
+}
+
+// ---------------- gerar (grava em tempo real) ----------------
+let RUNNING = false, CANCEL = false, ACTX = null, ADEST = null, RV = null, wakeLock = null;
+const RESULTS = [];
+function pickMime(){
+  const list = ['video/mp4;codecs=avc1.640028,mp4a.40.2', 'video/mp4;codecs=avc1.42E01E,mp4a.40.2', 'video/mp4;codecs=avc1,mp4a', 'video/mp4',
+                'video/webm;codecs=h264,opus', 'video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm'];
+  if(!window.MediaRecorder) return null;
+  return list.find(m => { try{ return MediaRecorder.isTypeSupported(m); }catch(e){ return false; } }) || '';
+}
+const even = x => Math.max(2, Math.round(x/2)*2);
+function outSize(f){
+  const res = +R.resolucao || 1080, A = {'9x16':[9,16], '16x9':[16,9], '1x1':[1,1], '4x5':[4,5]}[R.formato];
+  if(A){ const [aw, ah] = A; return aw <= ah ? [even(res), even(res*ah/aw)] : [even(res*aw/ah), even(res)]; }
+  let w = f.w, h = f.h; const s = Math.min(w, h); if(s > res){ w *= res/s; h *= res/s; } return [even(w), even(h)];
+}
+function ensureAudio(){
+  if(!RV){ RV = document.createElement('video'); RV.playsInline = true; RV.preload = 'auto'; RV.setAttribute('playsinline', ''); }
+  if(!ACTX){ const C = window.AudioContext || window.webkitAudioContext; ACTX = new C(); ADEST = ACTX.createMediaStreamDestination(); ACTX.createMediaElementSource(RV).connect(ADEST); }
+  ACTX.resume();
+}
+async function generate(){
+  if(RUNNING) return;
+  const mime = pickMime();
+  if(mime === null || !HTMLCanvasElement.prototype.captureStream){ alert('Este navegador não consegue gerar vídeo. Use o Chrome (Android/PC) ou Safari atualizado (iPhone).'); return; }
+  const groups = plan(); if(!groups.length) return;
+  ensureAudio();
+  // destrava o player no iPhone (precisa ser dentro do toque)
+  RV.src = groups[0].items[0].f.url; const unlock = RV.play().catch(() => {});
+  RUNNING = true; CANCEL = false; updateBar();
+  await unlock; RV.pause();
+  $('#genBox').classList.add('hide'); $('#progBox').classList.remove('hide');
+  try{ wakeLock = await navigator.wakeLock?.request('screen'); }catch(e){}
+  $('#outCard').scrollIntoView({behavior:'smooth', block:'start'});
+  const total = groups.reduce((a, g) => a + g.items.reduce((b, i) => b + (i.e - i.s), 0), 0); let done = 0;
+  try{
+    for(const [gi, g] of groups.entries()){
+      const blob = await recordGroup(g, mime, (t) => {
+        const p = (done + t) / total;
+        $('#progFill').style.width = (p*100).toFixed(1) + '%';
+        $('#progMsg').textContent = `Gerando ${gi+1}/${groups.length}: ${g.name} · ${Math.round(p*100)}% · falta ~${fmt((total - done - t) / R.velocidade)}`;
+      });
+      done += g.items.reduce((b, i) => b + (i.e - i.s), 0);
+      if(CANCEL) break;
+      const ext = mime.includes('mp4') ? 'mp4' : 'webm';
+      addResult(g.name + '.' + ext, blob, g.items.reduce((b, i) => b + (i.e - i.s), 0) / R.velocidade);
+    }
+  }catch(e){ alert('Erro ao gerar: ' + e.message); }
+  RUNNING = false; try{ wakeLock?.release(); }catch(e){}
+  $('#genBox').classList.remove('hide'); $('#progBox').classList.add('hide'); updateBar();
+}
+$('#cancelBtn').onclick = () => { CANCEL = true; };
+$('#genBtn').onclick = generate; $('#genBtn2').onclick = generate;
+
+function seekTo(v, t){
+  if(Math.abs(v.currentTime - t) < 0.01 && v.readyState >= 2) return Promise.resolve();
+  return new Promise(res => { const tm = setTimeout(res, 8000); v.addEventListener('seeked', () => { clearTimeout(tm); res(); }, {once:true}); v.currentTime = t; });
+}
+async function recordGroup(g, mime, onProg){
+  const v = RV, [W, H] = outSize(g.items[0].f);
+  const cv = document.createElement('canvas'); cv.width = W; cv.height = H; const cx = cv.getContext('2d');
+  const small = document.createElement('canvas'); small.width = Math.max(8, Math.round(W/16)); small.height = Math.max(8, Math.round(H/16)); const sx = small.getContext('2d');
+  const draw = () => {
+    const vw = v.videoWidth, vh = v.videoHeight; if(!vw) return;
+    const cover = Math.max(W/vw, H/vh), contain = Math.min(W/vw, H/vh);
+    if(R.formato === 'original' || R.ajuste === 'cortar'){
+      const s = R.formato === 'original' ? contain : cover; cx.fillStyle = '#000'; cx.fillRect(0, 0, W, H);
+      cx.drawImage(v, (W - vw*s)/2, (H - vh*s)/2, vw*s, vh*s);
+    } else {
+      if(R.ajuste === 'desfoque'){
+        const sw = small.width, sh = small.height, c2 = Math.max(sw/vw, sh/vh);
+        sx.drawImage(v, (sw - vw*c2)/2, (sh - vh*c2)/2, vw*c2, vh*c2);
+        cx.imageSmoothingEnabled = true; cx.imageSmoothingQuality = 'high'; cx.drawImage(small, 0, 0, W, H);
+        cx.fillStyle = 'rgba(0,0,0,.25)'; cx.fillRect(0, 0, W, H);
+      } else { cx.fillStyle = '#000'; cx.fillRect(0, 0, W, H); }
+      cx.drawImage(v, (W - vw*contain)/2, (H - vh*contain)/2, vw*contain, vh*contain);
+    }
+  };
+  const stream = new MediaStream([...cv.captureStream(30).getVideoTracks(), ...ADEST.stream.getAudioTracks()]);
+  const opts = { videoBitsPerSecond: W*H >= 1920*1080*0.9 ? 10e6 : 5e6, audioBitsPerSecond: 160000 }; if(mime) opts.mimeType = mime;
+  const rec = new MediaRecorder(stream, opts); const chunks = [];
+  rec.ondataavailable = e => { if(e.data && e.data.size) chunks.push(e.data); };
+  let started = false, before = 0;
+  for(const it of g.items){
+    if(CANCEL) break;
+    if(v.src !== it.f.url){ v.src = it.f.url; await once(v, 'loadedmetadata', 15000); }
+    await seekTo(v, it.s);
+    draw();
+    if(!started){ rec.start(1000); started = true; } else rec.resume();
+    v.playbackRate = R.velocidade; try{ v.preservesPitch = true; }catch(e){}
+    await v.play();
+    await new Promise(res => {
+      const tick = async () => {
+        if(CANCEL){ v.pause(); return res(); }
+        if(document.hidden){ // celular saiu da tela: pausa tudo e espera voltar
+          v.pause(); rec.pause(); await once(document, 'visibilitychange'); while(document.hidden) await once(document, 'visibilitychange');
+          rec.resume(); await v.play().catch(() => {});
+        }
+        draw(); onProg(before + Math.max(0, v.currentTime - it.s));
+        if(v.currentTime >= it.e - 0.02 || v.ended){ v.pause(); return res(); }
+        requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    });
+    rec.pause(); before += it.e - it.s;
+  }
+  if(!started) return new Blob([]);
+  const stopped = once(rec, 'stop'); rec.state !== 'inactive' && rec.stop(); await stopped;
+  stream.getVideoTracks().forEach(t => t.stop());
+  return new Blob(chunks, {type: (mime || 'video/webm').split(';')[0]});
+}
+
+// ---------------- resultado + conexão com o CapCut ----------------
+const CAPCUT = {
+  android: 'intent://#Intent;scheme=capcut;package=com.lemon.lvoverseas;S.browser_fallback_url=' + encodeURIComponent('https://play.google.com/store/apps/details?id=com.lemon.lvoverseas') + ';end',
+  ios: 'capcut://',
+  pc: 'https://www.capcut.com/'
+};
+function addResult(name, blob, dur){
+  if(!blob.size) return;
+  const url = URL.createObjectURL(blob), file = new File([blob], name, {type: blob.type});
+  RESULTS.unshift({name, url, file, dur}); drawResults();
+}
+function canShare(file){ try{ return !!(navigator.canShare && navigator.canShare({files:[file]})); }catch(e){ return false; } }
+function drawResults(){
+  $('#results').innerHTML = RESULTS.map((r, i) => `<div class="res">
+    <div style="display:flex;justify-content:space-between;gap:8px;margin-bottom:8px"><b style="word-break:break-all">✅ ${esc(r.name)}</b><span class="muted">${fmt(r.dur)} · ${(r.file.size/1e6).toFixed(1)} MB</span></div>
+    <video src="${r.url}" controls playsinline preload="metadata"></video>
+    <div class="acts">
+      ${canShare(r.file) ? `<button class="btn cap wide" data-share="${i}">🚀 Enviar pro CapCut</button>` : ''}
+      <a class="btn ${canShare(r.file) ? '' : 'pri'}" href="${r.url}" download="${esc(r.name)}">⬇️ Salvar</a>
+      <a class="btn" href="${CAPCUT[DEV]}" ${DEV==='pc'?'target="_blank" rel="noopener"':''}>🎬 Abrir CapCut</a>
+    </div></div>`).join('');
+  $('#results').querySelectorAll('[data-share]').forEach(b => b.onclick = async () => {
+    const r = RESULTS[+b.dataset.share];
+    try{ await navigator.share({files:[r.file], title:r.name}); }catch(e){ if(e.name !== 'AbortError') alert('Não deu para compartilhar: ' + e.message + '\nUse "Salvar" e depois abra no CapCut.'); }
+  });
+  $('#howto').open = RESULTS.length > 0 && !store.get('waso_seen_howto'); store.set('waso_seen_howto', true);
+}
+$('#howtoBody').innerHTML = {
+  android: `<ol><li>Toque em <b>🚀 Enviar pro CapCut</b> e escolha <b>CapCut</b> na lista.</li><li>Ou toque em <b>⬇️ Salvar</b> (vai para Downloads/Galeria) e depois em <b>🎬 Abrir CapCut</b> → Novo projeto → escolha o vídeo.</li><li>No CapCut finalize: legendas automáticas, música, efeitos.</li></ol>`,
+  ios: `<ol><li>Toque em <b>🚀 Enviar pro CapCut</b> → escolha <b>CapCut</b> (ou “Salvar Vídeo” para ir à galeria).</li><li>Abra o CapCut → Novo projeto → escolha o vídeo.</li></ol>`,
+  pc: `<ol><li>Clique em <b>⬇️ Salvar</b>.</li><li>Abra o CapCut no PC e arraste o arquivo para a área de mídia.</li><li>Para vídeos longos/4K, use o programa do PC (<code>INICIAR-WINDOWS.bat</code>), que é mais rápido.</li></ol>`
+}[DEV];
+
+// ---------------- início ----------------
+(function init(){
+  if(!window.MediaRecorder) document.querySelector('#genBox .note').insertAdjacentHTML('afterend', '<div class="note w">⚠ Este navegador não grava vídeo. Abra no Chrome (Android/PC) ou Safari atualizado (iPhone).</div>');
+  if(recipe === 'auto') R = autoRules();
+  writeRules(); drawRecipes(); recompute();
+})();
+</script>
+</body>
+</html>

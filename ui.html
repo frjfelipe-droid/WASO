@@ -423,6 +423,12 @@ async function render(){
 
 // ---------- inicio ----------
 (async function init(){
+  if(!/^https?:$/.test(location.protocol)){
+    document.querySelector('main').innerHTML = `<section class="card"><h2>⚠️ Este arquivo precisa do programa rodando no PC</h2>
+      <p>Abra o <b>INICIAR-WINDOWS.bat</b> no computador e use o link que aparece na janela.</p>
+      <p>Quer usar <b>só no celular</b>, sem PC? Abra o arquivo <b>WASO-Celular.html</b>.</p></section>`;
+    return;
+  }
   await refresh();
   RULES = {...STATE.regras_padrao};
   try{ const s = JSON.parse(localStorage.getItem('waso_rules')||'null'); if(s) RULES={...RULES, ...s}; }catch(e){}

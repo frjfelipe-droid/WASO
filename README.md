@@ -7,6 +7,24 @@ Funciona no seu PC (Windows, Mac ou Linux). A interface abre no navegador, e voc
 
 ---
 
+## 📱 Só no celular (sem PC): `WASO-Celular.html`
+
+Um arquivo único, que **não precisa instalar nada** e funciona sem internet:
+
+1. Mande o arquivo `WASO-Celular.html` para o celular (WhatsApp, Drive, e-mail…) e abra no **Chrome** (Android) ou **Safari** (iPhone).
+2. **Escolher vídeos**: ele identifica sozinho se o vídeo é vertical ou horizontal, a duração e se tem fala.
+3. Escolha o que fazer: **Automático**, TikTok/Reels, Tirar pausas, Cortes de 60s, Só deixar 9:16.
+4. Confira os cortes (toque nos trechos para trocar) e toque em **Gerar**.
+5. **🚀 Enviar pro CapCut** (compartilha direto para o app), **⬇️ Salvar** ou **🎬 Abrir CapCut**.
+
+> O celular grava o vídeo em tempo real (1 min de resultado leva ~1 min). Deixe a tela aberta.
+> O botão “Enviar pro CapCut” aparece quando a página é aberta por um link `https` (ex.: GitHub Pages). Aberto como arquivo, use “Salvar” e depois “Abrir CapCut”.
+> Para vídeos longos ou 4K, use o programa do PC abaixo, que é bem mais rápido.
+
+---
+
+## 💻 Programa do PC
+
 ## O que ele faz
 
 | Regra | Para que serve |
