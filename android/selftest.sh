@@ -5,6 +5,11 @@ PKG=com.ana.assistente
 adb install -r -g Ana.apk || exit 1
 adb shell appops set $PKG SYSTEM_ALERT_WINDOW allow
 adb shell dumpsys deviceidle whitelist +$PKG
+adb shell svc power stayon true
+adb shell input keyevent KEYCODE_WAKEUP
+adb shell wm dismiss-keyguard
+adb shell input keyevent 82
+sleep 2
 adb logcat -c
 adb shell am start -n $PKG/.MainActivity --ez selftest true
 for i in $(seq 1 50); do
@@ -22,4 +27,7 @@ if grep -E "FATAL EXCEPTION|Fatal signal|ANR in $PKG" logcat.txt; then
 fi
 grep -q "ANA_SELFTEST_DONE" logcat.txt || { echo "O teste não terminou"; exit 1; }
 adb shell pidof $PKG || { echo "O app não está mais rodando"; exit 1; }
+grep -q "ouvindo a palavra" logcat.txt || { echo "A escuta em segundo plano não começou"; exit 1; }
+grep -q "palavra de ativação ouvida" logcat.txt || { echo "O chamado da Ana não foi processado"; exit 1; }
+grep -q "falando:" logcat.txt || { echo "A Ana não falou"; exit 1; }
 echo "TESTE OK"

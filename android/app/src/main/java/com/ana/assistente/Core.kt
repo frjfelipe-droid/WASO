@@ -116,6 +116,7 @@ object Speaker : TextToSpeech.OnInitListener {
         t.setSpeechRate(rate)
         t.setPitch(pitch)
         speaking = true
+        android.util.Log.i("Ana", "falando: ${text.take(60)} (voz ${v?.name})")
         t.speak(text, TextToSpeech.QUEUE_FLUSH, Bundle(), "ana-" + System.currentTimeMillis())
     }
 
