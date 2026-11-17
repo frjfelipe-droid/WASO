@@ -12,6 +12,11 @@ adb shell input keyevent 82
 sleep 2
 adb logcat -c
 adb shell am start -n $PKG/.MainActivity --ez selftest true
+sleep 9
+adb shell dumpsys power | grep -iE "mWakefulness=|Display Power"
+adb shell dumpsys window | grep -iE "mCurrentFocus|KeyguardShowing|mDreamingLockscreen" | head
+adb shell dumpsys activity activities | grep -iE "ResumedActivity|topResumed" | head
+adb shell screencap -p /sdcard/tela.png && adb pull /sdcard/tela.png tela.png
 for i in $(seq 1 50); do
   sleep 3
   if adb logcat -d | grep -q "ANA_SELFTEST_DONE"; then break; fi

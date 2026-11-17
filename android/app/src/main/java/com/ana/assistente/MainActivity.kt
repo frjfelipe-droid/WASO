@@ -236,6 +236,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun enableWake() {
+        val st = android.app.ActivityManager.RunningAppProcessInfo().also { android.app.ActivityManager.getMyMemoryState(it) }
+        android.util.Log.i("Ana", "ligando escuta: visivel=$visible importancia=${st.importance} foco=${hasWindowFocus()}")
         Prefs.of(this).edit().putBoolean("wake", true).apply()
         WakeWordService.send(this, WakeWordService.ACTION_START)
         // para abrir sozinha quando você chamar (mesmo com outro app aberto ou a tela desligada)
