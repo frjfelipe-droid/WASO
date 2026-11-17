@@ -212,11 +212,11 @@ class MainActivity : AppCompatActivity() {
         val steps = listOf<Pair<Long, () -> Unit>>(
             1000L to { js("S.userName='Teste'; S.calSync=true; save(); anaHeard('marca dentista amanhã às 15h')") },
             4000L to { js("anaHeard('o que eu tenho amanhã?')") },
-            7000L to { js("anaHeard('manda mensagem pra Maria dizendo que já chego')") },
             9000L to { js("go('settings')"); js("AnaNative.voices(); AnaNative.perms(); refreshPhone(); renderAll();") },
             10000L to { enableWake() },
             18000L to { WakeWordService.send(this, WakeWordService.ACTION_TEST) },
             24000L to { startListening() },
+            29000L to { js("anaHeard('manda mensagem pra Maria dizendo que já chego')") },
             32000L to {
                 AlarmScheduler.sync(this, JSONArray().put(JSONObject().put("id", "selftest").put("at", System.currentTimeMillis() + 6000)
                     .put("title", "Ana · teste").put("body", "Lembrete de teste")).toString())
