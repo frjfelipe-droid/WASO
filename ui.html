@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WASO Cortador</title>
+<style>
+:root{
+  --bg:#f4f5f7; --card:#ffffff; --ink:#15171c; --muted:#646b78; --line:#e2e5ea;
+  --acc:#0f9d76; --acc-ink:#fff; --warn:#c2410c; --keep:#16a34a; --cut:#e5484d; --chip:#eef1f4;
+  --radius:14px;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#0f1115; --card:#181b21; --ink:#e9ecf1; --muted:#9aa2af; --line:#2a2f38;
+    --acc:#22c08f; --acc-ink:#06130e; --warn:#fb923c; --keep:#22c55e; --cut:#f0656a; --chip:#232831; }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{padding:18px 16px 8px;max-width:1100px;margin:0 auto;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+h1{font-size:20px;margin:0;letter-spacing:-.01em}
+h1 small{font-weight:500;color:var(--muted);font-size:13px;margin-left:6px}
+h2{font-size:16px;margin:0 0 12px;display:flex;align-items:center;gap:8px}
+h2 .n{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--acc);color:var(--acc-ink);font-size:13px}
+main{max-width:1100px;margin:0 auto;padding:0 16px 60px;display:grid;gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
+label.f b{color:var(--ink);font-weight:600;font-size:14px}
+input[type=text],input[type=number],select{width:100%;padding:9px 10px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit}
+input[type=range]{width:100%;accent-color:var(--acc)}
+.chk{display:flex;gap:8px;align-items:flex-start;font-size:14px;cursor:pointer}
+.chk input{margin-top:3px;accent-color:var(--acc);width:17px;height:17px}
+button{font:inherit;border:1px solid var(--line);background:var(--chip);color:var(--ink);padding:9px 14px;border-radius:10px;cursor:pointer}
+button:hover{filter:brightness(1.05)}
+button.pri{background:var(--acc);color:var(--acc-ink);border-color:transparent;font-weight:650}
+button.big{padding:12px 20px;font-size:16px}
+button:disabled{opacity:.5;cursor:not-allowed}
+.muted{color:var(--muted);font-size:13px}
+.pill{font-size:12px;padding:3px 9px;border-radius:99px;background:var(--chip);color:var(--muted)}
+.pill.ok{color:var(--keep)} .pill.bad{color:var(--cut)}
+.vlist{display:grid;gap:6px;margin-top:10px;max-height:320px;overflow:auto}
+.vitem{display:flex;gap:10px;align-items:center;padding:8px 10px;border:1px solid var(--line);border-radius:10px}
+.vitem .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.seg-title{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;margin:14px 0 6px;font-size:14px}
+.timeline{position:relative;height:34px;border-radius:8px;overflow:hidden;background:var(--chip);cursor:pointer}
+.timeline div{position:absolute;top:0;bottom:0}
+.timeline .k{background:var(--keep)} .timeline .c{background:var(--cut);opacity:.35}
+.timeline div:hover{outline:2px solid var(--ink);z-index:2}
+.timeline .ph{background:var(--ink);width:2px;pointer-events:none;z-index:3}
+video{width:100%;max-height:420px;background:#000;border-radius:10px}
+.prog{height:12px;background:var(--chip);border-radius:99px;overflow:hidden}
+.prog>div{height:100%;width:0;background:var(--acc);transition:width .3s}
+.results a{color:var(--acc);font-weight:600;text-decoration:none}
+.res{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;padding:9px 10px;border:1px solid var(--line);border-radius:10px;margin-top:6px}
+.res .nm{word-break:break-all}
+details summary{cursor:pointer;font-weight:600}
+.tip{background:var(--chip);border-radius:10px;padding:12px;font-size:14px}
+.tip ol{margin:6px 0 0;padding-left:20px}
+.err{color:var(--cut);white-space:pre-wrap;font-size:13px}
+.hide{display:none!important}
+.legend{display:flex;gap:12px;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px;vertical-align:-1px}
+@media (max-width:600px){ .grid{grid-template-columns:1fr} button.big{width:100%} .vitem{flex-wrap:wrap} .vitem .nm{flex:1 1 70%} .vitem>.muted{width:100%;padding-left:28px} }
+</style>
+</head>
+<body>
+<header>
+  <h1>✂️ WASO Cortador <small>automático para CapCut</small></h1>
+  <div class="row"><span id="ffmpegPill" class="pill">verificando FFmpeg…</span></div>
+</header>
+<main>
+
+<section class="card hide" id="phoneCard">
+  <div class="row" style="justify-content:space-between">
+    <div><b>📱 Abrir no celular</b> <span class="muted">(mesmo Wi-Fi do PC)</span><br>
+      <code id="phoneLink" style="word-break:break-all"></code></div>
+    <button onclick="copy(phoneLink.textContent)">Copiar link</button>
+  </div>
+</section>
+
+<!-- 1. VIDEOS -->
+<section class="card">
+  <h2><span class="n">1</span>Vídeos brutos</h2>
+  <div class="row" id="folderRow">
+    <input type="text" id="inDir" style="flex:1;min-width:200px" placeholder="Pasta dos vídeos brutos">
+    <button onclick="saveFolders()">Usar pasta</button>
+    <button onclick="openFolder('entrada')">Abrir pasta</button>
+  </div>
+  <div class="row" style="margin-top:8px">
+    <label class="pri" style="display:inline-block">
+      <input type="file" id="upl" accept="video/*" multiple class="hide" onchange="upload(this.files)">
+      <span class="pill" style="cursor:pointer;padding:9px 14px;font-size:14px;color:var(--ink)" onclick="upl.click()">⬆️ Enviar vídeos (do celular ou PC)</span>
+    </label>
+    <button onclick="refresh()">🔄 Atualizar lista</button>
+    <span class="muted" id="uplMsg"></span>
+  </div>
+  <div class="row" style="margin-top:10px;justify-content:space-between">
+    <label class="chk"><input type="checkbox" id="allChk" onchange="toggleAll(this.checked)"> Selecionar todos</label>
+    <span class="muted" id="selInfo"></span>
+  </div>
+  <div class="vlist" id="vlist"><span class="muted">Carregando…</span></div>
+</section>
+
+<!-- 2. REGRAS -->
+<section class="card">
+  <h2><span class="n">2</span>O que fazer (regras)</h2>
+  <div class="row" style="margin-bottom:12px">
+    <select id="recipeSel" style="flex:1;min-width:200px" onchange="applyRecipe(this.value)"></select>
+    <button onclick="saveRecipe()">💾 Salvar como receita</button>
+    <button onclick="deleteRecipe()" title="Apagar receita selecionada">🗑️</button>
+  </div>
+
+  <div class="grid">
+    <div>
+      <label class="chk"><input type="checkbox" data-r="remover_silencio"> <span><b>Remover silêncios / pausas</b><br><span class="muted">corta as partes sem fala (jump cut)</span></span></label>
+    </div>
+    <label class="f"><b>Sensibilidade do silêncio: <span id="v_limiar_db"></span> dB</b>
+      <input type="range" min="-60" max="-15" step="1" data-r="limiar_db">
+      <span>mais à esquerda = só corta silêncio total; à direita = corta também ruído baixo</span></label>
+    <label class="f"><b>Pausa mínima para cortar: <span id="v_silencio_min"></span> s</b>
+      <input type="range" min="0.2" max="3" step="0.05" data-r="silencio_min"></label>
+    <label class="f"><b>Respiro mantido na fala: <span id="v_margem"></span> s</b>
+      <input type="range" min="0" max="0.6" step="0.01" data-r="margem"></label>
+    <label class="f"><b>Descartar trechos menores que: <span id="v_trecho_min"></span> s</b>
+      <input type="range" min="0" max="2" step="0.05" data-r="trecho_min">
+      <span>remove "estalos", tosses e ruídos curtos</span></label>
+    <label class="f"><b>Cortar do início (s)</b><input type="number" min="0" step="0.5" data-r="cortar_inicio"></label>
+    <label class="f"><b>Cortar do final (s)</b><input type="number" min="0" step="0.5" data-r="cortar_fim"></label>
+    <label class="f"><b>Velocidade: <span id="v_velocidade"></span>x</b>
+      <input type="range" min="0.5" max="2" step="0.05" data-r="velocidade"></label>
+  </div>
+
+  <h2 style="margin-top:18px;font-size:15px">Formato para o CapCut</h2>
+  <div class="grid">
+    <label class="f"><b>Vou editar no</b>
+      <select data-r="destino">
+        <option value="celular">CapCut no celular (arquivo leve)</option>
+        <option value="pc">CapCut no PC (qualidade máxima)</option>
+      </select></label>
+    <label class="f"><b>Formato da tela</b>
+      <select data-r="formato">
+        <option value="original">Original (não muda)</option>
+        <option value="9x16">9:16 vertical (TikTok, Reels, Shorts)</option>
+        <option value="16x9">16:9 horizontal (YouTube)</option>
+        <option value="1x1">1:1 quadrado</option>
+        <option value="4x5">4:5 (feed Instagram)</option>
+      </select></label>
+    <label class="f"><b>Como encaixar</b>
+      <select data-r="ajuste">
+        <option value="desfoque">Fundo desfocado</option>
+        <option value="cortar">Cortar/zoom (preenche a tela)</option>
+        <option value="barras">Barras pretas</option>
+      </select></label>
+    <label class="f"><b>Resolução</b>
+      <select data-r="resolucao">
+        <option value="720">720p</option><option value="1080">1080p</option>
+        <option value="1440">2K (1440p)</option><option value="2160">4K (2160p)</option>
+      </select></label>
+    <label class="f"><b>Quadros por segundo</b>
+      <select data-r="fps"><option>24</option><option>25</option><option>30</option><option>50</option><option>60</option></select></label>
+    <div><label class="chk"><input type="checkbox" data-r="normalizar_audio"> <span><b>Igualar volume</b><br><span class="muted">padrão de redes sociais (-14 LUFS)</span></span></label></div>
+  </div>
+
+  <h2 style="margin-top:18px;font-size:15px">Saída</h2>
+  <div class="grid">
+    <label class="f"><b>Resultado</b>
+      <select data-r="modo_saida">
+        <option value="por_video">Um vídeo cortado para cada bruto</option>
+        <option value="juntar_tudo">Juntar todos em um vídeo só</option>
+      </select></label>
+    <label class="f"><b>Dividir em partes de até (s)</b><input type="number" min="0" step="5" data-r="dividir_cada">
+      <span>0 = não dividir. Ex.: 60 para Shorts. Divide só nas pausas.</span></label>
+    <div><label class="chk"><input type="checkbox" data-r="exportar_clipes"> <span><b>Salvar cada trecho separado</b><br><span class="muted">clip_001, clip_002… para montar na timeline do CapCut</span></span></label></div>
+    <label class="f"><b>Prefixo do nome (opcional)</b><input type="text" data-r="prefixo" placeholder="ex.: ep12_"></label>
+  </div>
+</section>
+
+<!-- 3. ANALISAR -->
+<section class="card">
+  <h2><span class="n">3</span>Analisar e conferir</h2>
+  <div class="row">
+    <button class="big" id="btnAnalyze" onclick="analyze()">🔍 Analisar vídeos selecionados</button>
+    <span class="muted">Opcional: mostra o que será cortado. Você pode clicar nos trechos para manter/remover.</span>
+  </div>
+  <div id="anaProg" class="hide" style="margin-top:12px"><div class="prog"><div></div></div><div class="muted" id="anaMsg"></div></div>
+  <div id="anaOut"></div>
+  <div id="previewBox" class="hide" style="margin-top:14px">
+    <div class="row" style="justify-content:space-between;margin-bottom:6px"><b id="pvTitle"></b>
+      <label class="chk"><input type="checkbox" id="pvSkip" checked> Pular partes cortadas (prévia do resultado)</label></div>
+    <video id="pv" controls playsinline preload="metadata"></video>
+  </div>
+</section>
+
+<!-- 4. CORTAR -->
+<section class="card">
+  <h2><span class="n">4</span>Cortar e exportar</h2>
+  <div class="row">
+    <button class="big pri" id="btnRender" onclick="render()">✂️ Cortar automaticamente</button>
+    <button id="btnCancel" class="hide" onclick="cancelJob()">Cancelar</button>
+    <button onclick="openFolder('saida')" id="btnOutFolder">📂 Abrir pasta de saída</button>
+  </div>
+  <div class="row" id="outRow" style="margin-top:8px">
+    <input type="text" id="outDir" style="flex:1;min-width:200px" placeholder="Pasta de saída">
+    <button onclick="saveFolders()">Usar pasta</button>
+  </div>
+  <div id="renProg" class="hide" style="margin-top:12px"><div class="prog"><div></div></div><div class="muted" id="renMsg"></div></div>
+  <div id="renErr" class="err"></div>
+  <div class="results" id="results"></div>
+
+  <details style="margin-top:14px">
+    <summary>Como levar para o CapCut</summary>
+    <div class="tip" style="margin-top:8px">
+      <b>CapCut PC:</b>
+      <ol><li>Clique em “Abrir pasta de saída”.</li>
+        <li>Arraste o vídeo <code>_cortado.mp4</code> (ou a pasta <code>_clipes</code>) para a área de mídia do CapCut.</li>
+        <li>Coloque na timeline e finalize: legendas automáticas, música, efeitos.</li></ol>
+      <b style="display:block;margin-top:10px">CapCut celular:</b>
+      <ol><li>Inicie o programa com <code>INICIAR-COM-CELULAR</code> no PC.</li>
+        <li>Abra o link do celular mostrado no topo (mesmo Wi-Fi).</li>
+        <li>Toque em “Baixar” no resultado; o vídeo vai para a galeria/arquivos.</li>
+        <li>No CapCut: Novo projeto → escolha o vídeo baixado.</li></ol>
+      <span class="muted">Os arquivos saem em MP4 (H.264 + AAC, quadros constantes), o formato que o CapCut abre sem converter.</span>
+    </div>
+  </details>
+</section>
+</main>
+
+<script>
+const $ = s => document.querySelector(s);
+let STATE = null, RULES = {}, RECIPES = {prontas:{}, minhas:{}}, ANALYSES = {}, JOB = null;
+const sel = new Set();
+
+function fmt(sec){ if(sec==null) return "—"; sec=Math.max(0,Math.round(sec)); const h=Math.floor(sec/3600), m=Math.floor(sec%3600/60), s=sec%60;
+  return h? `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}` : `${m}:${String(s).padStart(2,'0')}`; }
+function mb(b){ return b>1e9? (b/1e9).toFixed(2)+' GB' : (b/1e6).toFixed(1)+' MB'; }
+function esc(s){ return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function enc(p){ return p.split('/').map(encodeURIComponent).join('/'); }
+async function api(path, body){
+  const r = await fetch(path, body===undefined? {} : {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
+  const j = await r.json(); if(!r.ok) throw new Error(j.erro||('Erro '+r.status)); return j;
+}
+function copy(t){ navigator.clipboard?.writeText(t); }
+
+// ---------- estado ----------
+async function refresh(){
+  STATE = await api('/api/estado');
+  const p = $('#ffmpegPill');
+  if(STATE.ffmpeg){ p.textContent='FFmpeg OK'; p.className='pill ok'; }
+  else { p.textContent='FFmpeg não encontrado — veja o README'; p.className='pill bad'; }
+  $('#inDir').value = STATE.entrada; $('#outDir').value = STATE.saida;
+  if(!STATE.local){ $('#folderRow').classList.add('hide'); $('#outRow').classList.add('hide'); $('#btnOutFolder').classList.add('hide'); }
+  if(STATE.link_celular && STATE.local){ $('#phoneCard').classList.remove('hide'); $('#phoneLink').textContent = STATE.link_celular; }
+  renderVideos(); renderOutputs();
+}
+function renderVideos(){
+  const box = $('#vlist');
+  const names = new Set(STATE.videos.map(v=>v.nome));
+  [...sel].forEach(n=>{ if(!names.has(n)) sel.delete(n); });
+  if(!STATE.videos.length){ box.innerHTML = `<div class="muted">Nenhum vídeo na pasta. Coloque seus vídeos brutos em:<br><code>${esc(STATE.entrada)}</code><br>ou use “Enviar vídeos”.</div>`; updSel(); return; }
+  box.innerHTML = STATE.videos.map((v,i)=>`
+    <label class="vitem">
+      <input type="checkbox" data-v="${esc(v.nome)}" ${sel.has(v.nome)?'checked':''} ${v.erro?'disabled':''} style="width:18px;height:18px;accent-color:var(--acc)">
+      <span class="nm" title="${esc(v.nome)}">${esc(v.nome)}</span>
+      <span class="muted">${v.erro? '<span class="err">ilegível</span>' : `${fmt(v.duracao)} · ${v.largura}x${v.altura} · ${mb(v.tamanho)}${v.audio?'':' · sem áudio'}`}</span>
+    </label>`).join('');
+  box.querySelectorAll('input[data-v]').forEach(c=>c.onchange=()=>{ c.checked? sel.add(c.dataset.v) : sel.delete(c.dataset.v); updSel(); });
+  updSel();
+}
+function toggleAll(on){ STATE.videos.forEach(v=>{ if(!v.erro) on? sel.add(v.nome) : sel.delete(v.nome); }); renderVideos(); }
+function updSel(){
+  const tot = STATE.videos.filter(v=>sel.has(v.nome)).reduce((a,v)=>a+(v.duracao||0),0);
+  $('#selInfo').textContent = sel.size? `${sel.size} selecionado(s) · ${fmt(tot)} de vídeo bruto` : 'Nenhum selecionado';
+  $('#allChk').checked = sel.size && sel.size === STATE.videos.filter(v=>!v.erro).length;
+}
+function renderOutputs(){
+  const box = $('#results');
+  if(!STATE.resultados.length){ box.innerHTML=''; return; }
+  box.innerHTML = `<div class="muted" style="margin-top:14px">Arquivos na pasta de saída:</div>` + STATE.resultados.slice(0,40).map(r=>`
+    <div class="res"><span class="nm">🎬 ${esc(r.nome)} <span class="muted">· ${mb(r.tamanho)}</span></span>
+      <span class="row"><a href="/media/out/${enc(r.nome)}" target="_blank">Assistir</a>
+      <a href="/media/out/${enc(r.nome)}?dl=1" download>Baixar</a></span></div>`).join('');
+}
+
+// ---------- pastas / upload ----------
+async function saveFolders(){
+  try{ await api('/api/pastas', {entrada:$('#inDir').value, saida:$('#outDir').value}); ANALYSES={}; $('#anaOut').innerHTML=''; await refresh(); }
+  catch(e){ alert(e.message); }
+}
+async function openFolder(q){ try{ await api('/api/abrir_pasta',{qual:q}); }catch(e){ alert(e.message); } }
+async function upload(files){
+  const msg = $('#uplMsg');
+  for(const [i,f] of [...files].entries()){
+    await new Promise((res)=>{
+      const x = new XMLHttpRequest(); x.open('POST','/api/upload');
+      x.setRequestHeader('X-Filename', encodeURIComponent(f.name));
+      x.upload.onprogress = e=>{ msg.textContent = `Enviando ${i+1}/${files.length}: ${f.name} ${Math.round(e.loaded/e.total*100)}%`; };
+      x.onload = x.onerror = ()=>res(); x.send(f);
+    });
+    sel.add(f.name.replace(/[^\p{L}\p{N}_\-. ]+/gu,'_'));
+  }
+  msg.textContent = 'Envio concluído.'; $('#upl').value=''; refresh();
+}
+
+// ---------- regras ----------
+function bindRules(){
+  document.querySelectorAll('[data-r]').forEach(el=>{
+    const k = el.dataset.r;
+    const ev = (el.type==='range'||el.type==='text'||el.type==='number')? 'input':'change';
+    el.addEventListener(ev, ()=>{
+      let v = el.type==='checkbox'? el.checked : el.value;
+      if(el.type==='range'||el.type==='number'||k==='resolucao'||k==='fps') v = parseFloat(v)||0;
+      RULES[k]=v; showVals();
+      if(k==='destino'){ if(v==='pc'){ RULES.resolucao=Math.max(RULES.resolucao,1080); } else if(RULES.resolucao>1080){ RULES.resolucao=1080; } writeRules(); }
+      if(['remover_silencio','limiar_db','silencio_min','margem','trecho_min','cortar_inicio','cortar_fim'].includes(k) && Object.keys(ANALYSES).length){
+        $('#anaOut').insertAdjacentHTML('afterbegin', ''); markStale(); }
+    });
+  });
+}
+function markStale(){ const s=$('#staleMsg'); if(!s && $('#anaOut').innerHTML) $('#anaOut').insertAdjacentHTML('afterbegin','<div id="staleMsg" class="err" style="margin-top:10px">As regras mudaram — clique em “Analisar” de novo para atualizar (ou corte direto, que ele reanalisa).</div>'); }
+function writeRules(){
+  document.querySelectorAll('[data-r]').forEach(el=>{
+    const v = RULES[el.dataset.r]; if(v===undefined) return;
+    if(el.type==='checkbox') el.checked=!!v; else el.value=v;
+  }); showVals();
+}
+function showVals(){ ['limiar_db','silencio_min','margem','trecho_min','velocidade'].forEach(k=>{ const e=$('#v_'+k); if(e) e.textContent=RULES[k]; }); }
+async function loadRecipes(selectName){
+  RECIPES = await api('/api/receitas');
+  const s = $('#recipeSel');
+  s.innerHTML = '<option value="">— Escolha uma receita pronta —</option>' +
+    '<optgroup label="Prontas">' + Object.keys(RECIPES.prontas).map(n=>`<option value="p:${esc(n)}">${esc(n)}</option>`).join('') + '</optgroup>' +
+    (Object.keys(RECIPES.minhas).length? '<optgroup label="Minhas receitas">' + Object.keys(RECIPES.minhas).map(n=>`<option value="m:${esc(n)}">${esc(n)}</option>`).join('') + '</optgroup>' : '');
+  if(selectName) s.value = selectName;
+}
+function applyRecipe(v){
+  if(!v) return; const r = v.startsWith('p:')? RECIPES.prontas[v.slice(2)] : RECIPES.minhas[v.slice(2)];
+  if(r){ RULES = {...STATE.regras_padrao, ...r}; writeRules(); markStale(); try{ localStorage.setItem('waso_rules', JSON.stringify(RULES)); }catch(e){} }
+}
+async function saveRecipe(){
+  const cur = $('#recipeSel').value; const def = cur.startsWith('m:')? cur.slice(2) : '';
+  const n = prompt('Nome da receita:', def); if(!n) return;
+  try{ await api('/api/receitas', {nome:n, regras:RULES}); await loadRecipes('m:'+n); }catch(e){ alert(e.message); }
+}
+async function deleteRecipe(){
+  const cur = $('#recipeSel').value; if(!cur.startsWith('m:')) return alert('Selecione uma das suas receitas para apagar.');
+  if(!confirm('Apagar a receita "'+cur.slice(2)+'"?')) return;
+  await api('/api/receitas', {nome:cur.slice(2), apagar:true}); loadRecipes();
+}
+
+// ---------- jobs ----------
+async function poll(id, progBox, msgEl){
+  progBox.classList.remove('hide');
+  while(true){
+    const j = await api('/api/job/'+id); JOB=j;
+    progBox.querySelector('.prog>div').style.width = (j.progresso*100).toFixed(1)+'%';
+    msgEl.textContent = `${j.msg} · ${Math.round(j.progresso*100)}% · ${fmt(j.tempo)}`;
+    if(j.status!=='rodando'){ JOB=null; return j; }
+    await new Promise(r=>setTimeout(r, 700));
+  }
+}
+async function cancelJob(){ if(JOB) await api('/api/cancelar/'+JOB.id, {}); }
+function selected(){ const order = STATE.videos.map(v=>v.nome); return order.filter(n=>sel.has(n)); }
+
+// ---------- analise ----------
+async function analyze(){
+  const files = selected(); if(!files.length) return alert('Selecione pelo menos um vídeo.');
+  $('#btnAnalyze').disabled = true; $('#anaOut').innerHTML='';
+  try{
+    const j0 = await api('/api/analisar', {arquivos:files, regras:RULES});
+    const j = await poll(j0.id, $('#anaProg'), $('#anaMsg'));
+    if(j.status==='erro') throw new Error(j.erro);
+    if(j.resultados){ ANALYSES = j.resultados; drawAnalyses(); }
+  }catch(e){ $('#anaOut').innerHTML = `<div class="err">${esc(e.message)}</div>`; }
+  $('#btnAnalyze').disabled = false;
+}
+function drawAnalyses(){
+  const out = $('#anaOut'); let totIn=0, totOut=0;
+  out.innerHTML = Object.entries(ANALYSES).map(([name,a],idx)=>{
+    const d = a.info.duracao||1; totIn+=d; const kept=a.intervalos.filter(i=>i.keep).reduce((s,i)=>s+i.e-i.s,0); totOut+=kept;
+    return `<div class="seg-title"><b>${esc(name)}</b><span class="muted">${fmt(d)} → <b style="color:var(--keep)">${fmt(kept/(RULES.velocidade||1))}</b> · corta ${Math.round((1-kept/d)*100)}% · ${a.intervalos.filter(i=>i.keep).length} trechos · <a href="#" onclick="preview(${idx});return false" style="color:var(--acc)">▶ Prévia</a></span></div>
+      <div class="timeline" data-i="${idx}">${a.intervalos.map((iv,j)=>`<div class="${iv.keep?'k':'c'}" data-j="${j}" title="${iv.keep?'MANTER':'CORTAR'} ${iv.s.toFixed(1)}s–${iv.e.toFixed(1)}s (clique para trocar)" style="left:${iv.s/d*100}%;width:${Math.max(.15,(iv.e-iv.s)/d*100)}%"></div>`).join('')}<div class="ph hide"></div></div>`;
+  }).join('') + `<div class="row" style="margin-top:12px;justify-content:space-between"><span class="legend"><span><i style="background:var(--keep)"></i>mantém</span><span><i style="background:var(--cut);opacity:.5"></i>corta</span></span>
+    <span><b>Total:</b> ${fmt(totIn)} → <b style="color:var(--keep)">${fmt(totOut/(RULES.velocidade||1))}</b></span></div>`;
+  out.querySelectorAll('.timeline div[data-j]').forEach(el=>el.onclick=(e)=>{
+    e.stopPropagation(); const i=+el.parentElement.dataset.i, j=+el.dataset.j; const name=Object.keys(ANALYSES)[i];
+    const iv = ANALYSES[name].intervalos[j]; iv.keep=!iv.keep; drawAnalyses();
+  });
+}
+let PV = null;
+function preview(idx){
+  const name = Object.keys(ANALYSES)[idx]; PV = {name, idx};
+  $('#previewBox').classList.remove('hide'); $('#pvTitle').textContent = name;
+  const v = $('#pv'); v.src = '/media/in/'+encodeURIComponent(name);
+  const first = ANALYSES[name].intervalos.find(i=>i.keep); v.onloadedmetadata = ()=>{ if(first) v.currentTime=first.s; v.play().catch(()=>{}); };
+  v.playbackRate = RULES.velocidade||1;
+  $('#previewBox').scrollIntoView({behavior:'smooth', block:'center'});
+}
+$('#pv').addEventListener('timeupdate', ()=>{
+  if(!PV) return; const v=$('#pv'), t=v.currentTime, ivs=ANALYSES[PV.name]?.intervalos; if(!ivs) return;
+  const tl = document.querySelector(`.timeline[data-i="${PV.idx}"] .ph`); if(tl){ tl.classList.remove('hide'); tl.style.left=(t/(ANALYSES[PV.name].info.duracao||1)*100)+'%'; }
+  if(!$('#pvSkip').checked) return;
+  const cur = ivs.find(i=>t>=i.s && t<i.e);
+  if(cur && !cur.keep){ const nx = ivs.find(i=>i.keep && i.s>=cur.e-0.001); if(nx) v.currentTime = nx.s; else v.pause(); }
+});
+
+// ---------- render ----------
+async function render(){
+  const files = selected(); if(!files.length) return alert('Selecione pelo menos um vídeo.');
+  const an = {}; if(!document.getElementById('staleMsg')) files.forEach(f=>{ if(ANALYSES[f]) an[f]=ANALYSES[f]; });
+  $('#btnRender').disabled = true; $('#btnCancel').classList.remove('hide'); $('#renErr').textContent='';
+  try{
+    const j0 = await api('/api/renderizar', {arquivos:files, regras:RULES, analises:an});
+    const j = await poll(j0.id, $('#renProg'), $('#renMsg'));
+    if(j.status==='erro') $('#renErr').textContent = j.erro;
+    await refresh();
+    if(j.status==='concluido' && j.resultados){
+      $('#results').insertAdjacentHTML('afterbegin', `<div class="tip" style="margin-top:12px">✅ <b>Pronto!</b> ${j.resultados.filter(r=>!r.pasta).map(r=>`${esc(r.arquivo)} (${fmt(r.duracao)})`).join(', ')}</div>`);
+    }
+  }catch(e){ $('#renErr').textContent = e.message; }
+  $('#btnRender').disabled = false; $('#btnCancel').classList.add('hide');
+}
+
+// ---------- inicio ----------
+(async function init(){
+  await refresh();
+  RULES = {...STATE.regras_padrao};
+  try{ const s = JSON.parse(localStorage.getItem('waso_rules')||'null'); if(s) RULES={...RULES, ...s}; }catch(e){}
+  writeRules(); bindRules(); await loadRecipes();
+  window.addEventListener('beforeunload', ()=>{ try{ localStorage.setItem('waso_rules', JSON.stringify(RULES)); }catch(e){} });
+  setInterval(()=>{ try{ localStorage.setItem('waso_rules', JSON.stringify(RULES)); }catch(e){} }, 3000);
+})();
+</script>
+</body>
+</html>

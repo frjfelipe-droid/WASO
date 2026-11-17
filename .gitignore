@@ -1,0 +1,9 @@
+entrada/*
+!entrada/.gitkeep
+saida/*
+!saida/.gitkeep
+config.json
+receitas.json
+ffmpeg/
+__pycache__/
+*.pyc
