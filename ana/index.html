@@ -134,6 +134,9 @@ label.f{display:block;font-size:13px;color:var(--muted);margin:10px 0 4px}
 .in:focus{border-color:var(--ink)}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.two>*,.three>*{min-width:0}
+.in{min-width:0;max-width:100%}
+input[type=time].in{padding:12px 8px}
 .sw{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0}
 .sw span{font-size:15px}.sw small{display:block;color:var(--muted);font-size:12px}
 .tog{appearance:none;width:50px;height:30px;border-radius:99px;background:var(--line);position:relative;flex:none;transition:.2s;margin:0}
@@ -171,6 +174,12 @@ label.f{display:block;font-size:13px;color:var(--muted);margin:10px 0 4px}
 @keyframes eq{50%{transform:scaleY(.35)}}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:110px;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:14px;font-size:14px;z-index:60;opacity:0;transition:.3s;pointer-events:none;max-width:calc(100% - 32px)}
 .toast.on{opacity:1}
+.native .only-web{display:none!important}
+html:not(.native) .only-native{display:none!important}
+.perm{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}
+.perm:last-child{border-bottom:0}
+.perm span{font-size:15px}.perm small{display:block;color:var(--muted);font-size:12px}
+.perm .ok{color:#1F9D55;font-weight:600;font-size:14px}
 </style>
 </head>
 <body>
@@ -263,9 +272,16 @@ label.f{display:block;font-size:13px;color:var(--muted);margin:10px 0 4px}
       <div class="btns"><button class="btn ghost" id="testVoice">Testar voz</button></div>
     </div>
 
+    <div class="card only-native">
+      <h3>Permissões do celular</h3>
+      <div id="permList"></div>
+      <div class="sw"><div><span>Usar o calendário do celular</span><small>Ela lê seus compromissos e salva os novos lá</small></div><input type="checkbox" class="tog" id="setCal"></div>
+      <div class="sw"><div><span>Falar os lembretes com o app fechado</span><small>Além da notificação, ela avisa em voz alta</small></div><input type="checkbox" class="tog" id="setSpeakAlarms"></div>
+    </div>
+
     <div class="card">
       <h3>Rotina e notificações</h3>
-      <div class="sw"><div><span>Notificações</span><small id="notifState">—</small></div><button class="btn" id="askNotif">Ativar</button></div>
+      <div class="sw only-web"><div><span>Notificações</span><small id="notifState">—</small></div><button class="btn" id="askNotif">Ativar</button></div>
       <div class="three">
         <div><label class="f">Bom dia</label><input type="time" class="in" id="gMorning"></div>
         <div><label class="f">Boa tarde</label><input type="time" class="in" id="gAfternoon"></div>
@@ -279,7 +295,7 @@ label.f{display:block;font-size:13px;color:var(--muted);margin:10px 0 4px}
         <div><label class="f">Silêncio a partir de</label><input type="time" class="in" id="qStart"></div>
         <div><label class="f">até</label><input type="time" class="in" id="qEnd"></div>
       </div>
-      <p class="note">O navegador só dispara avisos com o app aberto ou em segundo plano. Para nunca perder um compromisso com o celular bloqueado, use “Exportar p/ celular” na Agenda: os eventos entram no calendário do seu celular com alarme.</p>
+      <p class="note only-web">O navegador só dispara avisos com o app aberto ou em segundo plano. Para nunca perder um compromisso com o celular bloqueado, use “Exportar p/ celular” na Agenda: os eventos entram no calendário do seu celular com alarme.</p>
     </div>
 
     <div class="card">
@@ -363,7 +379,7 @@ const EMOJIS = ['🌸','🤖','😊','🦋','🌙','☀️','🐱','👩🏽','�
 const MOODS = [['😄','ótimo'],['🙂','bem'],['😐','mais ou menos'],['😔','pra baixo'],['😫','cansado(a)']];
 const defaults = () => ({
   settings:{ assistantName:'Ana', userName:'', emoji:'🌸', color:'#B9A3FF', persona:'carinhosa', theme:'auto',
-    wake:false, speak:true, voiceURI:'', rate:1.05, pitch:1.1,
+    wake:false, speak:true, voiceURI:'', rate:0.95, pitch:1.0, calSync:false, speakAlarms:true,
     greet:{morning:'08:00',afternoon:'13:00',night:'21:00'}, checkin:3, quietStart:'22:30', quietEnd:'07:00', apiKey:'' },
   categories:[
     {id:'trabalho',name:'Trabalho',color:'#A9CBFF'},
@@ -373,13 +389,17 @@ const defaults = () => ({
     {id:'lazer',name:'Lazer',color:'#FFBE5C'},
     {id:'familia',name:'Família',color:'#F7A8F0'}
   ],
-  events:[], contacts:[], chat:[], moods:[], lastGreet:{}, lastCheckin:Date.now()
+  events:[], phone:[], contacts:[], chat:[], moods:[], lastGreet:{}, lastCheckin:Date.now()
 });
 let D;
 try { D = Object.assign(defaults(), JSON.parse(localStorage.getItem(KEY) || '{}')); D.settings = Object.assign(defaults().settings, D.settings); }
 catch(e){ D = defaults(); }
 const S = D.settings;
-function save(){ try{ localStorage.setItem(KEY, JSON.stringify(D)); }catch(e){} }
+if (S.rate === 1.05 && S.pitch === 1.1){ S.rate = 0.95; S.pitch = 1.0; }   // voz mais tranquila
+const NATIVE = (window.AnaNative && window.AnaNative.isNative) ? window.AnaNative : null;   // app Android
+if (NATIVE) document.documentElement.classList.add('native');
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(D)); }catch(e){} clearTimeout(save.t); save.t = setTimeout(syncNative, 800); }
+function openLink(url){ if (NATIVE) NATIVE.openUrl(url); else { const w = window.open(url, '_blank'); if (!w) toast('Toque no botão verde na conversa para abrir.'); } }
 
 /* ============ util ============ */
 const $ = id => document.getElementById(id);
@@ -395,7 +415,8 @@ const uid = () => Math.random().toString(36).slice(2,10);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 // remove acentos mantendo o mesmo tamanho da string (para cortar o original pelos índices)
 const norm = s => s.toLowerCase().split('').map(c => c.normalize('NFD').replace(/[̀-ͯ]/g,'') || c).map(c => c.length ? c[0] : c).join('');
-const catOf = id => D.categories.find(c => c.id === id) || D.categories[0] || {name:'Geral',color:'#B9A3FF'};
+const catOf = id => id === '__phone' ? {id:'__phone', name:'Celular', color:'#E4E1EE'} : (D.categories.find(c => c.id === id) || D.categories[0] || {name:'Geral',color:'#B9A3FF'});
+const colorOf = e => e.color || catOf(e.cat).color;
 const evStart = e => { const d = parseYmd(e.date); if (e.time){ const [h,m] = e.time.split(':'); d.setHours(+h,+m,0,0); } else d.setHours(9,0,0,0); return d; };
 const first = () => S.userName ? S.userName.split(' ')[0] : '';
 function toast(t){ const el = $('toast'); el.textContent = t; el.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(()=>el.classList.remove('on'), 2600); }
@@ -429,20 +450,36 @@ const pick = a => a[Math.floor(Math.random()*a.length)];
 /* ============ voz (falar) ============ */
 let voices = [];
 function loadVoices(){
+  const sel = $('setVoice');
+  if (NATIVE){
+    let list = []; try { list = JSON.parse(NATIVE.voices()); } catch(e){}
+    if (!sel) return;
+    sel.innerHTML = '<option value="">Automática (feminina, tranquila)</option>' + list.map((v, i) => `<option value="${esc(v.name)}">Voz ${i+1} · ${v.country === 'BR' ? 'Brasil' : 'Portugal'}${v.online ? ' · mais natural (internet)' : ' · offline'}</option>`).join('');
+    sel.value = S.voiceURI; return;
+  }
   voices = (speechSynthesis.getVoices() || []).filter(v => /^pt/i.test(v.lang));
-  const sel = $('setVoice'); if (!sel) return;
-  sel.innerHTML = '<option value="">Automática</option>' + voices.map(v => `<option value="${esc(v.voiceURI)}">${esc(v.name)} (${v.lang})</option>`).join('');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">Automática (feminina, tranquila)</option>' + voices.map(v => `<option value="${esc(v.voiceURI)}">${esc(v.name)} (${v.lang})</option>`).join('');
   sel.value = S.voiceURI;
 }
-if ('speechSynthesis' in window){ loadVoices(); speechSynthesis.onvoiceschanged = loadVoices; }
+// escolhe a voz mais natural: vozes "Natural/Online/Neural" (Edge, Chrome) soam humanas; depois Google; depois femininas conhecidas
+function bestWebVoice(){
+  const score = v => (/pt-BR/i.test(v.lang) ? 40 : 0) + (/natural|online|neural/i.test(v.name) ? 30 : 0) + (/google/i.test(v.name) ? 15 : 0)
+    + (/francisca|thalita|luciana|maria|vitoria|leila|yara|female|feminina/i.test(v.name) ? 20 : 0) - (/antonio|daniel|felipe|male\b|masculin/i.test(v.name) ? 40 : 0);
+  return voices.slice().sort((a,b) => score(b) - score(a))[0];
+}
+if (NATIVE) loadVoices();
+else if ('speechSynthesis' in window){ loadVoices(); speechSynthesis.onvoiceschanged = loadVoices; }
 let speaking = false;
 function speak(text){
-  if (!S.speak || !('speechSynthesis' in window)) return;
-  const clean = text.replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu,'').replace(/\n+/g,'. ');
+  if (!S.speak) return;
+  const clean = text.replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu,'').replace(/\n+/g,'. ').replace(/•/g,'').replace(/—/g,',');
+  if (NATIVE){ NATIVE.speak(clean); return; }
+  if (!('speechSynthesis' in window)) return;
   speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(clean);
   u.lang = 'pt-BR'; u.rate = +S.rate; u.pitch = +S.pitch;
-  const v = voices.find(v => v.voiceURI === S.voiceURI) || voices.find(v => /pt-BR/i.test(v.lang) && /female|mulher|luciana|francisca|google/i.test(v.name)) || voices[0];
+  const v = voices.find(v => v.voiceURI === S.voiceURI) || bestWebVoice();
   if (v) u.voice = v;
   u.onstart = () => { speaking = true; pauseEar(); };
   u.onend = u.onerror = () => { speaking = false; resumeEar(); };
@@ -496,14 +533,22 @@ function startCommand(){
 }
 function endCommand(){ clearTimeout(cmdTimer); mode = 'wake'; ear(false); if (!S.wake) stopRec(); }
 function handleHeard(text){ endCommand(); userSays(text, true); }
-function syncMic(){ $('micBtn').classList.toggle('live', !!(recOn && (S.wake || mode === 'command'))); }
+function syncMic(){ $('micBtn').classList.toggle('live', NATIVE ? !!S.wake : !!(recOn && (S.wake || mode === 'command'))); }
+// chamadas vindas do app Android
+window.anaListening = on => { ear(on, `Oi${first() ? ', ' + first() : ''}! Pode falar…`); $('micBtn').classList.toggle('live', on || !!S.wake); };
+window.anaPartial = t => ear(true, t);
+window.anaHeard = t => userSays(t, true);
+window.anaResume = () => { refreshPhone(); renderAll(); tick(); };
+window.anaPermsChanged = () => { if (current === 'settings') renderSettings(); refreshPhone(); renderAll(); };
+window.anaBack = () => { if ($('evModal').classList.contains('on')){ $('evModal').classList.remove('on'); return true; } if (current !== 'home'){ go('home'); return true; } return false; };
 function syncWakeUi(){ $('setWake').checked = S.wake; syncMic(); }
 function micTap(){
+  if (NATIVE){ NATIVE.listen(); return; }
   if (!SR){ toast('Este navegador não tem reconhecimento de voz. Use o Chrome.'); return; }
   if ('speechSynthesis' in window) speechSynthesis.cancel();
   startCommand();
 }
-document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible'){ if (S.wake) startRec(); tick(); } });
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible'){ if (S.wake && !NATIVE) startRec(); tick(); } });
 
 /* ============ entendimento de linguagem (local) ============ */
 const WD = {domingo:0,segunda:1,terca:2,quarta:3,quinta:4,sexta:5,sabado:6};
@@ -558,7 +603,25 @@ function findContact(name){
   const n = norm(name).trim();
   return D.contacts.find(c => norm(c.name) === n) || D.contacts.find(c => norm(c.name).startsWith(n) || n.startsWith(norm(c.name).split(' ')[0]));
 }
-function eventsOn(dateStr){ return D.events.filter(e => e.date === dateStr).sort((a,b) => (a.time||'99').localeCompare(b.time||'99')); }
+function allEvents(){ return D.events.concat(S.calSync ? (D.phone || []) : []); }
+function eventsOn(dateStr){ return allEvents().filter(e => e.date === dateStr).sort((a,b) => (a.time||'99').localeCompare(b.time||'99')); }
+function refreshPhone(){
+  if (!NATIVE || !S.calSync) return;
+  let list = []; try { list = JSON.parse(NATIVE.calendarRead(45)); } catch(e){ return; }
+  const mine = new Set(D.events.map(e => String(e.calId || '')));
+  D.phone = list.filter(p => !mine.has(String(p.id))).map(p => {
+    const b = new Date(p.begin), en = new Date(p.end);
+    return { id:'p' + p.id + '-' + p.begin, phone:true, title:p.title, date: p.allDay ? b.toISOString().slice(0,10) : ymd(b),
+      time: p.allDay ? '' : hm(b), end: p.allDay ? '' : hm(en), place:p.place, cat:'__phone', color:p.color, remind:-1 };
+  });
+  try { localStorage.setItem(KEY, JSON.stringify(D)); } catch(e){}
+}
+function calPayload(e){
+  if (!e.time){ const [y,m,d] = e.date.split('-').map(Number); return { title:e.title, place:e.place||'', allDay:true, begin:Date.UTC(y,m-1,d), end:Date.UTC(y,m-1,d+1), remind:+e.remind }; }
+  const s = evStart(e); let en = e.end ? evStart({ ...e, time:e.end }) : new Date(s.getTime() + 3600000); if (en <= s) en = new Date(s.getTime() + 3600000);
+  return { title:e.title, place:e.place||'', allDay:false, begin:s.getTime(), end:en.getTime(), remind:+e.remind };
+}
+function pushToPhone(e){ if (NATIVE && S.calSync){ if (e.calId) NATIVE.calendarDelete(String(e.calId)); e.calId = NATIVE.calendarInsert(JSON.stringify(calPayload(e))) || ''; } }
 function describeDay(dateStr, label){
   const list = eventsOn(dateStr);
   if (!list.length) return `${label} você não tem nada marcado. Dia livre! ✨`;
@@ -566,7 +629,7 @@ function describeDay(dateStr, label){
 }
 function addEvent(ev){
   const e = Object.assign({id:uid(), title:'Compromisso', date:ymd(new Date()), time:'', end:'', cat:guessCat(norm(ev.title||'')), place:'', remind:10, notified:false}, ev);
-  D.events.push(e); save(); renderAll(); return e;
+  pushToPhone(e); D.events.push(e); save(); renderAll(); return e;
 }
 function waLink(phone, text){
   const digits = (phone || '').replace(/\D/g,'');
@@ -740,8 +803,8 @@ async function userSays(text, byVoice){
   if (r.showDate){ selected = r.showDate; renderHome(); }
   if (r.link){
     // tentativa de abrir direto; se o navegador bloquear, o botão fica na conversa
-    if (r.link.phone) location.href = r.link.url;
-    else { const w = window.open(r.link.url, '_blank'); if (!w) toast('Toque no botão verde na conversa para abrir.'); }
+    if (r.link.phone && !NATIVE) location.href = r.link.url;
+    else openLink(r.link.url);
   }
   if (byVoice && current !== 'chat' && (r.link || r.reply.length > 90)) go('chat');
 }
@@ -753,10 +816,11 @@ function logMood(label, emoji, reply = true){
 
 /* ============ notificações e rotina ============ */
 let swReg = null;
-if ('serviceWorker' in navigator && location.protocol !== 'file:'){
+if (!NATIVE && 'serviceWorker' in navigator && location.protocol !== 'file:'){
   navigator.serviceWorker.register('sw.js').then(r => swReg = r).catch(() => {});
 }
 async function notify(title, body, tag){
+  if (NATIVE){ NATIVE.notifyUser(title, body); return; }
   if (!('Notification' in window) || Notification.permission !== 'granted') return;
   const opts = { body, tag, icon: 'icon.svg', badge: 'icon.svg', vibrate: [120,60,120], renotify: true };
   try { if (swReg) await swReg.showNotification(title, opts); else new Notification(title, opts); } catch(e){ try { new Notification(title, opts); } catch(_){} }
@@ -764,7 +828,7 @@ async function notify(title, body, tag){
 function anaSays(text, notifTitle){
   addMsg('ana', text);
   if (document.visibilityState === 'visible') speak(text);
-  notify(notifTitle || S.assistantName, text, 'ana-' + Date.now());
+  if (!NATIVE) notify(notifTitle || S.assistantName, text, 'ana-' + Date.now());
 }
 function tick(){
   const now = new Date(), today = ymd(now), t = hm(now);
@@ -799,11 +863,45 @@ function tick(){
     const txt = P().how.replace('{n}', first() ? ', ' + first() : '').replace('{N}', first() ? first() + ', ' : '');
     D.chat.push({ from:'ana', text: txt, ts: Date.now(), moodAsk: true }); save(); renderChat();
     if (document.visibilityState === 'visible') speak(txt);
-    notify(S.assistantName, txt, 'ana-checkin');
+    if (!NATIVE) notify(S.assistantName, txt, 'ana-checkin');
   }
   renderHeroText();
 }
 setInterval(tick, 30000);
+
+// No app Android: agenda os avisos no próprio celular (tocam mesmo com a Ana fechada)
+function syncNative(){
+  if (!NATIVE) return;
+  const out = [], now = new Date(), horizon = Date.now() + 30*86400000, n = first() ? ', ' + first() : '';
+  for (const e of D.events){
+    if (+e.remind < 0 || !e.time) continue;
+    const at = evStart(e).getTime() - (+e.remind)*60000;
+    if (at <= Date.now() || at > horizon) continue;
+    const when = +e.remind === 0 ? 'Agora' : +e.remind >= 1440 ? 'Amanhã' : `Em ${e.remind} min`;
+    out.push({ id:'ev-' + e.id, at, title:`${S.assistantName} · lembrete`, body:`⏰ ${when}: ${e.title}${e.place ? ' — ' + e.place : ''} (${e.time}).` });
+  }
+  for (let d = 0; d < 3; d++){
+    const day = addDays(now, d), k = ymd(day);
+    for (const p of ['morning','afternoon','night']){
+      const gt = S.greet[p]; if (!gt) continue;
+      const [h, m] = gt.split(':').map(Number), at = new Date(day.getFullYear(), day.getMonth(), day.getDate(), h, m).getTime();
+      if (at <= Date.now() || (d === 0 && D.lastGreet[p] === k)) continue;
+      let body;
+      if (p === 'morning') body = `Bom dia${n}! ☀️ ` + describeDay(k, 'Hoje');
+      else if (p === 'afternoon') body = `Boa tarde${n}! Como está sendo o seu dia?`;
+      else body = `Boa noite${n}! 🌙 ` + describeDay(ymd(addDays(day,1)), 'Amanhã') + ' Descanse bem.';
+      out.push({ id:`greet-${p}-${k}`, at, title: GREET[p] + '!', body });
+    }
+  }
+  if (+S.checkin > 0){
+    let t = Math.max(Date.now(), (D.lastCheckin || 0)) + S.checkin*3600000, c = 0;
+    while (t < Date.now() + 2*86400000 && c < 12){
+      if (!inQuiet(new Date(t))){ out.push({ id:'checkin-' + c, at:t, title:S.assistantName, body:P().how.replace('{n}', n).replace('{N}', first() ? first() + ', ' : '') }); c++; }
+      t += S.checkin*3600000;
+    }
+  }
+  try { NATIVE.syncAlarms(JSON.stringify(out)); NATIVE.setSpeakAlarms(!!S.speakAlarms); NATIVE.setName(S.assistantName); NATIVE.setVoice(S.voiceURI || '', +S.rate, +S.pitch); } catch(e){}
+}
 
 /* ============ ICS / Google ============ */
 function icsFor(list){
@@ -824,6 +922,7 @@ function icsFor(list){
   return lines.join('\r\n');
 }
 function download(name, content, type){
+  if (NATIVE){ toast(NATIVE.saveFile(name, content, type) ? `Salvo em Downloads: ${name}` : 'Não consegui salvar.'); return; }
   const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([content], { type })); a.download = name;
   document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
 }
@@ -842,7 +941,7 @@ function applyTheme(){
   $('avatar').style.background = $('avatar2').style.background = S.color;
   $('chatName').textContent = S.assistantName;
   document.title = S.assistantName;
-  $('wakeHelp').textContent = `Fale “${S.assistantName}” e o seu pedido (com o app aberto)`;
+  $('wakeHelp').textContent = NATIVE ? `Diga “Ei, ${S.assistantName}” mesmo com o app fechado ou a tela desligada` : `Fale “${S.assistantName}” e o seu pedido (com o app aberto)`;
   $('chatHint').textContent = `Diga “${S.assistantName}, marca academia amanhã às 7h” ou toque no microfone.`;
 }
 function renderHeroText(){
@@ -863,7 +962,7 @@ function renderHome(){
   const sel = parseYmd(selected), start = addDays(sel, -sel.getDay());
   let w = '';
   for (let i = 0; i < 7; i++){
-    const d = addDays(start, i), k = ymd(d), has = D.events.some(e => e.date === k);
+    const d = addDays(start, i), k = ymd(d), has = allEvents().some(e => e.date === k);
     w += `<button class="day ${k === selected ? 'sel' : ''} ${k === ymd(now) ? 'today' : ''}" data-day="${k}">${has ? '<i></i>' : ''}<small>${DOW[i]}</small><b>${d.getDate()}</b></button>`;
   }
   $('week').innerHTML = w;
@@ -874,7 +973,7 @@ function renderHome(){
   if (!list.length) h = `<div class="empty">Nada marcado. Diga “${esc(S.assistantName)}, marca…” ou toque em + Adicionar.</div>`;
   list.forEach((e, i) => {
     const c = catOf(e.cat), past = evStart(e) < now && e.date <= ymd(now);
-    h += `<button class="ev ${i === 0 && list.length > 1 ? 'big' : ''} ${past ? 'done' : ''}" style="background:${c.color}" data-ev="${e.id}">
+    h += `<button class="ev ${i === 0 && list.length > 1 ? 'big' : ''} ${past ? 'done' : ''}" style="background:${colorOf(e)}" data-ev="${e.id}">
       <span class="tag">${esc(c.name)}</span><h3>${esc(e.title)}</h3>
       <p>${sel.getDate()} ${MON[sel.getMonth()]}.${e.time ? '<br>' + e.time + (e.end ? '–' + e.end : '') : ''}${e.place ? '<br>' + esc(e.place) : ''}</p>
       ${+e.remind >= 0 && e.time ? `<span class="who">🔔 ${+e.remind === 0 ? 'na hora' : +e.remind >= 1440 ? '1 dia antes' : e.remind + ' min antes'}</span>` : ''}</button>`;
@@ -890,13 +989,13 @@ function renderAgenda(){
   $('catFilter').innerHTML = `<button class="chip ${catFilter === 'all' ? 'on' : ''}" data-cf="all">Todas</button>` +
     D.categories.map(c => `<button class="chip ${catFilter === c.id ? 'on' : ''}" data-cf="${c.id}"><i style="background:${c.color}"></i>${esc(c.name)}</button>`).join('');
   const today = ymd(new Date());
-  const list = D.events.filter(e => e.date >= today && (catFilter === 'all' || e.cat === catFilter)).sort((a,b) => (a.date + (a.time||'99')).localeCompare(b.date + (b.time||'99')));
+  const list = allEvents().filter(e => e.date >= today && (catFilter === 'all' || e.cat === catFilter)).sort((a,b) => (a.date + (a.time||'99')).localeCompare(b.date + (b.time||'99')));
   if (!list.length){ $('agendaList').innerHTML = `<div class="empty" style="margin-top:8px">Nenhum compromisso pela frente.</div>`; return; }
   let h = '', last = '';
   for (const e of list){
     if (e.date !== last){ last = e.date; const d = parseYmd(e.date); h += `<div class="dayhead">${fmtDate(d)}${fmtDate(d).includes(',') ? '' : ' · ' + d.getDate() + ' ' + MON[d.getMonth()]}</div>`; }
     const c = catOf(e.cat);
-    h += `<button class="row" data-ev="${e.id}"><span class="bar" style="background:${c.color}"></span><span class="t">${e.time || 'dia todo'}</span><div><b>${esc(e.title)}</b><span>${esc(c.name)}${e.place ? ' · ' + esc(e.place) : ''}</span></div></button>`;
+    h += `<button class="row" data-ev="${e.id}"><span class="bar" style="background:${colorOf(e)}"></span><span class="t">${e.time || 'dia todo'}</span><div><b>${esc(e.title)}</b><span>${esc(c.name)}${e.place ? ' · ' + esc(e.place) : ''}</span></div></button>`;
   }
   $('agendaList').innerHTML = h;
 }
@@ -925,6 +1024,13 @@ function renderSettings(){
   $('gMorning').value = S.greet.morning; $('gAfternoon').value = S.greet.afternoon; $('gNight').value = S.greet.night;
   $('setCheckin').value = String(S.checkin); $('qStart').value = S.quietStart; $('qEnd').value = S.quietEnd;
   $('setKey').value = S.apiKey;
+  if (NATIVE){
+    let pm = {}; try { pm = JSON.parse(NATIVE.perms()); } catch(e){}
+    const rows = [['mic','Microfone','Para ouvir você chamar'],['notif','Notificações','Lembretes, bom dia, boa noite'],['overlay','Aparecer sobre outros apps','Para abrir sozinha quando você chamar'],['battery','Sem economia de bateria','Para não ser desligada pelo celular'],['calendar','Calendário','Ler e salvar compromissos']];
+    $('permList').innerHTML = rows.map(([k,t,d]) => `<div class="perm"><div><span>${t}</span><small>${d}</small></div>${pm[k] ? '<span class="ok">✓ ok</span>' : `<button class="btn" data-perm="${k}">Permitir</button>`}</div>`).join('');
+    $('setCal').checked = !!S.calSync; $('setSpeakAlarms').checked = !!S.speakAlarms;
+    S.wake = !!NATIVE.wakeOn(); syncWakeUi();
+  }
   const np = 'Notification' in window ? Notification.permission : 'unsupported';
   $('notifState').textContent = { granted:'Ativadas ✓', denied:'Bloqueadas no navegador', default:'Desativadas', unsupported:'Não suportado aqui' }[np];
   $('askNotif').style.display = np === 'granted' || np === 'unsupported' ? 'none' : '';
@@ -969,26 +1075,34 @@ function readEvent(){
 $('evCats').addEventListener('click', e => { const b = e.target.closest('[data-evcat]'); if (b){ $('evCats').dataset.sel = b.dataset.evcat; renderEvCats(); } });
 $('evSave').onclick = () => {
   const v = readEvent();
-  if (editing){ Object.assign(editing, v, { notified:false }); save(); renderAll(); }
+  if (editing){ Object.assign(editing, v, { notified:false }); pushToPhone(editing); save(); renderAll(); }
   else addEvent(v);
   selected = v.date; $('evModal').classList.remove('on'); renderAll(); toast('Salvo ✓');
 };
-$('evDel').onclick = () => { if (editing && confirm('Excluir este compromisso?')){ D.events = D.events.filter(e => e !== editing); save(); $('evModal').classList.remove('on'); renderAll(); } };
+$('evDel').onclick = () => { if (editing && confirm('Excluir este compromisso?')){ if (NATIVE && editing.calId) NATIVE.calendarDelete(String(editing.calId)); D.events = D.events.filter(e => e !== editing); save(); $('evModal').classList.remove('on'); renderAll(); } };
 $('evCancel').onclick = () => $('evModal').classList.remove('on');
 $('evModal').addEventListener('click', e => { if (e.target.id === 'evModal') $('evModal').classList.remove('on'); });
-$('evIcs').onclick = () => { const v = Object.assign({ id: editing?.id || uid() }, readEvent()); download(`${v.title}.ics`, icsFor([v]), 'text/calendar'); };
-$('evGoogle').onclick = () => window.open(googleLink(readEvent()), '_blank');
+$('evIcs').onclick = () => {
+  if (NATIVE){
+    if (!JSON.parse(NATIVE.perms()).calendar){ NATIVE.askPerm('calendar'); return; }
+    const id = NATIVE.calendarInsert(JSON.stringify(calPayload(readEvent())));
+    if (id && editing){ editing.calId = id; save(); }
+    toast(id ? 'Colocado no calendário do celular ✓' : 'Não consegui acessar o calendário.'); return;
+  }
+  const v = Object.assign({ id: editing?.id || uid() }, readEvent()); download(`${v.title}.ics`, icsFor([v]), 'text/calendar'); };
+$('evGoogle').onclick = () => openLink(googleLink(readEvent()));
 
 /* ============ eventos da UI ============ */
 document.addEventListener('click', e => {
-  const t = e.target.closest('[data-day],[data-ev],[data-mood],[data-q],[data-cf],[data-emoji],[data-color],[data-delcat],[data-delct]');
+  const t = e.target.closest('[data-day],[data-ev],[data-mood],[data-q],[data-cf],[data-emoji],[data-color],[data-delcat],[data-delct],[data-perm]');
   if (!t) return;
+  if (t.dataset.perm){ NATIVE && NATIVE.askPerm(t.dataset.perm); return; }
   if (t.dataset.day){ selected = t.dataset.day; renderHome(); }
-  else if (t.dataset.ev) openEvent(t.dataset.ev);
+  else if (t.dataset.ev){ if (t.dataset.ev[0] === 'p' && !D.events.some(x => x.id === t.dataset.ev)) toast('Este compromisso é do calendário do celular.'); else openEvent(t.dataset.ev); }
   else if (t.dataset.mood) logMood(t.dataset.mood, t.dataset.e);
   else if (t.dataset.q === 'add') openEvent(null);
   else if (t.dataset.q === 'talk') micTap();
-  else if (t.dataset.q === 'wa') window.open('https://wa.me/', '_blank');
+  else if (t.dataset.q === 'wa') openLink('https://wa.me/');
   else if (t.dataset.cf){ catFilter = t.dataset.cf; renderAgenda(); }
   else if (t.dataset.emoji){ S.emoji = t.dataset.emoji; save(); applyTheme(); renderSettings(); }
   else if (t.dataset.color){ S.color = t.dataset.color; save(); applyTheme(); renderSettings(); }
@@ -1026,12 +1140,15 @@ bind('setCheckin', t => { S.checkin = +t.value; D.lastCheckin = Date.now(); });
 bind('qStart', t => S.quietStart = t.value);
 bind('qEnd', t => S.quietEnd = t.value);
 bind('setKey', t => S.apiKey = t.value.trim(), 'input');
+bind('setCal', t => { S.calSync = t.checked; if (S.calSync && !JSON.parse(NATIVE.perms()).calendar) NATIVE.askPerm('calendar'); refreshPhone(); renderAll(); });
+bind('setSpeakAlarms', t => S.speakAlarms = t.checked);
 bind('setWake', t => {
+  if (NATIVE){ S.wake = t.checked; NATIVE.setWake(S.wake); syncMic(); if (S.wake) toast(`Pronto! Diga “Ei, ${S.assistantName}” mesmo com o app fechado.`); return; }
   if (!SR){ t.checked = false; S.wake = false; toast('Use o Google Chrome para eu poder te ouvir.'); return; }
   S.wake = t.checked;
   if (S.wake){ mode = 'wake'; startRec(); toast(`Pronto! É só dizer “${S.assistantName}”.`); } else stopRec();
 });
-$('testVoice').onclick = () => { const was = S.speak; S.speak = true; speak(`Oi${first() ? ', ' + first() : ''}! Eu sou a ${S.assistantName}. Assim que eu falo.`); S.speak = was; };
+$('testVoice').onclick = () => { syncNative(); const was = S.speak; S.speak = true; speak(`Oi${first() ? ', ' + first() : ''}! Eu sou a ${S.assistantName}. Assim que eu falo.`); S.speak = was; };
 $('askNotif').onclick = async () => {
   if (!('Notification' in window)) return;
   const p = await Notification.requestPermission(); renderSettings();
@@ -1048,9 +1165,11 @@ $('importFile').onchange = async e => {
 $('resetData').onclick = () => { if (confirm('Apagar todos os dados da Ana neste aparelho?')){ localStorage.removeItem(KEY); location.reload(); } };
 
 /* ============ início ============ */
+if (NATIVE){ S.wake = !!NATIVE.wakeOn(); refreshPhone(); }
 renderAll();
 tick();
-if (S.wake && SR) startRec();
+syncNative();
+if (S.wake && SR && !NATIVE) startRec();
 if (new URLSearchParams(location.search).get('s')) go(new URLSearchParams(location.search).get('s'));
 </script>
 </body>
