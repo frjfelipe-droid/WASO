@@ -64,11 +64,11 @@ object Speaker : TextToSpeech.OnInitListener {
         pending.clear()
     }
 
-    private fun online(): Boolean {
-        val cm = appCtx?.getSystemService(ConnectivityManager::class.java) ?: return false
-        val caps = cm.getNetworkCapabilities(cm.activeNetwork) ?: return false
-        return caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-    }
+    private fun online(): Boolean = try {
+        val cm = appCtx?.getSystemService(ConnectivityManager::class.java)
+        val caps = cm?.getNetworkCapabilities(cm.activeNetwork)
+        caps?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true
+    } catch (_: Throwable) { false }
 
     private fun ptVoices(): List<Voice> = try {
         (tts?.voices ?: emptySet()).filter {
@@ -100,7 +100,11 @@ object Speaker : TextToSpeech.OnInitListener {
         return arr.toString()
     }
 
-    fun speak(text: String) {
+    fun speak(text: String) = try { doSpeak(text) } catch (e: Throwable) {
+        android.util.Log.e("Ana", "falar", e); speaking = false; main.post { onDone?.invoke() }
+    }
+
+    private fun doSpeak(text: String) {
         val t = tts
         if (t == null || !ready) { pending.add(text); return }
         val p = appCtx?.let { Prefs.of(it) }
