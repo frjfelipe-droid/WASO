@@ -36,6 +36,7 @@ class WakeWordService : Service(), RecognitionListener {
         const val ACTION_STOP = "stop"
         const val ACTION_PAUSE = "pause"
         const val ACTION_RESUME = "resume"
+        const val ACTION_TEST = "test"
         @Volatile var running = false
         private var model: Model? = null
 
@@ -43,7 +44,7 @@ class WakeWordService : Service(), RecognitionListener {
             val i = Intent(ctx, WakeWordService::class.java).setAction(action)
             when (action) {
                 ACTION_START -> ContextCompat.startForegroundService(ctx, i)
-                else -> if (running) try { ctx.startService(i) } catch (_: Exception) {}
+                else -> if (running) try { ctx.startService(i) } catch (e: Exception) { Log.w("Ana", "send $action", e) }
             }
         }
 
@@ -83,6 +84,7 @@ class WakeWordService : Service(), RecognitionListener {
                 paused = false
                 listen()
             }
+            ACTION_TEST -> main.post { triggered() }
         }
         return START_STICKY
     }
@@ -122,8 +124,10 @@ class WakeWordService : Service(), RecognitionListener {
     }
 
     private fun stopRecognizer() {
-        try { speech?.stop(); speech?.shutdown() } catch (_: Exception) {}
+        val s = speech ?: return
         speech = null
+        try { s.stop() } catch (e: Throwable) { Log.w("Ana", "stop", e) }
+        try { s.shutdown() } catch (e: Throwable) { Log.w("Ana", "shutdown", e) }
     }
 
     private fun listen() {
@@ -131,25 +135,39 @@ class WakeWordService : Service(), RecognitionListener {
         val m = model ?: return
         if (paused || !running || Speaker.speaking) return
         stopRecognizer()
+        if (androidx.core.content.ContextCompat.checkSelfPermission(this, android.Manifest.permission.RECORD_AUDIO) != android.content.pm.PackageManager.PERMISSION_GRANTED) { stopSelf(); return }
         val name = normalize(Prefs.wakeName(this))
         val words = JSONArray().put(name).put("ei $name").put("oi $name").put("e ai $name").put("[unk]")
         try {
             val rec = Recognizer(m, 16000f, words.toString())
             speech = SpeechService(rec, 16000f).also { it.startListening(this) }
-        } catch (e: Exception) {
+            Log.i("Ana", "ouvindo a palavra \"$name\"")
+        } catch (e: Throwable) {
             Log.e("Ana", "microfone ocupado", e)
+            speech = null
             main.postDelayed(retry, 3000)
         }
     }
 
     private fun heard(hypothesis: String?) {
+        if (paused) return
         val text = try { JSONObject(hypothesis ?: "{}").optString("text") } catch (_: Exception) { "" }
         if (text.isBlank()) return
         val name = normalize(Prefs.wakeName(this))
-        if (text.split(" ").contains(name)) triggered()
+        // nunca parar o reconhecedor de dentro do próprio retorno dele: agenda para logo depois
+        if (text.split(" ").contains(name)) { paused = true; main.post { triggered() } }
     }
 
     private fun triggered() {
+        try { doTrigger() } catch (e: Throwable) {
+            Log.e("Ana", "ao chamar a Ana", e)
+            paused = false
+            main.postDelayed(retry, 2000)
+        }
+    }
+
+    private fun doTrigger() {
+        Log.i("Ana", "palavra de ativação ouvida")
         paused = true
         stopRecognizer()
         main.removeCallbacks(autoResume)
@@ -180,8 +198,8 @@ class WakeWordService : Service(), RecognitionListener {
     override fun onPartialResult(hypothesis: String?) {}
     override fun onResult(hypothesis: String?) = heard(hypothesis)
     override fun onFinalResult(hypothesis: String?) = heard(hypothesis)
-    override fun onError(exception: Exception?) { stopRecognizer(); main.postDelayed(retry, 2000) }
-    override fun onTimeout() { listen() }
+    override fun onError(exception: Exception?) { Log.w("Ana", "erro no reconhecedor", exception); main.post { stopRecognizer() }; main.postDelayed(retry, 2000) }
+    override fun onTimeout() { main.post { listen() } }
 
     override fun onDestroy() {
         running = false

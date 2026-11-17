@@ -78,8 +78,13 @@ class MainActivity : AppCompatActivity() {
                 return true
             }
 
-            override fun onPageFinished(view: WebView, url: String) {
+            override fun onPageFinished(view: WebView, url: String?) {
                 pageReady = true
+                Prefs.of(this@MainActivity).getString("lastCrash", null)?.let { c ->
+                    Prefs.of(this@MainActivity).edit().remove("lastCrash").apply()
+                    js("window.anaCrash && anaCrash(${JSONObject.quote(c)})")
+                }
+                if (intent?.getBooleanExtra("selftest", false) == true) selfTest()
                 if (pendingListen) { pendingListen = false; startListening() }
                 if (intent?.getBooleanExtra("chat", false) == true) js("go('chat')")
             }
@@ -200,6 +205,30 @@ class MainActivity : AppCompatActivity() {
         }, 350)
     }
 
+    /** Teste automático (usado no emulador do GitHub antes de publicar cada versão). */
+    private fun selfTest() {
+        val tag = "Ana"
+        android.util.Log.i(tag, "ANA_SELFTEST_START")
+        val steps = listOf<Pair<Long, () -> Unit>>(
+            1000L to { js("S.userName='Teste'; S.calSync=true; save(); anaHeard('marca dentista amanhã às 15h')") },
+            4000L to { js("anaHeard('o que eu tenho amanhã?')") },
+            7000L to { js("anaHeard('manda mensagem pra Maria dizendo que já chego')") },
+            9000L to { js("go('settings')"); js("AnaNative.voices(); AnaNative.perms(); refreshPhone(); renderAll();") },
+            10000L to { enableWake() },
+            18000L to { WakeWordService.send(this, WakeWordService.ACTION_TEST) },
+            24000L to { startListening() },
+            32000L to {
+                AlarmScheduler.sync(this, JSONArray().put(JSONObject().put("id", "selftest").put("at", System.currentTimeMillis() + 6000)
+                    .put("title", "Ana · teste").put("body", "Lembrete de teste")).toString())
+                moveTaskToBack(true)
+            },
+            42000L to { WakeWordService.send(this, WakeWordService.ACTION_TEST) },
+            52000L to { WakeWordService.send(this, WakeWordService.ACTION_RESUME) },
+            60000L to { android.util.Log.i(tag, "ANA_SELFTEST_DONE") }
+        )
+        steps.forEach { (delay, f) -> main.postDelayed({ try { f() } catch (e: Throwable) { android.util.Log.e(tag, "selftest", e) } }, delay) }
+    }
+
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQ_WAKE && hasMic()) enableWake()
@@ -240,10 +269,12 @@ class MainActivity : AppCompatActivity() {
         @JavascriptInterface fun listen() = startListening()
 
         @JavascriptInterface fun setName(name: String) {
-            Prefs.of(this@MainActivity).edit()
-                .putString("name", WakeWordService.normalize(name).split(" ").firstOrNull()?.ifBlank { "ana" } ?: "ana")
-                .putString("displayName", name.ifBlank { "Ana" }).apply()
-            if (WakeWordService.running) WakeWordService.send(this@MainActivity, WakeWordService.ACTION_RESUME)
+            val p = Prefs.of(this@MainActivity)
+            val wake = WakeWordService.normalize(name).split(" ").firstOrNull()?.ifBlank { "ana" } ?: "ana"
+            if (wake == p.getString("name", "ana") && name == p.getString("displayName", "Ana")) return
+            p.edit().putString("name", wake).putString("displayName", name.ifBlank { "Ana" }).apply()
+            // só reinicia a escuta se o nome mudou e ninguém está usando o microfone agora
+            if (WakeWordService.running && !listening && !Speaker.speaking) WakeWordService.send(this@MainActivity, WakeWordService.ACTION_RESUME)
         }
 
         @JavascriptInterface fun setWake(on: Boolean) = main.post {

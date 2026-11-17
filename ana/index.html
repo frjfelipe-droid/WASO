@@ -537,6 +537,7 @@ function syncMic(){ $('micBtn').classList.toggle('live', NATIVE ? !!S.wake : !!(
 // chamadas vindas do app Android
 window.anaListening = on => { ear(on, `Oi${first() ? ', ' + first() : ''}! Pode falar…`); $('micBtn').classList.toggle('live', on || !!S.wake); };
 window.anaPartial = t => ear(true, t);
+window.anaCrash = txt => { addMsg('ana', '⚠️ Da última vez eu fechei sozinha por um erro. Tire um print desta mensagem e mande para quem cuida do app:\n\n' + String(txt).slice(0, 1200)); go('chat'); };
 window.anaHeard = t => userSays(t, true);
 window.anaResume = () => { refreshPhone(); renderAll(); tick(); };
 window.anaPermsChanged = () => { if (current === 'settings') renderSettings(); refreshPhone(); renderAll(); };
