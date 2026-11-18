@@ -7,19 +7,22 @@ Funciona no seu PC (Windows, Mac ou Linux). A interface abre no navegador, e voc
 
 ---
 
-## 📱 Só no celular (sem PC): `WASO-Celular.html`
+## 📱 App no celular (sem PC): `WASO-Celular.html`
 
-Um arquivo único, que **não precisa instalar nada** e funciona sem internet:
+Um arquivo único: mande para o celular e abra no **Chrome** (Android) ou **Safari** (iPhone). Tem uma prévia ao vivo no topo e 6 abas:
 
-1. Mande o arquivo `WASO-Celular.html` para o celular (WhatsApp, Drive, e-mail…) e abra no **Chrome** (Android) ou **Safari** (iPhone).
-2. **Escolher vídeos**: ele identifica sozinho se o vídeo é vertical ou horizontal, a duração e se tem fala.
-3. Escolha o que fazer: **Automático**, TikTok/Reels, Tirar pausas, Cortes de 60s, Só deixar 9:16.
-4. Confira os cortes (toque nos trechos para trocar) e toque em **Gerar**.
-5. **🚀 Enviar pro CapCut** (compartilha direto para o app), **⬇️ Salvar** ou **🎬 Abrir CapCut**.
+| Aba | O que faz |
+|---|---|
+| 🎬 **Vídeos** | Escolha os vídeos; ele identifica vertical/horizontal, duração e se tem fala |
+| ✂️ **Corte** | Tira pausas automaticamente + **🪝 Gancho**: acha a melhor **pergunta** do vídeo, corta exatamente no começo e no fim da frase, coloca no início e depois o vídeo continua. Mostra as 3 melhores opções com ▶ e ajuste fino |
+| ⚡ **Dinâmico** | 10 modelos para juntar **vários vídeos**: Ritmo Viral, Speed Ramp, Pausa Dramática, Montagem Rápida, Câmera Lenta, Batida Forte, Glitch, Storytelling, Impacto, Drop — com pausas, partes rápidas e lentas, no BPM da música |
+| 🎞 **Estilo** | Formato (9:16, 16:9…) + **30 modelos cinematográficos** com prévia + **título cinematográfico** com animação, que você **arrasta na prévia** |
+| 💬 **Legenda** | **IA lê as falas** (Whisper, roda no celular) e cria as legendas. Edição numa **linha do tempo**: dê play e a legenda atual acende para editar; arraste para mover, puxe as bordas para mudar o tempo; dividir/juntar/apagar. Estilo: 20 fontes, tamanho, espaçamento de letras e linhas, sombra (suave, dura, brilho, 3D), contorno, cores, efeitos (pop, karaokê, palavra a palavra, digitando, pulo) |
+| 🚀 **Exportar** | Gera o MP4 e manda pro CapCut (🚀 Enviar / ⬇️ Salvar / 🎬 Abrir CapCut) |
 
-> O celular grava o vídeo em tempo real (1 min de resultado leva ~1 min). Deixe a tela aberta.
-> O botão “Enviar pro CapCut” aparece quando a página é aberta por um link `https` (ex.: GitHub Pages). Aberto como arquivo, use “Salvar” e depois “Abrir CapCut”.
-> Para vídeos longos ou 4K, use o programa do PC abaixo, que é bem mais rápido.
+> O celular grava em tempo real (1 min ≈ 1 min). Deixe a tela aberta.
+> A IA das legendas precisa de internet só na 1ª vez (baixa ~80 MB). Sem ela, o gancho usa a entonação da voz (frase que sobe no final).
+> O botão “Enviar pro CapCut” aparece quando a página é aberta por um link `https`. Aberto como arquivo, use “Salvar” e depois “Abrir CapCut”.
 
 ---
 
