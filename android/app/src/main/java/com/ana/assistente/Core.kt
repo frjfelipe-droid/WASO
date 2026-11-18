@@ -31,43 +31,80 @@ object Prefs {
 
 /* ---------------- voz (fala) ---------------- */
 object Speaker : TextToSpeech.OnInitListener {
+    private const val GOOGLE_TTS = "com.google.android.tts"
     private var tts: TextToSpeech? = null
     private var ready = false
+    private var triedDefault = false
     private var appCtx: Context? = null
     private val pending = mutableListOf<String>()
     private val main = Handler(Looper.getMainLooper())
+    private var lastText = ""
+    private var lastWasNetwork = false
+    private var forceLocal = false
     @Volatile var speaking = false
     var onStart: (() -> Unit)? = null
     var onDone: (() -> Unit)? = null
+    /** avisos para a interface (ex.: voz em português não instalada) */
+    var onProblem: ((String) -> Unit)? = null
+
+    private fun hasGoogleTts(ctx: Context) = try { ctx.packageManager.getPackageInfo(GOOGLE_TTS, 0); true } catch (_: Exception) { false }
 
     fun init(ctx: Context) {
         if (tts != null) return
         appCtx = ctx.applicationContext
-        tts = TextToSpeech(appCtx, this)
+        // a voz do Google é a mais natural em português; muitos celulares (ex.: Samsung) usam outro motor por padrão
+        tts = if (hasGoogleTts(appCtx!!)) TextToSpeech(appCtx, this, GOOGLE_TTS) else { triedDefault = true; TextToSpeech(appCtx, this) }
     }
 
     override fun onInit(status: Int) {
-        if (status != TextToSpeech.SUCCESS) return
+        if (status != TextToSpeech.SUCCESS) {
+            android.util.Log.w("Ana", "motor de voz falhou ($status)")
+            if (!triedDefault) { triedDefault = true; try { tts?.shutdown() } catch (_: Exception) {}; tts = TextToSpeech(appCtx, this); return }
+            main.post { onProblem?.invoke("noengine") }
+            return
+        }
         ready = true
-        tts?.language = Locale("pt", "BR")
+        val br = Locale("pt", "BR")
+        val avail = tts?.isLanguageAvailable(br) ?: TextToSpeech.LANG_NOT_SUPPORTED
+        if (avail < TextToSpeech.LANG_AVAILABLE) {
+            android.util.Log.w("Ana", "português não disponível no motor ${tts?.defaultEngine} ($avail)")
+            if (!triedDefault) { triedDefault = true; ready = false; try { tts?.shutdown() } catch (_: Exception) {}; tts = TextToSpeech(appCtx, this); return }
+            main.post { onProblem?.invoke("nolang") }
+        }
+        tts?.language = br
         tts?.setAudioAttributes(
-            AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_ASSISTANT)
+            AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA)
                 .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH).build()
         )
         tts?.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
             override fun onStart(id: String?) { speaking = true; main.post { onStart?.invoke() } }
-            override fun onDone(id: String?) { speaking = false; main.post { onDone?.invoke() } }
+            override fun onDone(id: String?) { speaking = false; forceLocal = false; main.post { onDone?.invoke() } }
             @Deprecated("Deprecated in Java")
-            override fun onError(id: String?) { speaking = false; main.post { onDone?.invoke() } }
+            override fun onError(id: String?) = failed(-1)
+            override fun onError(id: String?, errorCode: Int) = failed(errorCode)
         })
+        android.util.Log.i("Ana", "voz pronta: motor ${tts?.defaultEngine}, ${ptVoices().size} vozes em português")
         pending.toList().forEach { speak(it) }
         pending.clear()
+    }
+
+    /** Se a voz online falhar (internet lenta), fala de novo com uma voz offline. */
+    private fun failed(code: Int) {
+        android.util.Log.w("Ana", "erro ao falar ($code), voz online=$lastWasNetwork")
+        if (lastWasNetwork && !forceLocal && lastText.isNotBlank()) {
+            forceLocal = true
+            main.post { speak(lastText) }
+            return
+        }
+        speaking = false; forceLocal = false
+        main.post { onDone?.invoke() }
     }
 
     private fun online(): Boolean = try {
         val cm = appCtx?.getSystemService(ConnectivityManager::class.java)
         val caps = cm?.getNetworkCapabilities(cm.activeNetwork)
-        caps?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true
+        caps?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true &&
+            caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
     } catch (_: Throwable) { false }
 
     private fun ptVoices(): List<Voice> = try {
@@ -77,15 +114,15 @@ object Speaker : TextToSpeech.OnInitListener {
     } catch (e: Exception) { emptyList() }
 
     /** Escolhe uma voz feminina, natural e tranquila (as vozes "online" do Google soam bem menos robóticas). */
-    private fun bestVoice(): Voice? {
-        val net = online()
-        return ptVoices().maxByOrNull { v ->
+    private fun bestVoice(allowNetwork: Boolean): Voice? {
+        val net = allowNetwork && online()
+        return ptVoices().filter { net || !it.isNetworkConnectionRequired }.maxByOrNull { v ->
             val n = v.name.lowercase()
             var s = 0
             if (v.locale.country.equals("BR", true)) s += 40
             if (Regex("afs|female|feminina|-f-|luciana|francisca|thalita|maria").containsMatchIn(n)) s += 25
             if (Regex("ptd|male|masculin").containsMatchIn(n) && !n.contains("female")) s -= 30
-            if (v.isNetworkConnectionRequired) s += if (net) 12 else -50
+            if (v.isNetworkConnectionRequired) s += 12
             s += v.quality / 50
             s - v.latency / 200
         }
@@ -100,24 +137,35 @@ object Speaker : TextToSpeech.OnInitListener {
         return arr.toString()
     }
 
-    fun speak(text: String) = try { doSpeak(text) } catch (e: Throwable) {
-        android.util.Log.e("Ana", "falar", e); speaking = false; main.post { onDone?.invoke() }
+    fun mediaVolume(): Int = try {
+        val am = appCtx!!.getSystemService(android.media.AudioManager::class.java)
+        am.getStreamVolume(android.media.AudioManager.STREAM_MUSIC)
+    } catch (_: Throwable) { -1 }
+
+    fun speak(text: String) {
+        try { doSpeak(text) } catch (e: Throwable) {
+            android.util.Log.e("Ana", "falar", e); speaking = false; main.post { onDone?.invoke() }
+        }
     }
 
     private fun doSpeak(text: String) {
         val t = tts
-        if (t == null || !ready) { pending.add(text); return }
+        if (t == null || !ready) { pending.clear(); pending.add(text); return }
         val p = appCtx?.let { Prefs.of(it) }
         val rate = p?.getFloat("rate", 0.95f) ?: 0.95f
         val pitch = p?.getFloat("pitch", 1.0f) ?: 1.0f
         val chosen = p?.getString("voice", "") ?: ""
-        val v = ptVoices().firstOrNull { it.name == chosen && (!it.isNetworkConnectionRequired || online()) } ?: bestVoice()
+        val allowNet = !forceLocal
+        val v = ptVoices().firstOrNull { it.name == chosen && (!it.isNetworkConnectionRequired || (allowNet && online())) } ?: bestVoice(allowNet)
         if (v != null) t.voice = v else t.language = Locale("pt", "BR")
+        lastText = text
+        lastWasNetwork = v?.isNetworkConnectionRequired == true
         t.setSpeechRate(rate)
         t.setPitch(pitch)
         speaking = true
         android.util.Log.i("Ana", "falando: ${text.take(60)} (voz ${v?.name})")
-        t.speak(text, TextToSpeech.QUEUE_FLUSH, Bundle(), "ana-" + System.currentTimeMillis())
+        val r = t.speak(text, TextToSpeech.QUEUE_FLUSH, Bundle(), "ana-" + System.currentTimeMillis())
+        if (r != TextToSpeech.SUCCESS) failed(r)
     }
 
     fun stop() { tts?.stop(); speaking = false }

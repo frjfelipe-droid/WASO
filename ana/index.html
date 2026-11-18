@@ -174,6 +174,83 @@ input[type=time].in{padding:12px 8px}
 @keyframes eq{50%{transform:scaleY(.35)}}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:110px;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:14px;font-size:14px;z-index:60;opacity:0;transition:.3s;pointer-events:none;max-width:calc(100% - 32px)}
 .toast.on{opacity:1}
+/* ===== personagem Ana ===== */
+.ana-svg{display:block;width:100%;height:100%;overflow:visible}
+.ana-svg .a-open{opacity:0;transform-box:fill-box;transform-origin:50% 0}
+body.talking .ana-svg .a-smile{opacity:0}
+body.talking .ana-svg .a-open{opacity:1;animation:talk .17s ease-in-out infinite alternate}
+@keyframes talk{from{transform:scaleY(.2)}to{transform:scaleY(1)}}
+.ana-svg .a-eye{transform-box:fill-box;transform-origin:center;animation:blink 4.6s infinite}
+.ana-svg .a-eye:nth-child(2){animation-delay:.04s}
+@keyframes blink{0%,93%,100%{transform:scaleY(1)}95.5%{transform:scaleY(.08)}}
+.ana-svg .a-head{transform-box:view-box;transform-origin:100px 170px;animation:sway 5s ease-in-out infinite}
+body.talking .ana-svg .a-head{animation:nod .7s ease-in-out infinite}
+@keyframes sway{50%{transform:rotate(2.5deg)}}
+@keyframes nod{30%{transform:rotate(-2deg) translateY(1px)}70%{transform:rotate(1.5deg)}}
+.ana-svg .a-arm{display:none;transform-box:view-box;transform-origin:150px 220px}
+.waving .ana-svg .a-arm{display:block;animation:wave 1s ease-in-out 4}
+@keyframes wave{0%,100%{transform:rotate(0)}50%{transform:rotate(-22deg)}}
+.ana-svg .a-brow{transform-box:fill-box;transform-origin:center}
+body.listening-on .ana-svg .a-brow{transform:translateY(-2px)}
+.hero-ana{position:absolute;right:-6px;bottom:-14px;width:148px;height:186px;cursor:pointer;z-index:1}
+.hero .sh{opacity:.9}
+.hero .sh.a{right:118px;top:-18px;width:54px;height:54px}.hero .sh.a::after{inset:17px}
+.hero .sh.d{right:8px;top:6px;width:34px;height:34px;border-width:9px}
+.hero .sh.b,.hero .sh.c{display:none}
+.avatar svg{width:100%;height:100%}
+.avatar{overflow:hidden}
+.ear .ear-face{width:28px;height:28px;border-radius:50%;background:var(--theme);overflow:hidden;flex:none}
+/* ===== apresentação ===== */
+.ob{position:fixed;inset:0;z-index:80;background:linear-gradient(160deg,#EFE9FF 0%,#FBE9F7 55%,#FFF4E2 100%);display:none;overflow:hidden}
+.ob.on{display:block}
+:root[data-theme="dark"] .ob{background:linear-gradient(160deg,#221E30,#2A1F2C 60%,#2B261E)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .ob{background:linear-gradient(160deg,#221E30,#2A1F2C 60%,#2B261E)}}
+.ob-bg i{position:absolute;border-radius:50%;opacity:.55;animation:drift 9s ease-in-out infinite}
+@keyframes drift{50%{transform:translate(12px,-18px) scale(1.06)}}
+.ob-stage{position:relative;height:100%;max-width:480px;margin:0 auto;padding:max(20px,env(safe-area-inset-top)) 20px max(20px,env(safe-area-inset-bottom));display:flex;flex-direction:column;overflow-y:auto}
+.ob-hero{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;min-height:0}
+.ob-char{width:min(62vw,250px);aspect-ratio:200/250;filter:drop-shadow(0 18px 24px rgba(80,50,140,.18))}
+.ob-char.enter{animation:enter 1s cubic-bezier(.2,1.4,.4,1) both}
+@keyframes enter{from{transform:translateY(80px) scale(.6);opacity:0}to{transform:none;opacity:1}}
+.bubble{background:var(--card);color:var(--ink);border-radius:22px;padding:14px 18px;font-size:18px;line-height:1.4;box-shadow:0 8px 24px rgba(60,40,120,.12);max-width:100%;min-height:54px;position:relative}
+.bubble::before{content:"";position:absolute;top:-8px;left:50%;margin-left:-8px;border:8px solid transparent;border-top:0;border-bottom-color:var(--card)}
+.bubble.left::before{left:28px}
+.bubble:empty{display:none}
+.ob-actions{display:flex;flex-direction:column;gap:10px;padding-top:14px}
+.btn.big{padding:16px 22px;font-size:17px;font-weight:600}
+.ob-q{display:flex;gap:12px;align-items:flex-start;margin:6px 0 18px}
+.ob-q .mini{width:64px;height:64px;border-radius:50%;background:var(--theme);overflow:hidden;flex:none;box-shadow:0 6px 16px rgba(60,40,120,.15)}
+.ob-q .bubble{font-size:17px;flex:1}
+.ob-q .bubble::before{top:22px;left:-8px;margin:0;border:8px solid transparent;border-left:0;border-right-color:var(--card)}
+.ob-dots{display:flex;gap:6px;justify-content:center;margin-bottom:10px}
+.ob-dots i{width:8px;height:8px;border-radius:99px;background:rgba(0,0,0,.15);transition:.3s}
+.ob-dots i.on{width:22px;background:var(--ink)}
+.ob-body{flex:1}
+.ob-in{width:100%;font-size:22px;padding:16px 18px;border-radius:18px;border:2px solid transparent;background:var(--card);outline:none;box-shadow:0 4px 14px rgba(60,40,120,.08)}
+.ob-in:focus{border-color:var(--theme)}
+.likes{display:flex;flex-wrap:wrap;gap:8px}
+.likes button{border:2px solid transparent;background:var(--card);border-radius:99px;padding:10px 14px;font-size:15px;box-shadow:0 3px 10px rgba(60,40,120,.07);transition:.15s}
+.likes button.sel{background:var(--ink);color:var(--bg);transform:scale(1.04)}
+.personas{display:grid;gap:10px}
+.personas button{text-align:left;border:2px solid transparent;background:var(--card);border-radius:20px;padding:14px 16px;box-shadow:0 3px 10px rgba(60,40,120,.07)}
+.personas button b{display:block;font-size:17px;font-weight:600}.personas button span{font-size:14px;color:var(--muted)}
+.personas button.sel{border-color:var(--ink)}
+.personas .sug{display:inline-block;font-size:11px;background:var(--theme);color:#111;border-radius:99px;padding:2px 8px;margin-left:6px;vertical-align:middle}
+.ob-label{font-size:14px;color:var(--muted);margin:16px 2px 8px}
+.gen{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;text-align:center}
+.gen .ob-char{width:min(46vw,190px)}
+.gen ul{list-style:none;padding:0;margin:0;font-size:16px;line-height:2;text-align:left}
+.gen li{opacity:.25;transition:.4s}.gen li.ok{opacity:1}
+.gen li.ok::before{content:"✓ ";color:#1F9D55;font-weight:700}
+.bar{width:220px;height:8px;border-radius:99px;background:rgba(0,0,0,.08);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--theme);transition:width .5s}
+.res{background:var(--card);border-radius:26px;padding:18px;box-shadow:0 8px 24px rgba(60,40,120,.1)}
+.res h3{margin:0 0 10px;font-size:20px}
+.res .r{display:flex;gap:10px;align-items:center;padding:7px 0;font-size:15px;border-bottom:1px solid var(--line)}
+.res .r:last-child{border-bottom:0}
+.res .r span:first-child{font-size:20px;width:28px;text-align:center}
+.res .cats{display:flex;flex-wrap:wrap;gap:6px}
+.res .cats em{font-style:normal;font-size:12px;padding:4px 10px;border-radius:99px;color:#111}
 .native .only-web{display:none!important}
 html:not(.native) .only-native{display:none!important}
 .perm{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}
@@ -183,7 +260,8 @@ html:not(.native) .only-native{display:none!important}
 </style>
 </head>
 <body>
-<div class="ear" id="ear"><div class="dots"><i></i><i></i><i></i></div><span id="earText">Estou ouvindo…</span></div>
+<div class="ob" id="ob"><div class="ob-bg" id="obBg"></div><div class="ob-stage" id="obStage"></div></div>
+<div class="ear" id="ear"><span class="ear-face" id="earFace"></span><div class="dots"><i></i><i></i><i></i></div><span id="earText">Estou ouvindo…</span></div>
 <div class="toast" id="toast"></div>
 
 <div class="app">
@@ -198,7 +276,8 @@ html:not(.native) .only-native{display:none!important}
     </div>
 
     <div class="hero" id="hero">
-      <div class="shapes"><div class="sh b"></div><div class="sh a"></div><div class="sh c"></div><div class="sh d"></div></div>
+      <div class="shapes"><div class="sh a"></div><div class="sh d"></div></div>
+      <div class="hero-ana" id="heroAna" title="Toque para falar comigo"></div>
       <h1 id="greet">Bom dia!</h1>
       <p id="greetSub">Como você está hoje?</p>
       <div class="moods" id="heroMoods"></div>
@@ -237,6 +316,7 @@ html:not(.native) .only-native{display:none!important}
 
     <div class="card">
       <h3>Sua assistente</h3>
+      <div class="btns" style="margin:0 0 6px"><button class="btn ghost" id="redoOb">✨ Refazer a apresentação</button></div>
       <div class="two">
         <div><label class="f">Nome dela</label><input class="in" id="setAName" maxlength="20"></div>
         <div><label class="f">Seu nome</label><input class="in" id="setUName" maxlength="30"></div>
@@ -269,7 +349,7 @@ html:not(.native) .only-native{display:none!important}
         <div><label class="f">Velocidade</label><input type="range" min="0.7" max="1.4" step="0.05" id="setRate" style="width:100%"></div>
         <div><label class="f">Tom</label><input type="range" min="0.6" max="1.6" step="0.05" id="setPitch" style="width:100%"></div>
       </div>
-      <div class="btns"><button class="btn ghost" id="testVoice">Testar voz</button></div>
+      <div class="btns"><button class="btn ghost" id="testVoice">Testar voz</button><button class="btn ghost only-native" id="voiceSettings">Configurar voz do celular</button></div>
     </div>
 
     <div class="card only-native">
@@ -375,10 +455,10 @@ html:not(.native) .only-native{display:none!important}
 /* ============ estado ============ */
 const KEY = 'ana.v1';
 const PALETTE = ['#B9A3FF','#FFBE5C','#A9CBFF','#F7A8F0','#A8E6B8','#FFE27A','#FF9C8A','#8EE3E0'];
-const EMOJIS = ['🌸','🤖','😊','🦋','🌙','☀️','🐱','👩🏽','💜','✨'];
+const EMOJIS = ['ana','🌸','🤖','😊','🦋','🌙','☀️','🐱','👩🏽','💜','✨'];
 const MOODS = [['😄','ótimo'],['🙂','bem'],['😐','mais ou menos'],['😔','pra baixo'],['😫','cansado(a)']];
 const defaults = () => ({
-  settings:{ assistantName:'Ana', userName:'', emoji:'🌸', color:'#B9A3FF', persona:'carinhosa', theme:'auto',
+  settings:{ assistantName:'Ana', userName:'', emoji:'ana', color:'#B9A3FF', persona:'carinhosa', theme:'auto',
     wake:false, speak:true, voiceURI:'', rate:0.95, pitch:1.0, calSync:false, speakAlarms:true,
     greet:{morning:'08:00',afternoon:'13:00',night:'21:00'}, checkin:3, quietStart:'22:30', quietEnd:'07:00', apiKey:'' },
   categories:[
@@ -474,15 +554,15 @@ let speaking = false;
 function speak(text){
   if (!S.speak) return;
   const clean = text.replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu,'').replace(/\n+/g,'. ').replace(/•/g,'').replace(/—/g,',');
-  if (NATIVE){ NATIVE.speak(clean); return; }
+  if (NATIVE){ try { if (!speak.vw && NATIVE.mediaVolume && NATIVE.mediaVolume() === 0){ speak.vw = 1; toast('🔊 Seu volume de mídia está no zero. Aumente para me ouvir!'); } } catch(e){} NATIVE.speak(clean); return; }
   if (!('speechSynthesis' in window)) return;
   speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(clean);
   u.lang = 'pt-BR'; u.rate = +S.rate; u.pitch = +S.pitch;
   const v = voices.find(v => v.voiceURI === S.voiceURI) || bestWebVoice();
   if (v) u.voice = v;
-  u.onstart = () => { speaking = true; pauseEar(); };
-  u.onend = u.onerror = () => { speaking = false; resumeEar(); };
+  u.onstart = () => { speaking = true; pauseEar(); anaSpeaking(true); };
+  u.onend = u.onerror = () => { speaking = false; resumeEar(); anaSpeaking(false); };
   speechSynthesis.speak(u);
 }
 
@@ -535,7 +615,7 @@ function endCommand(){ clearTimeout(cmdTimer); mode = 'wake'; ear(false); if (!S
 function handleHeard(text){ endCommand(); userSays(text, true); }
 function syncMic(){ $('micBtn').classList.toggle('live', NATIVE ? !!S.wake : !!(recOn && (S.wake || mode === 'command'))); }
 // chamadas vindas do app Android
-window.anaListening = on => { ear(on, `Oi${first() ? ', ' + first() : ''}! Pode falar…`); $('micBtn').classList.toggle('live', on || !!S.wake); };
+window.anaListening = on => { document.body.classList.toggle('listening-on', !!on); ear(on, `Oi${first() ? ', ' + first() : ''}! Pode falar…`); $('micBtn').classList.toggle('live', on || !!S.wake); };
 window.anaPartial = t => ear(true, t);
 window.anaCrash = txt => { addMsg('ana', '⚠️ Da última vez eu fechei sozinha por um erro. Tire um print desta mensagem e mande para quem cuida do app:\n\n' + String(txt).slice(0, 1200)); go('chat'); };
 window.anaHeard = t => userSays(t, true);
@@ -591,6 +671,20 @@ function cleanTitle(t){
 }
 function guessCat(n){
   const rules = [
+    ['treino', /academia|treino|musculacao|crossfit|funcional/],
+    ['musica', /musica|ensaio|violao|guitarra|piano|canto|banda/],
+    ['leitura', /\bler\b|livro|leitura/],
+    ['cozinha', /cozinhar|receita|mercado|feira|almoco|jantar em casa/],
+    ['viagem', /viagem|viajar|voo|aeroporto|hotel/],
+    ['filmes', /filme|serie|cinema|netflix/],
+    ['games', /jogo|game|jogar|videogame|partida/],
+    ['natureza', /trilha|parque|natureza|praia|acampar/],
+    ['pets', /\bpet|cachorro|gato|veterinari|passear com/],
+    ['bemestar', /medita|yoga|ioga|respira|terapia|descanso/],
+    ['arte', /desenh|pintar|arte|artesanato/],
+    ['moda', /roupa|moda|salao|cabelo|unha|compras/],
+    ['tech', /codigo|programar|computador|tecnologia/],
+    ['esporte', /futebol|volei|basquete|corrida|natacao|esporte|bike|pedal/],
     ['saude', /medic|dentist|academia|treino|yoga|ioga|pilates|corrid|remedio|exame|consulta|terapia|psic|nutri|caminhad/],
     ['trabalho', /reuniao|trabalho|cliente|call|projeto|entrega|apresentacao|escritorio|chefe|meet/],
     ['estudo', /aula|estud|prova|curso|faculdade|escola|ler |leitura|ingles/],
@@ -648,6 +742,11 @@ function localBrain(text){
   if (/^boa tarde/.test(n)) return { reply: `Boa tarde${name}! Como está sendo seu dia?` };
   if (/^boa noite/.test(n)) return { reply: `Boa noite${name}! 🌙 ` + describeDay(ymd(addDays(new Date(),1)), 'Amanhã') };
   if (/(obrigad|valeu|brigad)/.test(n)) return { reply: pick(['Imagina! 💜','Sempre que precisar!','De nada! 😊']) };
+  if (/(quem e voce|qual (e )?(o )?seu nome|se apresenta)/.test(n)) return { reply: `Eu sou a ${S.assistantName}, sua assistente! Organizo sua rotina com cores, te lembro das coisas e estou sempre por perto. 💜` };
+  if (/(qual (e )?(o )?meu nome|como eu me chamo)/.test(n)) return { reply: first() ? `Você é ${S.userName}! Nunca esqueceria. 😊` : 'Ainda não sei seu nome! Me conta em Personalizar.' };
+  if (/(do que eu gosto|o que eu gosto|meus gostos)/.test(n)) return { reply: D.profile && D.profile.likes && D.profile.likes.length ? `Você me contou que gosta de ${listPt(D.profile.likes.map(x => x.toLowerCase()))}. 💜` : 'Você ainda não me contou do que gosta. Refaça a apresentação em Personalizar!' };
+  if (/(piada|me faz rir|algo engracado)/.test(n)) return { reply: pick(JOKES) };
+  if (/(entediad|sem nada pra fazer|o que eu faco|me da uma ideia|sugere algo|sugestao|to de boa)/.test(n)) return { reply: ideaFor() };
   if (/que horas/.test(n)) return { reply: `Agora são ${hm(new Date()).replace(':','h')}.` };
   if (/que dia (e )?hoje|qual (a )?data/.test(n)) { const d = new Date(); return { reply: `Hoje é ${DOWFULL[d.getDay()]}, ${d.getDate()} de ${MON[d.getMonth()]}.` }; }
 
@@ -740,6 +839,7 @@ Você pode executar ações devolvendo itens em "actions":
 - whatsapp: preparar mensagem no WhatsApp (contact = nome, message = texto). Contatos salvos: ${D.contacts.map(c => c.name).join(', ') || '(nenhum)'}.
 - call: ligar para um contato (contact).
 Use "actions": [] quando for só conversa. Nunca invente que leu mensagens do WhatsApp: você só consegue preparar mensagens para envio.
+${profileText()}
 Agora: ${DOWFULL[now.getDay()]}, ${ymd(now)} ${hm(now)}.
 Agenda dos próximos dias:
 ${upcoming}`;
@@ -832,6 +932,7 @@ function anaSays(text, notifTitle){
   if (!NATIVE) notify(notifTitle || S.assistantName, text, 'ana-' + Date.now());
 }
 function tick(){
+  if (obActive) return;
   const now = new Date(), today = ymd(now), t = hm(now);
   // lembretes de compromissos
   for (const e of D.events){
@@ -938,7 +1039,8 @@ let selected = ymd(new Date()), current = 'home', catFilter = 'all', editing = n
 function applyTheme(){
   document.documentElement.style.setProperty('--theme', S.color);
   if (S.theme === 'auto') document.documentElement.removeAttribute('data-theme'); else document.documentElement.setAttribute('data-theme', S.theme);
-  $('avatar').textContent = $('avatar2').textContent = S.emoji;
+  $('avatar').innerHTML = $('avatar2').innerHTML = S.emoji === 'ana' ? anaSVG('face') : esc(S.emoji);
+  $('heroAna').innerHTML = anaSVG('full'); $('earFace').innerHTML = anaSVG('face');
   $('avatar').style.background = $('avatar2').style.background = S.color;
   $('chatName').textContent = S.assistantName;
   document.title = S.assistantName;
@@ -1017,7 +1119,7 @@ function renderChat(){
 }
 function renderSettings(){
   $('setAName').value = S.assistantName; $('setUName').value = S.userName;
-  $('setEmoji').innerHTML = EMOJIS.map(e => `<button class="${e === S.emoji ? 'sel' : ''}" data-emoji="${e}">${e}</button>`).join('');
+  $('setEmoji').innerHTML = EMOJIS.map(e => `<button class="${e === S.emoji ? 'sel' : ''}" data-emoji="${e}" style="${e === 'ana' ? 'overflow:hidden;background:var(--theme)' : ''}">${e === 'ana' ? anaSVG('face') : e}</button>`).join('');
   $('setColor').innerHTML = PALETTE.map(c => `<button class="${c === S.color ? 'sel' : ''}" style="background:${c}" data-color="${c}" aria-label="cor ${c}"></button>`).join('');
   $('setPersona').value = S.persona; $('setTheme').value = S.theme;
   $('setSpeak').checked = S.speak; $('setRate').value = S.rate; $('setPitch').value = S.pitch;
@@ -1165,13 +1267,276 @@ $('importFile').onchange = async e => {
 };
 $('resetData').onclick = () => { if (confirm('Apagar todos os dados da Ana neste aparelho?')){ localStorage.removeItem(KEY); location.reload(); } };
 
+
+/* ============ personagem: Ana (mulher animada, cabelo curto) ============ */
+function anaSVG(mode){
+  const full = mode !== 'face';
+  const vb = full ? '0 0 200 250' : '46 26 112 138';
+  const HAIR = '#2A1A16', SKIN = '#EDB892', SKIN2 = '#E0A47E';
+  return `<svg class="ana-svg" viewBox="${vb}" aria-hidden="true">
+  ${full ? `<g class="a-body">
+    <path d="M30 252 C32 206 64 188 100 188 C136 188 168 206 170 252 Z" fill="var(--theme)"/>
+    <path d="M30 252 C32 206 64 188 100 188 C136 188 168 206 170 252 Z" fill="#000" opacity=".06"/>
+    <path d="M86 166 L86 190 Q100 202 114 190 L114 166 Z" fill="${SKIN2}"/>
+    <path d="M78 192 Q100 214 122 192" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".75"/>
+    <circle cx="100" cy="222" r="5" fill="#FFBE5C"/>
+  </g>
+  <g class="a-arm"><path d="M152 222 C168 202 174 182 170 160" stroke="var(--theme)" stroke-width="18" stroke-linecap="round" fill="none"/>
+    <circle cx="170" cy="150" r="12" fill="${SKIN}"/><path d="M164 141 l-3 -8 M170 139 l0 -9 M176 141 l3 -8" stroke="${SKIN}" stroke-width="5" stroke-linecap="round"/></g>` : ''}
+  <g class="a-head">
+    <path d="M52 106 C46 58 76 32 104 32 C136 32 158 58 152 108 C151 128 146 144 138 152 L66 152 C58 144 53 128 52 106 Z" fill="${HAIR}"/>
+    <ellipse cx="62" cy="110" rx="7" ry="10" fill="${SKIN2}"/><ellipse cx="142" cy="110" rx="7" ry="10" fill="${SKIN2}"/>
+    <circle cx="61" cy="124" r="3.6" fill="#FFBE5C"/><circle cx="143" cy="124" r="3.6" fill="#FFBE5C"/>
+    <path d="M65 102 C65 68 81 54 102 54 C123 54 139 68 139 102 C139 136 122 160 102 160 C82 160 65 136 65 102 Z" fill="${SKIN}"/>
+    <path d="M57 106 C51 64 78 38 106 40 C134 42 153 66 147 104 C143 86 133 72 119 68 C108 82 86 90 62 92 Z" fill="${HAIR}"/>
+    <path d="M118 69 C127 77 133 87 137 99" stroke="#4A3029" stroke-width="2" fill="none" opacity=".6"/>
+    <path d="M84 60 C96 54 110 52 122 56" stroke="#5B3C33" stroke-width="3" fill="none" opacity=".5" stroke-linecap="round"/>
+    <ellipse cx="80" cy="124" rx="8.5" ry="4.8" fill="#F48C9A" opacity=".45"/><ellipse cx="124" cy="124" rx="8.5" ry="4.8" fill="#F48C9A" opacity=".45"/>
+    <path class="a-brow" d="M74 93 Q83 88 92 92" stroke="${HAIR}" stroke-width="3.2" fill="none" stroke-linecap="round"/>
+    <path class="a-brow" d="M112 92 Q121 88 130 93" stroke="${HAIR}" stroke-width="3.2" fill="none" stroke-linecap="round"/>
+    <g class="a-eyes">
+      <g class="a-eye"><ellipse cx="83" cy="107" rx="5.6" ry="7.2" fill="${HAIR}"/><circle cx="85.2" cy="104.3" r="1.9" fill="#fff"/><path d="M76 101 l-3 -2.5" stroke="${HAIR}" stroke-width="2" stroke-linecap="round"/></g>
+      <g class="a-eye"><ellipse cx="121" cy="107" rx="5.6" ry="7.2" fill="${HAIR}"/><circle cx="123.2" cy="104.3" r="1.9" fill="#fff"/><path d="M128 101 l3 -2.5" stroke="${HAIR}" stroke-width="2" stroke-linecap="round"/></g>
+    </g>
+    <path d="M102 112 Q99 121 103.5 123" stroke="#C98A68" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+    <g class="a-mouth">
+      <path class="a-smile" d="M90 136 Q102 146 114 136" stroke="#B5485A" stroke-width="3.6" fill="none" stroke-linecap="round"/>
+      <path class="a-open" d="M90.5 134 Q102 133 113.5 134 Q111.5 149 102 149 Q92.5 149 90.5 134 Z" fill="#8E2F45"/>
+    </g>
+  </g></svg>`;
+}
+let talkTimer = null, talkWaiters = [];
+function anaSpeaking(on){
+  document.body.classList.toggle('talking', !!on);
+  if (on) { clearTimeout(talkTimer); anaSpeaking.started = Date.now(); }
+  else { const w = talkWaiters; talkWaiters = []; w.forEach(f => f()); }
+}
+window.anaSpeaking = anaSpeaking;
+// fala e espera terminar (com animação mesmo se a voz do aparelho falhar)
+function say(text){
+  return new Promise(resolve => {
+    let done = false; const fin = () => { if (!done){ done = true; resolve(); } };
+    talkWaiters.push(fin);
+    const before = Date.now();
+    speak(text);
+    const est = Math.max(1800, text.length * 75);
+    // se a voz não começar, anima a boca pelo tempo estimado e segue
+    setTimeout(() => { if (!done && (!anaSpeaking.started || anaSpeaking.started < before)){ document.body.classList.add('talking'); talkTimer = setTimeout(() => { document.body.classList.remove('talking'); fin(); }, est); } }, 1500);
+    setTimeout(fin, est + 6000);
+  });
+}
+function typeInto(el, text, ms = 42){
+  return new Promise(res => { el.textContent = ''; let i = 0; const t = setInterval(() => { el.textContent = text.slice(0, ++i); if (i >= text.length){ clearInterval(t); res(); } }, ms); });
+}
+window.anaNotHeard = p => {
+  if (p === 'nomatch'){ const t = 'Não consegui te ouvir direito. Pode repetir? Toque no microfone ou me chame de novo.'; toast('🙉 ' + t); speak(t); }
+  else if (p === 'perm') toast('Permita o microfone em Personalizar → Permissões.');
+  else if (p === 'unavailable') toast('Instale ou atualize o app Google para eu entender sua voz.');
+};
+window.anaVoiceProblem = p => {
+  const t = p === 'nolang' ? 'Para eu falar com você, instale a voz “Português (Brasil)”: Personalizar → Configurar voz do celular.' : 'Não encontrei um motor de voz no celular. Instale o “Google Speech Services” na Play Store.';
+  if (!anaVoiceProblem.shown){ anaVoiceProblem.shown = 1; addMsg('ana', '🔇 ' + t); toast(t); }
+};
+const JOKES = ['Por que o livro de matemática ficou triste? Porque tinha muitos problemas! 😄','O que o pato disse para a pata? Vem quá! 🦆','Qual é o café mais perigoso do mundo? O ex-presso! ☕','Por que a plantinha não foi atendida no hospital? Porque só tinha médico de plantão! 🌱','O que a vaca foi fazer no espaço? Visitar a via láctea! 🐄'];
+const IDEAS = {
+  'Música':['montar uma playlist nova para a semana','aprender o refrão daquela música que não sai da cabeça'],
+  'Esportes':['fazer uma caminhada de 20 minutos','assistir os melhores lances do seu time'],
+  'Academia':['fazer um treino rápido de 15 minutos em casa','alongar por 10 minutos'],
+  'Leitura':['ler 10 páginas daquele livro','procurar um livro novo para começar'],
+  'Cozinhar':['testar uma receita nova hoje','preparar um lanche caprichado'],
+  'Viagens':['planejar a próxima viagem dos sonhos','ver fotos de um lugar que você quer conhecer'],
+  'Filmes e séries':['começar aquela série que todo mundo comenta','rever um filme favorito'],
+  'Games':['jogar uma partida rapidinha','chamar um amigo para jogar online'],
+  'Natureza':['tomar um sol e respirar ar puro','cuidar das plantas'],
+  'Moda':['montar um look novo com o que já tem','organizar o guarda-roupa'],
+  'Arte':['desenhar qualquer coisa por 10 minutos','fazer algo criativo sem compromisso'],
+  'Tecnologia':['aprender um atalho novo no celular','assistir um vídeo sobre algo que te intriga'],
+  'Pets':['brincar com seu pet','levar seu pet para passear'],
+  'Meditação':['fazer 5 minutos de respiração','meditar ouvindo um som calmo'],
+  'Estudos':['revisar um assunto por 25 minutos','assistir uma aula curtinha'],
+  'Família':['ligar para alguém da família','marcar um almoço em família'],
+  'Trabalho':['organizar as tarefas de amanhã','limpar a caixa de e-mails'],
+  'Festas':['chamar os amigos para um encontro','planejar o próximo rolê']
+};
+function ideaFor(){
+  const likes = (D.profile && D.profile.likes && D.profile.likes.length) ? D.profile.likes : Object.keys(IDEAS);
+  const l = pick(likes), idea = pick(IDEAS[l] || ['beber uma água e dar uma volta']);
+  return `Que tal ${idea}? ${l === 'Meditação' ? '🧘' : '✨'} Quer que eu coloque na sua agenda?`;
+}
+function listPt(a){ return a.length < 2 ? (a[0] || '') : a.slice(0,-1).join(', ') + ' e ' + a[a.length-1]; }
+function profileText(){
+  const pf = D.profile; if (!pf || !pf.done) return '';
+  return `Sobre ${pf.name || 'o usuário'}: ${pf.age ? pf.age + ' anos; ' : ''}gosta de ${listPt(pf.likes || []) || '(não informou)'}; rotina: ${pf.occupation || '-'}, acorda ${pf.wake || '?'} e dorme ${pf.sleep || '?'}. Use isso para personalizar sugestões.`;
+}
+
+/* ============ apresentação + criação da assistente ideal ============ */
+const LIKES = [['Música','🎵'],['Esportes','⚽'],['Academia','💪'],['Leitura','📚'],['Cozinhar','🍳'],['Viagens','✈️'],['Filmes e séries','🎬'],['Games','🎮'],['Natureza','🌿'],['Moda','👗'],['Arte','🎨'],['Tecnologia','💻'],['Pets','🐶'],['Meditação','🧘'],['Estudos','🎓'],['Família','👨‍👩‍👧'],['Trabalho','💼'],['Festas','🎉']];
+const LIKE_CAT = { 'Música':['musica','Música','#F7A8F0'], 'Esportes':['esporte','Esportes','#A8E6B8'], 'Academia':['treino','Treino','#8EE3E0'], 'Leitura':['leitura','Leitura','#FFE27A'], 'Cozinhar':['cozinha','Cozinha','#FF9C8A'], 'Viagens':['viagem','Viagens','#A9CBFF'], 'Filmes e séries':['filmes','Filmes','#C9B6FF'], 'Games':['games','Games','#8EE3E0'], 'Natureza':['natureza','Natureza','#A8E6B8'], 'Moda':['moda','Moda','#F7A8F0'], 'Arte':['arte','Arte','#FFBE5C'], 'Tecnologia':['tech','Tecnologia','#A9CBFF'], 'Pets':['pets','Pets','#FFBE5C'], 'Meditação':['bemestar','Bem-estar','#A8E6B8'], 'Estudos':['estudo','Estudo','#FFE27A'], 'Família':['familia','Família','#F7A8F0'], 'Trabalho':['trabalho','Trabalho','#A9CBFF'], 'Festas':['lazer','Lazer','#FFBE5C'] };
+const PERSONAS = { carinhosa:['💜 Carinhosa','Acolhedora, cuida de você com jeitinho'], divertida:['😄 Divertida','Leve, brincalhona e cheia de emojis'], objetiva:['🎯 Objetiva','Direto ao ponto, sem enrolação'], motivadora:['🔥 Motivadora','Te empurra pra frente, estilo coach'] };
+const OCCUP = ['Trabalho','Estudo','Trabalho e estudo','Cuido da casa','Aposentado(a)','Outro'];
+let obActive = false, ob = {};
+const WELCOME = 'Seja bem-vinda! Eu sou a Ana, a sua assistente, e vou te mostrar o quão divertido pode ser se a gente colorir a nossa rotina!';
+
+function suggestPersona(pf){
+  const L = new Set(pf.likes || []), a = +pf.age || 30;
+  if (a >= 60) return 'carinhosa';
+  if (L.has('Academia') || L.has('Esportes')) return 'motivadora';
+  if (a < 26 && ['Games','Festas','Música','Filmes e séries'].some(x => L.has(x))) return 'divertida';
+  if (L.has('Meditação') || L.has('Família')) return 'carinhosa';
+  if (L.has('Tecnologia') || L.has('Trabalho') || /Trabalho/.test(pf.occupation || '')) return 'objetiva';
+  return a < 30 ? 'divertida' : 'carinhosa';
+}
+function suggestColor(pf){ const l = (pf.likes || [])[0]; return l && LIKE_CAT[l] ? (PALETTE.includes(LIKE_CAT[l][2]) ? LIKE_CAT[l][2] : '#B9A3FF') : '#B9A3FF'; }
+const addMin = (t, m) => { const [h, mi] = (t || '07:00').split(':').map(Number); const x = ((h*60 + mi + m) % 1440 + 1440) % 1440; return `${pad(Math.floor(x/60))}:${pad(x%60)}`; };
+
+function buildModel(pf){
+  const persona = pf.persona || suggestPersona(pf);
+  const color = pf.color || suggestColor(pf);
+  const a = +pf.age || 30;
+  const wake = pf.wake || '07:00', sleep = pf.sleep || '23:00';
+  const base = [];
+  const occ = pf.occupation || '';
+  if (/Trabalho|Outro/.test(occ) || !occ) base.push(['trabalho','Trabalho','#A9CBFF']);
+  if (/Estudo/.test(occ)) base.push(['estudo','Estudo','#FFE27A']);
+  if (/casa/i.test(occ)) base.push(['casa','Casa','#FFE27A']);
+  base.push(['saude','Saúde','#A8E6B8'], ['pessoal','Pessoal','#B9A3FF'], ['familia','Família','#F7A8F0'], ['lazer','Lazer','#FFBE5C']);
+  const cats = [];
+  for (const c of base.concat((pf.likes || []).map(l => LIKE_CAT[l]).filter(Boolean))) if (!cats.some(x => x[0] === c[0]) && cats.length < 10) cats.push(c);
+  return {
+    persona, color,
+    greet: { morning: wake, afternoon: wake >= '11:00' ? addMin(wake, 180) : '13:00', night: addMin(sleep, -30) },
+    quietStart: sleep, quietEnd: wake,
+    rate: a >= 60 ? 0.86 : a >= 45 ? 0.92 : 0.97, pitch: 1.0,
+    checkin: a >= 60 ? 5 : 3,
+    categories: cats.map(([id, name, color]) => ({ id, name, color }))
+  };
+}
+function applyModel(pf, m){
+  S.userName = pf.name || S.userName; S.persona = m.persona; S.color = m.color;
+  S.greet = m.greet; S.quietStart = m.quietStart; S.quietEnd = m.quietEnd;
+  S.rate = m.rate; S.pitch = m.pitch; S.checkin = m.checkin; D.lastCheckin = Date.now();
+  // mantém categorias que já têm compromissos
+  const used = new Set(D.events.map(e => e.cat));
+  const keep = D.categories.filter(c => used.has(c.id) && !m.categories.some(x => x.id === c.id));
+  D.categories = m.categories.concat(keep);
+  const today = ymd(new Date()), t = hm(new Date());
+  for (const p of ['morning','afternoon','night']) if (S.greet[p] <= t) D.lastGreet[p] = today; // não cumprimenta logo em seguida
+  D.profile = Object.assign({}, pf, { done: true, at: Date.now() }); delete D.profile.step;
+  save(); applyTheme(); renderAll();
+}
+
+function obBg(){
+  const cols = ['#B9A3FF','#FFBE5C','#A9CBFF','#F7A8F0','#A8E6B8','#FFE27A'];
+  $('obBg').innerHTML = cols.map((c, i) => `<i style="background:${c};width:${90 + i*22}px;height:${90 + i*22}px;left:${[-30,70,-40,60,10,75][i]}%;top:${[8,4,55,62,85,30][i]}%;animation-delay:${-i*1.4}s;filter:blur(${i % 2 ? 2 : 0}px)"></i>`).join('');
+}
+function startOnboarding(){
+  obActive = true; ob = { step:0, likes: [] }; obBg();
+  $('ob').classList.add('on');
+  stageWelcome();
+}
+function endOnboarding(){ obActive = false; $('ob').classList.remove('on'); document.body.classList.remove('talking'); renderAll(); setTimeout(tick, 1500); }
+
+function stageWelcome(){
+  $('obStage').innerHTML = `<div class="ob-hero"><div class="ob-char enter waving" id="obChar">${anaSVG('full')}</div><div class="bubble" id="obBubble"></div></div>
+  <div class="ob-actions"><button class="btn big" id="obGo" style="display:none">Vamos lá! ✨</button><button class="btn big" id="obTap">▶ Toque para conhecer a Ana</button><button class="link" id="obSkip">Pular apresentação</button></div>`;
+  const run = async () => {
+    $('obTap').style.display = 'none';
+    const ch = $('obChar'); ch.classList.remove('waving'); void ch.offsetWidth; ch.classList.add('waving');
+    await Promise.all([typeInto($('obBubble'), WELCOME, 48), say(WELCOME)]);
+    $('obGo').style.display = '';
+  };
+  $('obTap').onclick = run;
+  $('obGo').onclick = () => stageQuestion(0);
+  $('obSkip').onclick = () => { applyModel({ name: S.userName, likes: [] }, buildModel({})); endOnboarding(); };
+  if (NATIVE){ $('obTap').style.display = 'none'; setTimeout(run, 1100); }  // no app ela já entra falando
+}
+
+const QUESTIONS = [
+  { q: () => 'Primeiro, como você quer que eu te chame?', body: () => `<input class="ob-in" id="obName" placeholder="Seu nome ou apelido" maxlength="30" autocomplete="given-name" value="${esc(ob.name || S.userName || '')}">`,
+    ok: () => { const v = $('obName').value.trim(); if (!v){ toast('Me diz seu nome? 😊'); return false; } ob.name = v; return true; }, focus: 'obName' },
+  { q: () => `Prazer, ${ob.name.split(' ')[0]}! Quantos anos você tem?`, body: () => `<input class="ob-in" id="obAge" type="number" inputmode="numeric" min="5" max="110" placeholder="Sua idade" value="${esc(ob.age || '')}"><button class="link" id="obNoAge" style="margin-top:8px">Prefiro não dizer</button>`,
+    ok: () => { const v = +$('obAge').value; if (v && (v < 5 || v > 110)){ toast('Hmm, essa idade não parece certa 😅'); return false; } ob.age = v || ''; return true; }, focus: 'obAge',
+    after: () => { $('obNoAge').onclick = () => { ob.age = ''; stageQuestion(ob.step + 1); }; } },
+  { q: () => 'Do que você mais gosta? Pode escolher vários!', body: () => `<div class="likes" id="obLikes">${LIKES.map(([l, e]) => `<button data-like="${l}" class="${ob.likes.includes(l) ? 'sel' : ''}">${e} ${l}</button>`).join('')}</div>`,
+    ok: () => { if (!ob.likes.length){ toast('Escolhe pelo menos uma coisinha 💜'); return false; } return true; },
+    after: () => { $('obLikes').onclick = e => { const b = e.target.closest('[data-like]'); if (!b) return; const l = b.dataset.like; ob.likes = ob.likes.includes(l) ? ob.likes.filter(x => x !== l) : ob.likes.concat(l); b.classList.toggle('sel'); }; } },
+  { q: () => 'Como é a sua rotina? Assim eu sei a hora certa de te dar bom dia e boa noite.', body: () => `
+      <div class="two"><div><div class="ob-label">Acordo às</div><input class="ob-in" type="time" id="obWake" value="${ob.wake || '07:00'}"></div><div><div class="ob-label">Durmo às</div><input class="ob-in" type="time" id="obSleep" value="${ob.sleep || '23:00'}"></div></div>
+      <div class="ob-label">No dia a dia eu…</div><div class="likes" id="obOcc">${OCCUP.map(o => `<button data-occ="${o}" class="${ob.occupation === o ? 'sel' : ''}">${o}</button>`).join('')}</div>`,
+    ok: () => { ob.wake = $('obWake').value || '07:00'; ob.sleep = $('obSleep').value || '23:00'; return true; },
+    after: () => { $('obOcc').onclick = e => { const b = e.target.closest('[data-occ]'); if (!b) return; ob.occupation = b.dataset.occ; [...$('obOcc').children].forEach(x => x.classList.toggle('sel', x === b)); }; } },
+  { q: () => 'E como você quer que eu seja com você? Já separei uma sugestão!', body: () => {
+      const sug = suggestPersona(ob); if (!ob.persona) ob.persona = sug; if (!ob.color) ob.color = suggestColor(ob);
+      return `<div class="personas" id="obPers">${Object.entries(PERSONAS).map(([k, [t, d]]) => `<button data-p="${k}" class="${ob.persona === k ? 'sel' : ''}"><b>${t}${k === sug ? '<span class="sug">sugerido pra você</span>' : ''}</b><span>${d}</span></button>`).join('')}</div>
+      <div class="ob-label">Minha cor favorita</div><div class="swatches" id="obColor">${PALETTE.map(c => `<button style="background:${c}" data-c="${c}" class="${ob.color === c ? 'sel' : ''}" aria-label="cor"></button>`).join('')}</div>`; },
+    ok: () => true,
+    after: () => {
+      $('obPers').onclick = e => { const b = e.target.closest('[data-p]'); if (!b) return; ob.persona = b.dataset.p; [...$('obPers').children].forEach(x => x.classList.toggle('sel', x === b)); };
+      $('obColor').onclick = e => { const b = e.target.closest('[data-c]'); if (!b) return; ob.color = b.dataset.c; document.documentElement.style.setProperty('--theme', ob.color); [...$('obColor').children].forEach(x => x.classList.toggle('sel', x === b)); };
+      if (ob.color) document.documentElement.style.setProperty('--theme', ob.color);
+    } }
+];
+function stageQuestion(i){
+  ob.step = i; const Q = QUESTIONS[i], text = Q.q();
+  $('obStage').innerHTML = `<div class="ob-dots">${QUESTIONS.map((_, k) => `<i class="${k <= i ? 'on' : ''}"></i>`).join('')}</div>
+    <div class="ob-q"><div class="mini">${anaSVG('face')}</div><div class="bubble" id="obQ"></div></div>
+    <div class="ob-body">${Q.body()}</div>
+    <div class="ob-actions"><button class="btn big" id="obNext">${i === QUESTIONS.length - 1 ? 'Criar minha Ana ✨' : 'Continuar'}</button>${i > 0 ? '<button class="link" id="obBack">Voltar</button>' : ''}</div>`;
+  typeInto($('obQ'), text, 28); speak(text);
+  if (Q.after) Q.after();
+  if (Q.focus) setTimeout(() => { const el = $(Q.focus); if (el) el.focus(); }, 350);
+  $('obNext').onclick = () => { if (Q.ok()) { if (i < QUESTIONS.length - 1) stageQuestion(i + 1); else stageGenerate(); } };
+  if ($('obBack')) $('obBack').onclick = () => stageQuestion(i - 1);
+  const inp = $('obStage').querySelector('input.ob-in:not([type=time])');
+  if (inp) inp.addEventListener('keydown', e => { if (e.key === 'Enter') $('obNext').click(); });
+}
+async function stageGenerate(){
+  const steps = ['Escolhendo a sua cor','Ajustando o meu jeitinho','Criando as cores da sua agenda','Planejando seu bom dia e boa noite','Afinando a minha voz'];
+  $('obStage').innerHTML = `<div class="gen"><div class="ob-char">${anaSVG('full')}</div><b style="font-size:20px">Criando a sua Ana ideal…</b><div class="bar"><i id="obBar"></i></div><ul id="obSteps">${steps.map(t => `<li>${t}</li>`).join('')}</ul></div>`;
+  speak(`Só um instante, ${ob.name.split(' ')[0]}. Estou me ajeitando do seu jeito!`);
+  const model = buildModel(ob);
+  for (let k = 0; k < steps.length; k++){
+    await new Promise(r => setTimeout(r, 650));
+    $('obSteps').children[k].classList.add('ok'); $('obBar').style.width = ((k + 1) / steps.length * 100) + '%';
+  }
+  applyModel(ob, model);
+  await new Promise(r => setTimeout(r, 400));
+  stageResult(model);
+}
+function stageResult(m){
+  const nm = ob.name.split(' ')[0], P_ = PERSONAS[m.persona];
+  const line = { carinhosa:'Vou cuidar de você com muito carinho.', divertida:'Prometo deixar seus dias mais leves e divertidos!', objetiva:'Vou ser direta e te ajudar a resolver tudo rapidinho.', motivadora:'Vou te dar aquele empurrão pra você brilhar!' }[m.persona];
+  const text = `Prontinho, ${nm}! Criei uma Ana só sua. ${line} Vamos colorir a sua rotina?`;
+  $('obStage').innerHTML = `<div class="ob-q" style="margin-top:4px"><div class="mini">${anaSVG('face')}</div><div class="bubble" id="obR"></div></div>
+    <div class="res"><h3>A sua Ana ✨</h3>
+      <div class="r"><span>🎨</span><span>Cor</span><span style="margin-left:auto;width:26px;height:26px;border-radius:50%;background:${m.color}"></span></div>
+      <div class="r"><span>💬</span><span>${P_[0]} · ${P_[1]}</span></div>
+      <div class="r"><span>☀️</span><span>Bom dia às ${m.greet.morning} · Boa noite às ${m.greet.night}</span></div>
+      <div class="r"><span>💜</span><span>Pergunto como você está a cada ${m.checkin} horas (nunca enquanto você dorme)</span></div>
+      <div class="r"><span>🗂️</span><div class="cats">${m.categories.map(c => `<em style="background:${c.color}">${esc(c.name)}</em>`).join('')}</div></div>
+      <div class="r"><span>🗣️</span><span>Voz ${m.rate < 0.9 ? 'calma e pausada' : 'tranquila'}${ob.likes.length ? ' · sugestões de ' + esc(listPt(ob.likes.slice(0,3).map(x => x.toLowerCase()))) : ''}</span></div>
+    </div>
+    <div class="ob-actions">${NATIVE ? '<button class="btn big" id="obWakeOn">🎙️ Ativar “Ei, Ana” mesmo com o app fechado</button>' : ''}<button class="btn big ${NATIVE ? 'ghost' : ''}" id="obDone">Começar 🚀</button></div>`;
+  typeInto($('obR'), text, 30); say(text);
+  $('obDone').onclick = endOnboarding;
+  if ($('obWakeOn')) $('obWakeOn').onclick = () => { S.wake = true; save(); NATIVE.setWake(true); endOnboarding(); };
+}
+// usado pelo teste automático
+window.obTest = () => { ob = { name:'Teste', age:30, likes:['Música','Academia'], wake:'07:00', sleep:'23:00', occupation:'Trabalho' }; applyModel(ob, buildModel(ob)); endOnboarding(); };
+
 /* ============ início ============ */
 if (NATIVE){ S.wake = !!NATIVE.wakeOn(); refreshPhone(); }
+if (!D.profile || !D.profile.done) obActive = true;
 renderAll();
 tick();
 syncNative();
 if (S.wake && SR && !NATIVE) startRec();
 if (new URLSearchParams(location.search).get('s')) go(new URLSearchParams(location.search).get('s'));
+if (S.emoji === '🌸') { S.emoji = 'ana'; save(); applyTheme(); }
+$('heroAna').onclick = micTap;
+$('redoOb').onclick = () => { go('home'); startOnboarding(); };
+$('voiceSettings').onclick = () => NATIVE && NATIVE.openVoiceSettings();
+if (!D.profile || !D.profile.done) startOnboarding();
 </script>
 </body>
 </html>

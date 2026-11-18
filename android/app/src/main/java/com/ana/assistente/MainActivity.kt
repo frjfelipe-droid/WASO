@@ -3,6 +3,7 @@ package com.ana.assistente
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
+import android.content.ComponentName
 import android.content.ContentValues
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -16,8 +17,10 @@ import android.provider.CalendarContract
 import android.provider.MediaStore
 import android.provider.Settings
 import android.speech.RecognitionListener
+import android.speech.RecognitionService
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
+import android.speech.tts.TextToSpeech
 import android.view.WindowManager
 import android.webkit.JavascriptInterface
 import android.webkit.WebChromeClient
@@ -55,8 +58,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         Notifier.channels(this)
         Speaker.init(this)
-        Speaker.onStart = { WakeWordService.send(this, WakeWordService.ACTION_PAUSE) }
-        Speaker.onDone = { resumeWakeSoon() }
+        bindSpeaker()
 
         web = WebView(this)
         setContentView(web)
@@ -127,7 +129,13 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    override fun onResume() { super.onResume(); visible = true; if (pageReady) js("window.anaResume && anaResume()") }
+    private fun bindSpeaker() {
+        Speaker.onStart = { WakeWordService.send(this, WakeWordService.ACTION_PAUSE); js("window.anaSpeaking && anaSpeaking(true)") }
+        Speaker.onDone = { js("window.anaSpeaking && anaSpeaking(false)"); resumeWakeSoon() }
+        Speaker.onProblem = { p -> js("window.anaVoiceProblem && anaVoiceProblem('$p')") }
+    }
+
+    override fun onResume() { super.onResume(); visible = true; bindSpeaker(); if (pageReady) js("window.anaResume && anaResume()") }
     override fun onPause() {
         super.onPause(); visible = false
         if (Build.VERSION.SDK_INT >= 27) { setShowWhenLocked(false); setTurnScreenOn(false) }
@@ -161,48 +169,105 @@ class MainActivity : AppCompatActivity() {
     }
 
     /* ---------- ouvir o pedido (depois do "Ana") ---------- */
+    private var attempt = 0
+    private val REQ_DIALOG = 20
+
+    /** Reconhecedor do Google, se existir (o padrão de alguns celulares, como Samsung, costuma falhar em português). */
+    private fun googleRecognizer(): ComponentName? = try {
+        packageManager.queryIntentServices(Intent(RecognitionService.SERVICE_INTERFACE), 0)
+            .map { ComponentName(it.serviceInfo.packageName, it.serviceInfo.name) }
+            .firstOrNull { it.packageName == "com.google.android.googlequicksearchbox" }
+            ?: packageManager.queryIntentServices(Intent(RecognitionService.SERVICE_INTERFACE), 0)
+                .map { ComponentName(it.serviceInfo.packageName, it.serviceInfo.name) }
+                .firstOrNull { it.packageName.startsWith("com.google") }
+    } catch (_: Throwable) { null }
+
+    private fun speechIntent() = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+        .putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+        .putExtra(RecognizerIntent.EXTRA_LANGUAGE, "pt-BR")
+        .putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, "pt-BR")
+        .putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
+        .putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 3)
+        .putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 1800L)
+        .putExtra(RecognizerIntent.EXTRA_PROMPT, "Pode falar, estou ouvindo 💜")
+
     private fun startListening() = main.post {
         if (!hasMic()) { ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.RECORD_AUDIO), REQ_BASIC); return@post }
-        if (!SpeechRecognizer.isRecognitionAvailable(this)) { js("toast('Instale/atualize o app Google para eu entender sua voz.')"); return@post }
+        attempt = 0
         WakeWordService.send(this, WakeWordService.ACTION_PAUSE)
         Speaker.stop()
         listening = true
         js("anaListening(true)")
-        main.postDelayed({
-            recognizer?.destroy()
-            val r = SpeechRecognizer.createSpeechRecognizer(this)
-            recognizer = r
-            r.setRecognitionListener(object : RecognitionListener {
-                override fun onReadyForSpeech(params: Bundle?) { js("anaListening(true)") }
-                override fun onBeginningOfSpeech() {}
-                override fun onRmsChanged(rmsdB: Float) {}
-                override fun onBufferReceived(buffer: ByteArray?) {}
-                override fun onEndOfSpeech() {}
-                override fun onEvent(eventType: Int, params: Bundle?) {}
-                override fun onPartialResults(partial: Bundle?) {
-                    val t = partial?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)?.firstOrNull() ?: return
-                    js("anaPartial(${JSONObject.quote(t)})")
+        // espera o microfone ser liberado pela escuta em segundo plano
+        main.postDelayed({ listenOnce() }, if (WakeWordService.running) 700 else 250)
+    }
+
+    private fun listenOnce() {
+        if (!SpeechRecognizer.isRecognitionAvailable(this)) { listenWithDialog(); return }
+        try { recognizer?.destroy() } catch (_: Throwable) {}
+        val comp = if (attempt == 0) googleRecognizer() else null
+        val r = try {
+            if (comp != null) SpeechRecognizer.createSpeechRecognizer(this, comp) else SpeechRecognizer.createSpeechRecognizer(this)
+        } catch (e: Throwable) { listenWithDialog(); return }
+        android.util.Log.i("Ana", "ouvindo pedido (tentativa ${attempt + 1}, ${comp?.packageName ?: "padrão"})")
+        recognizer = r
+        r.setRecognitionListener(object : RecognitionListener {
+            override fun onReadyForSpeech(params: Bundle?) { js("anaListening(true)") }
+            override fun onBeginningOfSpeech() {}
+            override fun onRmsChanged(rmsdB: Float) { js("window.anaLevel && anaLevel(${rmsdB.toInt()})") }
+            override fun onBufferReceived(buffer: ByteArray?) {}
+            override fun onEndOfSpeech() {}
+            override fun onEvent(eventType: Int, params: Bundle?) {}
+            override fun onPartialResults(partial: Bundle?) {
+                val t = partial?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)?.firstOrNull() ?: return
+                js("anaPartial(${JSONObject.quote(t)})")
+            }
+            override fun onResults(results: Bundle?) {
+                val t = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)?.firstOrNull()
+                finishHeard(t)
+            }
+            override fun onError(error: Int) {
+                android.util.Log.w("Ana", "reconhecimento falhou: erro $error (tentativa ${attempt + 1})")
+                when (error) {
+                    SpeechRecognizer.ERROR_NO_MATCH, SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> finishHeard(null, "nomatch")
+                    SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS -> finishHeard(null, "perm")
+                    else -> {
+                        // microfone ocupado, serviço indisponível, idioma não suportado...: tenta de novo, depois usa a janela do Google
+                        attempt++
+                        if (attempt == 1) main.postDelayed({ listenOnce() }, 800)
+                        else listenWithDialog()
+                    }
                 }
-                override fun onResults(results: Bundle?) {
-                    listening = false
-                    val t = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)?.firstOrNull()
-                    js("anaListening(false)")
-                    if (!t.isNullOrBlank()) js("anaHeard(${JSONObject.quote(t)})")
-                    main.postDelayed({ resumeWakeSoon() }, 1500)
-                }
-                override fun onError(error: Int) {
-                    listening = false
-                    js("anaListening(false)")
-                    resumeWakeSoon()
-                }
-            })
-            val i = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
-                .putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-                .putExtra(RecognizerIntent.EXTRA_LANGUAGE, "pt-BR")
-                .putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
-                .putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 1500L)
-            try { r.startListening(i) } catch (e: Exception) { listening = false; js("anaListening(false)") }
-        }, 350)
+            }
+        })
+        try { r.startListening(speechIntent()) } catch (e: Throwable) { attempt++; if (attempt < 2) main.postDelayed({ listenOnce() }, 600) else listenWithDialog() }
+    }
+
+    @Suppress("DEPRECATION")
+    private fun listenWithDialog() {
+        android.util.Log.i("Ana", "usando a janela de voz do sistema")
+        try { recognizer?.destroy() } catch (_: Throwable) {}
+        recognizer = null
+        try { startActivityForResult(speechIntent().putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, false), REQ_DIALOG) }
+        catch (_: Throwable) { finishHeard(null, "unavailable") }
+    }
+
+    @Deprecated("Deprecated in Java")
+    @Suppress("DEPRECATION")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQ_DIALOG) {
+            val t = if (resultCode == RESULT_OK) data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.firstOrNull() else null
+            finishHeard(t, if (resultCode == RESULT_OK) "nomatch" else "cancel")
+        }
+    }
+
+    private fun finishHeard(text: String?, problem: String = "nomatch") {
+        listening = false
+        js("anaListening(false)")
+        if (!text.isNullOrBlank()) js("anaHeard(${JSONObject.quote(text)})")
+        else js("window.anaNotHeard && anaNotHeard('$problem')")
+        main.postDelayed({ resumeWakeSoon() }, 1500)
     }
 
     /** Teste automático (usado no emulador do GitHub antes de publicar cada versão). */
@@ -210,7 +275,7 @@ class MainActivity : AppCompatActivity() {
         val tag = "Ana"
         android.util.Log.i(tag, "ANA_SELFTEST_START")
         val steps = listOf<Pair<Long, () -> Unit>>(
-            1000L to { js("S.userName='Teste'; S.calSync=true; save(); anaHeard('marca dentista amanhã às 15h')") },
+            1000L to { js("window.obTest && obTest(); S.calSync=true; save(); anaHeard('marca dentista amanhã às 15h')") },
             4000L to { js("anaHeard('o que eu tenho amanhã?')") },
             9000L to { js("go('settings')"); js("AnaNative.voices(); AnaNative.perms(); refreshPhone(); renderAll();") },
             10000L to { enableWake() },
@@ -269,6 +334,11 @@ class MainActivity : AppCompatActivity() {
         }
 
         @JavascriptInterface fun listen() = startListening()
+        @JavascriptInterface fun mediaVolume(): Int = Speaker.mediaVolume()
+        @JavascriptInterface fun openVoiceSettings() = main.post {
+            try { startActivity(Intent("com.android.settings.TTS_SETTINGS").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
+            catch (_: Exception) { try { startActivity(Intent(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA)) } catch (_: Exception) {} }
+        }
 
         @JavascriptInterface fun setName(name: String) {
             val p = Prefs.of(this@MainActivity)
