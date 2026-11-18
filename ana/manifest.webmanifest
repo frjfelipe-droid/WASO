@@ -1,0 +1,18 @@
+{
+  "name": "Ana — sua assistente",
+  "short_name": "Ana",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F4F2FA",
+  "theme_color": "#F4F2FA",
+  "lang": "pt-BR",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Falar com a Ana", "url": "./index.html?s=chat" },
+    { "name": "Agenda", "url": "./index.html?s=agenda" }
+  ]
+}

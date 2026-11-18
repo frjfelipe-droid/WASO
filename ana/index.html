@@ -1,0 +1,1542 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ana</title>
+<meta name="theme-color" content="#F4F2FA">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Ana">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --bg:#F4F2FA; --card:#FFFFFF; --ink:#111114; --muted:#6E6B7B; --line:#DCD8E8;
+  --theme:#B9A3FF; --theme-ink:#111114; --nav:#111114; --nav-ink:#FFFFFF;
+  --c-orange:#FFBE5C; --c-blue:#A9CBFF; --c-pink:#F7A8F0; --c-lav:#B9A3FF; --c-green:#A8E6B8; --c-yellow:#FFE27A;
+  --radius:26px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ --bg:#121117; --card:#1D1B24; --ink:#F3F1FA; --muted:#A39FB3; --line:#34313F; --nav:#F3F1FA; --nav-ink:#111114; }
+}
+:root[data-theme="dark"]{ --bg:#121117; --card:#1D1B24; --ink:#F3F1FA; --muted:#A39FB3; --line:#34313F; --nav:#F3F1FA; --nav-ink:#111114; }
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Outfit,system-ui,-apple-system,"Segoe UI",sans-serif}
+body{min-height:100dvh}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+.app{max-width:480px;margin:0 auto;padding:max(16px,env(safe-area-inset-top)) 16px 120px}
+.screen{display:none;animation:fade .25s ease}
+.screen.on{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* header */
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:4px 0 18px}
+.avatar{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;font-size:24px;background:var(--theme);flex:none}
+.hello{text-align:center;flex:1;min-width:0}
+.hello b{display:block;font-size:18px;font-weight:600}
+.hello span{font-size:14px;color:var(--muted)}
+.iconbtn{width:48px;height:48px;border-radius:50%;border:1px solid var(--line);background:var(--card);display:grid;place-items:center;flex:none}
+.iconbtn svg{width:22px;height:22px}
+.iconbtn.live{background:var(--ink);color:var(--bg);border-color:var(--ink);animation:pulse 1.6s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--theme) 70%,transparent)}100%{box-shadow:0 0 0 14px transparent}}
+
+/* hero */
+.hero{position:relative;overflow:hidden;background:var(--theme);color:var(--theme-ink);border-radius:var(--radius);padding:22px 20px 18px;min-height:168px}
+.hero h1{margin:0;font-size:34px;line-height:1;font-weight:700;max-width:62%;letter-spacing:-.5px}
+.hero p{margin:8px 0 14px;font-size:14px;font-weight:500;max-width:60%}
+.moods{display:flex;gap:6px;position:relative;z-index:2}
+.moods button{width:38px;height:38px;border-radius:50%;border:2px solid rgba(255,255,255,.7);background:rgba(255,255,255,.45);font-size:19px;padding:0}
+.moods button.sel{background:#111114;border-color:#111114}
+.shapes{position:absolute;right:-14px;top:8px;width:170px;height:160px;pointer-events:none}
+.sh{position:absolute;border-radius:50%}
+.sh.a{width:78px;height:78px;right:30px;top:4px;background:radial-gradient(circle at 35% 30%,#FFD27A,#FF9A1F 60%,#C46A00);}
+.sh.a::after{content:"";position:absolute;inset:24px;border-radius:50%;background:radial-gradient(circle at 60% 60%,#FFB347,#B85F00)}
+.sh.b{width:86px;height:86px;right:70px;top:40px;background:radial-gradient(circle at 35% 30%,#7A8494,#3E4654 65%,#232831)}
+.sh.b::after{content:"";position:absolute;inset:28px;border-radius:50%;background:#2A303A}
+.sh.c{width:70px;height:70px;right:12px;top:70px;background:radial-gradient(circle at 35% 30%,#E9DDE3,#B7A4AE 60%,#7D6B74)}
+.sh.d{width:48px;height:48px;right:104px;top:104px;border:12px solid #F5E445;background:transparent}
+.listening .sh{animation:float 2.4s ease-in-out infinite}
+.listening .sh.b{animation-delay:.3s}.listening .sh.c{animation-delay:.6s}.listening .sh.d{animation-delay:.9s}
+@keyframes float{50%{transform:translateY(-8px) rotate(8deg)}}
+
+/* week */
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin:16px 0 22px}
+.day{border:1px solid var(--line);background:var(--card);border-radius:22px;padding:14px 0 12px;text-align:center;position:relative}
+.day small{display:block;font-size:13px;color:var(--muted)}
+.day b{display:block;font-size:16px;font-weight:500;margin-top:2px}
+.day i{position:absolute;top:6px;left:50%;width:6px;height:6px;margin-left:-3px;border-radius:50%;background:var(--ink)}
+.day.sel{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.day.sel small{color:var(--bg);opacity:.8}.day.sel i{background:var(--bg)}
+.day.today:not(.sel){border-color:var(--ink)}
+
+.sec{display:flex;align-items:center;justify-content:space-between;margin:0 0 12px}
+.sec h2{margin:0;font-size:22px;font-weight:600}
+.link{background:none;border:0;color:var(--muted);font-size:14px;padding:6px}
+
+/* plan grid */
+.plan{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ev{border:0;text-align:left;border-radius:var(--radius);padding:16px;color:#111114;min-height:130px;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.ev.big{grid-row:span 2;min-height:270px}
+.tag{align-self:flex-start;font-size:12px;padding:4px 10px;border-radius:99px;background:rgba(255,255,255,.55);margin-bottom:12px}
+.ev h3{margin:0 0 8px;font-size:21px;font-weight:500;line-height:1.1}
+.ev.big h3{font-size:24px}
+.ev p{margin:0;font-size:14px;line-height:1.55;opacity:.85}
+.ev .who{margin-top:auto;font-size:12px;opacity:.75;padding-top:10px}
+.ev.done{opacity:.55}
+.quick{border-radius:var(--radius);background:var(--c-pink);padding:14px;display:flex;align-items:center;justify-content:space-around;min-height:70px}
+.quick button{width:44px;height:44px;border-radius:50%;border:3px solid rgba(255,255,255,.75);background:rgba(255,255,255,.35);display:grid;place-items:center;color:#7B2A74}
+.quick svg{width:20px;height:20px}
+.empty{grid-column:1/-1;border:2px dashed var(--line);border-radius:var(--radius);padding:26px;text-align:center;color:var(--muted)}
+
+/* nav */
+.nav{position:fixed;left:50%;transform:translateX(-50%);bottom:max(16px,env(safe-area-inset-bottom));width:min(448px,calc(100% - 32px));background:var(--nav);border-radius:99px;padding:6px;display:flex;justify-content:space-between;z-index:20;box-shadow:0 10px 30px rgba(0,0,0,.18)}
+.nav button{flex:1;height:58px;border:0;background:transparent;color:var(--nav-ink);border-radius:99px;display:grid;place-items:center;transition:.2s}
+.nav button svg{width:22px;height:22px}
+.nav button.on{background:var(--bg);color:var(--ink);flex:1.3}
+
+/* agenda */
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;margin-bottom:14px;scrollbar-width:none}
+.chip{flex:none;border:1px solid var(--line);background:var(--card);border-radius:99px;padding:8px 14px;font-size:14px;display:flex;align-items:center;gap:6px}
+.chip i{width:10px;height:10px;border-radius:50%}
+.chip.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.dayhead{font-size:14px;color:var(--muted);margin:18px 4px 8px;text-transform:capitalize}
+.row{display:flex;gap:12px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:12px;margin-bottom:8px;width:100%;text-align:left}
+.row .bar{width:8px;align-self:stretch;border-radius:8px;flex:none}
+.row .t{font-size:13px;color:var(--muted);width:46px;flex:none}
+.row b{font-weight:500;display:block}
+.row span{font-size:13px;color:var(--muted)}
+.fab{position:fixed;right:max(16px,calc(50% - 224px));bottom:104px;width:58px;height:58px;border-radius:50%;border:0;background:var(--theme);color:#111114;font-size:30px;box-shadow:0 8px 20px rgba(0,0,0,.18);z-index:15}
+
+/* chat */
+.chat{display:flex;flex-direction:column;gap:10px;padding-bottom:80px}
+.msg{max-width:84%;padding:12px 14px;border-radius:20px;font-size:15px;line-height:1.4;white-space:pre-wrap;word-wrap:break-word}
+.msg.ana{background:var(--card);border:1px solid var(--line);border-bottom-left-radius:6px;align-self:flex-start}
+.msg.me{background:var(--theme);color:#111114;border-bottom-right-radius:6px;align-self:flex-end}
+.msg small{display:block;font-size:11px;opacity:.55;margin-top:4px}
+.msg .act{display:inline-block;margin-top:8px;border:0;border-radius:99px;padding:8px 14px;background:#25D366;color:#fff;font-weight:600;text-decoration:none}
+.msg .moods{margin-top:8px}
+.msg .moods button{border-color:var(--line);background:var(--bg)}
+.composer{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(max(16px,env(safe-area-inset-bottom)) + 80px);width:min(448px,calc(100% - 32px));display:flex;gap:8px;z-index:15}
+.composer input{flex:1;min-width:0;border:1px solid var(--line);background:var(--card);border-radius:99px;padding:14px 18px;outline:none}
+.composer button{width:50px;height:50px;border-radius:50%;border:0;background:var(--ink);color:var(--bg);display:grid;place-items:center;flex:none}
+.composer button svg{width:20px;height:20px}
+.hint{font-size:13px;color:var(--muted);text-align:center;margin:6px 0 12px}
+
+/* settings */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:12px}
+.card h3{margin:0 0 12px;font-size:17px;font-weight:600}
+label.f{display:block;font-size:13px;color:var(--muted);margin:10px 0 4px}
+.in{width:100%;border:1px solid var(--line);background:var(--bg);border-radius:14px;padding:12px;outline:none}
+.in:focus{border-color:var(--ink)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.two>*,.three>*{min-width:0}
+.in{min-width:0;max-width:100%}
+input[type=time].in{padding:12px 8px}
+.sw{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0}
+.sw span{font-size:15px}.sw small{display:block;color:var(--muted);font-size:12px}
+.tog{appearance:none;width:50px;height:30px;border-radius:99px;background:var(--line);position:relative;flex:none;transition:.2s;margin:0}
+.tog::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:.2s}
+.tog:checked{background:var(--ink)}.tog:checked::after{left:23px}
+.btn{border:0;border-radius:99px;padding:12px 18px;background:var(--ink);color:var(--bg);font-weight:500}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn.danger{background:#E5484D;color:#fff}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.swatches{display:flex;gap:8px;flex-wrap:wrap}
+.swatches button{width:34px;height:34px;border-radius:50%;border:3px solid transparent;padding:0}
+.swatches button.sel{border-color:var(--ink)}
+.emojis{display:flex;gap:6px;flex-wrap:wrap}
+.emojis button{width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:var(--bg);font-size:20px;padding:0}
+.emojis button.sel{border:2px solid var(--ink)}
+.list-item{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.list-item .in{padding:10px}
+.list-item input[type=color]{width:42px;height:42px;border:0;background:none;padding:0;flex:none}
+.x{width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:var(--bg);flex:none}
+.note{font-size:13px;color:var(--muted);line-height:1.45;margin:8px 0 0}
+
+/* modal */
+.modal{position:fixed;inset:0;background:rgba(10,10,15,.45);display:none;align-items:flex-end;justify-content:center;z-index:40}
+.modal.on{display:flex}
+.sheet{background:var(--card);width:100%;max-width:480px;border-radius:28px 28px 0 0;padding:20px 16px max(20px,env(safe-area-inset-bottom));max-height:92dvh;overflow:auto;animation:up .25s ease}
+@keyframes up{from{transform:translateY(40px);opacity:0}}
+.sheet h2{margin:0 0 6px;font-size:22px}
+
+/* listening overlay */
+.ear{position:fixed;left:50%;transform:translateX(-50%);top:max(16px,env(safe-area-inset-top));background:var(--ink);color:var(--bg);border-radius:99px;padding:10px 18px;font-size:14px;z-index:50;display:none;align-items:center;gap:10px;max-width:calc(100% - 32px)}
+.ear.on{display:flex}
+.ear .dots{display:flex;gap:3px}
+.ear .dots i{width:4px;height:14px;background:var(--theme);border-radius:3px;animation:eq .8s infinite ease-in-out}
+.ear .dots i:nth-child(2){animation-delay:.15s}.ear .dots i:nth-child(3){animation-delay:.3s}
+@keyframes eq{50%{transform:scaleY(.35)}}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:110px;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:14px;font-size:14px;z-index:60;opacity:0;transition:.3s;pointer-events:none;max-width:calc(100% - 32px)}
+.toast.on{opacity:1}
+/* ===== personagem Ana ===== */
+.ana-svg{display:block;width:100%;height:100%;overflow:visible}
+.ana-svg .a-open{opacity:0;transform-box:fill-box;transform-origin:50% 0}
+body.talking .ana-svg .a-smile{opacity:0}
+body.talking .ana-svg .a-open{opacity:1;animation:talk .17s ease-in-out infinite alternate}
+@keyframes talk{from{transform:scaleY(.2)}to{transform:scaleY(1)}}
+.ana-svg .a-eye{transform-box:fill-box;transform-origin:center;animation:blink 4.6s infinite}
+.ana-svg .a-eye:nth-child(2){animation-delay:.04s}
+@keyframes blink{0%,93%,100%{transform:scaleY(1)}95.5%{transform:scaleY(.08)}}
+.ana-svg .a-head{transform-box:view-box;transform-origin:100px 170px;animation:sway 5s ease-in-out infinite}
+body.talking .ana-svg .a-head{animation:nod .7s ease-in-out infinite}
+@keyframes sway{50%{transform:rotate(2.5deg)}}
+@keyframes nod{30%{transform:rotate(-2deg) translateY(1px)}70%{transform:rotate(1.5deg)}}
+.ana-svg .a-arm{display:none;transform-box:view-box;transform-origin:150px 220px}
+.waving .ana-svg .a-arm{display:block;animation:wave 1s ease-in-out 4}
+@keyframes wave{0%,100%{transform:rotate(0)}50%{transform:rotate(-22deg)}}
+.ana-svg .a-brow{transform-box:fill-box;transform-origin:center}
+body.listening-on .ana-svg .a-brow{transform:translateY(-2px)}
+.hero-ana{position:absolute;right:-6px;bottom:-14px;width:148px;height:186px;cursor:pointer;z-index:1}
+.hero .sh{opacity:.9}
+.hero .sh.a{right:118px;top:-18px;width:54px;height:54px}.hero .sh.a::after{inset:17px}
+.hero .sh.d{right:8px;top:6px;width:34px;height:34px;border-width:9px}
+.hero .sh.b,.hero .sh.c{display:none}
+.avatar svg{width:100%;height:100%}
+.avatar{overflow:hidden}
+.ear .ear-face{width:28px;height:28px;border-radius:50%;background:var(--theme);overflow:hidden;flex:none}
+/* ===== apresentação ===== */
+.ob{position:fixed;inset:0;z-index:80;background:linear-gradient(160deg,#EFE9FF 0%,#FBE9F7 55%,#FFF4E2 100%);display:none;overflow:hidden}
+.ob.on{display:block}
+:root[data-theme="dark"] .ob{background:linear-gradient(160deg,#221E30,#2A1F2C 60%,#2B261E)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .ob{background:linear-gradient(160deg,#221E30,#2A1F2C 60%,#2B261E)}}
+.ob-bg i{position:absolute;border-radius:50%;opacity:.55;animation:drift 9s ease-in-out infinite}
+@keyframes drift{50%{transform:translate(12px,-18px) scale(1.06)}}
+.ob-stage{position:relative;height:100%;max-width:480px;margin:0 auto;padding:max(20px,env(safe-area-inset-top)) 20px max(20px,env(safe-area-inset-bottom));display:flex;flex-direction:column;overflow-y:auto}
+.ob-hero{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;min-height:0}
+.ob-char{width:min(62vw,250px);aspect-ratio:200/250;filter:drop-shadow(0 18px 24px rgba(80,50,140,.18))}
+.ob-char.enter{animation:enter 1s cubic-bezier(.2,1.4,.4,1) both}
+@keyframes enter{from{transform:translateY(80px) scale(.6);opacity:0}to{transform:none;opacity:1}}
+.bubble{background:var(--card);color:var(--ink);border-radius:22px;padding:14px 18px;font-size:18px;line-height:1.4;box-shadow:0 8px 24px rgba(60,40,120,.12);max-width:100%;min-height:54px;position:relative}
+.bubble::before{content:"";position:absolute;top:-8px;left:50%;margin-left:-8px;border:8px solid transparent;border-top:0;border-bottom-color:var(--card)}
+.bubble.left::before{left:28px}
+.bubble:empty{display:none}
+.ob-actions{display:flex;flex-direction:column;gap:10px;padding-top:14px}
+.btn.big{padding:16px 22px;font-size:17px;font-weight:600}
+.ob-q{display:flex;gap:12px;align-items:flex-start;margin:6px 0 18px}
+.ob-q .mini{width:64px;height:64px;border-radius:50%;background:var(--theme);overflow:hidden;flex:none;box-shadow:0 6px 16px rgba(60,40,120,.15)}
+.ob-q .bubble{font-size:17px;flex:1}
+.ob-q .bubble::before{top:22px;left:-8px;margin:0;border:8px solid transparent;border-left:0;border-right-color:var(--card)}
+.ob-dots{display:flex;gap:6px;justify-content:center;margin-bottom:10px}
+.ob-dots i{width:8px;height:8px;border-radius:99px;background:rgba(0,0,0,.15);transition:.3s}
+.ob-dots i.on{width:22px;background:var(--ink)}
+.ob-body{flex:1}
+.ob-in{width:100%;font-size:22px;padding:16px 18px;border-radius:18px;border:2px solid transparent;background:var(--card);outline:none;box-shadow:0 4px 14px rgba(60,40,120,.08)}
+.ob-in:focus{border-color:var(--theme)}
+.likes{display:flex;flex-wrap:wrap;gap:8px}
+.likes button{border:2px solid transparent;background:var(--card);border-radius:99px;padding:10px 14px;font-size:15px;box-shadow:0 3px 10px rgba(60,40,120,.07);transition:.15s}
+.likes button.sel{background:var(--ink);color:var(--bg);transform:scale(1.04)}
+.personas{display:grid;gap:10px}
+.personas button{text-align:left;border:2px solid transparent;background:var(--card);border-radius:20px;padding:14px 16px;box-shadow:0 3px 10px rgba(60,40,120,.07)}
+.personas button b{display:block;font-size:17px;font-weight:600}.personas button span{font-size:14px;color:var(--muted)}
+.personas button.sel{border-color:var(--ink)}
+.personas .sug{display:inline-block;font-size:11px;background:var(--theme);color:#111;border-radius:99px;padding:2px 8px;margin-left:6px;vertical-align:middle}
+.ob-label{font-size:14px;color:var(--muted);margin:16px 2px 8px}
+.gen{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;text-align:center}
+.gen .ob-char{width:min(46vw,190px)}
+.gen ul{list-style:none;padding:0;margin:0;font-size:16px;line-height:2;text-align:left}
+.gen li{opacity:.25;transition:.4s}.gen li.ok{opacity:1}
+.gen li.ok::before{content:"✓ ";color:#1F9D55;font-weight:700}
+.bar{width:220px;height:8px;border-radius:99px;background:rgba(0,0,0,.08);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--theme);transition:width .5s}
+.res{background:var(--card);border-radius:26px;padding:18px;box-shadow:0 8px 24px rgba(60,40,120,.1)}
+.res h3{margin:0 0 10px;font-size:20px}
+.res .r{display:flex;gap:10px;align-items:center;padding:7px 0;font-size:15px;border-bottom:1px solid var(--line)}
+.res .r:last-child{border-bottom:0}
+.res .r span:first-child{font-size:20px;width:28px;text-align:center}
+.res .cats{display:flex;flex-wrap:wrap;gap:6px}
+.res .cats em{font-style:normal;font-size:12px;padding:4px 10px;border-radius:99px;color:#111}
+.native .only-web{display:none!important}
+html:not(.native) .only-native{display:none!important}
+.perm{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}
+.perm:last-child{border-bottom:0}
+.perm span{font-size:15px}.perm small{display:block;color:var(--muted);font-size:12px}
+.perm .ok{color:#1F9D55;font-weight:600;font-size:14px}
+</style>
+</head>
+<body>
+<div class="ob" id="ob"><div class="ob-bg" id="obBg"></div><div class="ob-stage" id="obStage"></div></div>
+<div class="ear" id="ear"><span class="ear-face" id="earFace"></span><div class="dots"><i></i><i></i><i></i></div><span id="earText">Estou ouvindo…</span></div>
+<div class="toast" id="toast"></div>
+
+<div class="app">
+  <!-- HOME -->
+  <section class="screen on" id="s-home">
+    <div class="top">
+      <div class="avatar" id="avatar">🌸</div>
+      <div class="hello"><b id="helloName">Olá!</b><span id="todayLbl"></span></div>
+      <button class="iconbtn" id="micBtn" aria-label="Falar com a assistente">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+      </button>
+    </div>
+
+    <div class="hero" id="hero">
+      <div class="shapes"><div class="sh a"></div><div class="sh d"></div></div>
+      <div class="hero-ana" id="heroAna" title="Toque para falar comigo"></div>
+      <h1 id="greet">Bom dia!</h1>
+      <p id="greetSub">Como você está hoje?</p>
+      <div class="moods" id="heroMoods"></div>
+    </div>
+
+    <div class="week" id="week"></div>
+
+    <div class="sec"><h2 id="planTitle">Sua programação</h2><button class="link" id="addFromHome">+ Adicionar</button></div>
+    <div class="plan" id="plan"></div>
+  </section>
+
+  <!-- AGENDA -->
+  <section class="screen" id="s-agenda">
+    <div class="sec" style="margin-top:8px"><h2>Agenda</h2><button class="link" id="icsAll">Exportar p/ celular</button></div>
+    <div class="chips" id="catFilter"></div>
+    <div id="agendaList"></div>
+    <button class="fab" id="fab" aria-label="Novo compromisso">+</button>
+  </section>
+
+  <!-- CHAT -->
+  <section class="screen" id="s-chat">
+    <div class="top">
+      <div class="avatar" id="avatar2">🌸</div>
+      <div class="hello"><b id="chatName">Ana</b><span id="chatStatus">sua assistente</span></div>
+      <button class="iconbtn" id="clearChat" aria-label="Limpar conversa">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>
+      </button>
+    </div>
+    <p class="hint" id="chatHint"></p>
+    <div class="chat" id="chat"></div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section class="screen" id="s-settings">
+    <div class="sec" style="margin-top:8px"><h2>Personalizar</h2></div>
+
+    <div class="card">
+      <h3>Sua assistente</h3>
+      <div class="btns" style="margin:0 0 6px"><button class="btn ghost" id="redoOb">✨ Refazer a apresentação</button></div>
+      <div class="two">
+        <div><label class="f">Nome dela</label><input class="in" id="setAName" maxlength="20"></div>
+        <div><label class="f">Seu nome</label><input class="in" id="setUName" maxlength="30"></div>
+      </div>
+      <p class="note">O nome dela é a palavra que ela escuta: se mudar para “Bia”, é só dizer “Bia…”.</p>
+      <label class="f">Rostinho</label>
+      <div class="emojis" id="setEmoji"></div>
+      <label class="f">Cor principal</label>
+      <div class="swatches" id="setColor"></div>
+      <label class="f">Personalidade</label>
+      <select class="in" id="setPersona">
+        <option value="carinhosa">Carinhosa e acolhedora</option>
+        <option value="divertida">Divertida e brincalhona</option>
+        <option value="objetiva">Objetiva e direta</option>
+        <option value="motivadora">Motivadora, estilo coach</option>
+      </select>
+      <label class="f">Tema</label>
+      <select class="in" id="setTheme">
+        <option value="auto">Automático</option><option value="light">Claro</option><option value="dark">Escuro</option>
+      </select>
+    </div>
+
+    <div class="card">
+      <h3>Voz e escuta</h3>
+      <div class="sw"><div><span>Ouvir quando eu chamar</span><small id="wakeHelp">Fale “Ana” e o seu pedido</small></div><input type="checkbox" class="tog" id="setWake"></div>
+      <div class="sw"><div><span>Responder falando</span><small>Ela lê as respostas em voz alta</small></div><input type="checkbox" class="tog" id="setSpeak"></div>
+      <label class="f">Voz</label>
+      <select class="in" id="setVoice"></select>
+      <div class="two">
+        <div><label class="f">Velocidade</label><input type="range" min="0.7" max="1.4" step="0.05" id="setRate" style="width:100%"></div>
+        <div><label class="f">Tom</label><input type="range" min="0.6" max="1.6" step="0.05" id="setPitch" style="width:100%"></div>
+      </div>
+      <div class="btns"><button class="btn ghost" id="testVoice">Testar voz</button><button class="btn ghost only-native" id="voiceSettings">Configurar voz do celular</button></div>
+    </div>
+
+    <div class="card only-native">
+      <h3>Permissões do celular</h3>
+      <div id="permList"></div>
+      <div class="sw"><div><span>Usar o calendário do celular</span><small>Ela lê seus compromissos e salva os novos lá</small></div><input type="checkbox" class="tog" id="setCal"></div>
+      <div class="sw"><div><span>Falar os lembretes com o app fechado</span><small>Além da notificação, ela avisa em voz alta</small></div><input type="checkbox" class="tog" id="setSpeakAlarms"></div>
+    </div>
+
+    <div class="card">
+      <h3>Rotina e notificações</h3>
+      <div class="sw only-web"><div><span>Notificações</span><small id="notifState">—</small></div><button class="btn" id="askNotif">Ativar</button></div>
+      <div class="three">
+        <div><label class="f">Bom dia</label><input type="time" class="in" id="gMorning"></div>
+        <div><label class="f">Boa tarde</label><input type="time" class="in" id="gAfternoon"></div>
+        <div><label class="f">Boa noite</label><input type="time" class="in" id="gNight"></div>
+      </div>
+      <label class="f">Perguntar como estou</label>
+      <select class="in" id="setCheckin">
+        <option value="0">Nunca</option><option value="2">A cada 2 horas</option><option value="3">A cada 3 horas</option><option value="5">A cada 5 horas</option><option value="24">Uma vez por dia</option>
+      </select>
+      <div class="two">
+        <div><label class="f">Silêncio a partir de</label><input type="time" class="in" id="qStart"></div>
+        <div><label class="f">até</label><input type="time" class="in" id="qEnd"></div>
+      </div>
+      <p class="note only-web">O navegador só dispara avisos com o app aberto ou em segundo plano. Para nunca perder um compromisso com o celular bloqueado, use “Exportar p/ celular” na Agenda: os eventos entram no calendário do seu celular com alarme.</p>
+    </div>
+
+    <div class="card">
+      <h3>Cores da agenda</h3>
+      <div id="catList"></div>
+      <div class="btns"><button class="btn ghost" id="addCat">+ Nova categoria</button></div>
+    </div>
+
+    <div class="card">
+      <h3>Contatos do WhatsApp</h3>
+      <div id="contactList"></div>
+      <div class="btns"><button class="btn ghost" id="addContact">+ Novo contato</button></div>
+      <p class="note">Com o número salvo (com DDD, ex. 11 91234-5678), é só dizer “Ana, manda mensagem pra Maria dizendo que estou chegando”. A Ana abre o WhatsApp com a mensagem pronta; você só toca em enviar.</p>
+    </div>
+
+    <div class="card">
+      <h3>Inteligência (opcional)</h3>
+      <p class="note" style="margin-top:0">Sem chave, a Ana entende comandos do dia a dia (agenda, lembretes, WhatsApp, horas). Com uma chave da API do Claude ela conversa sobre qualquer assunto e entende pedidos bem mais livres.</p>
+      <label class="f">Chave da API (fica salva só neste aparelho)</label>
+      <input class="in" id="setKey" type="password" placeholder="sk-ant-..." autocomplete="off">
+    </div>
+
+    <div class="card">
+      <h3>Seus dados</h3>
+      <div class="btns" style="margin-top:0">
+        <button class="btn ghost" id="exportData">Fazer backup</button>
+        <button class="btn ghost" id="importData">Restaurar backup</button>
+        <button class="btn danger" id="resetData">Apagar tudo</button>
+      </div>
+      <input type="file" id="importFile" accept="application/json" hidden>
+    </div>
+  </section>
+</div>
+
+<div class="composer" id="composer" style="display:none">
+  <input id="chatInput" placeholder="Fale ou escreva para a Ana…" enterkeyhint="send">
+  <button id="chatMic" aria-label="Falar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
+  <button id="chatSend" aria-label="Enviar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+</div>
+
+<nav class="nav" id="nav">
+  <button data-s="home" class="on" aria-label="Início"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M4 10.5 12 4l8 6.5V20h-5v-5h-6v5H4z"/></svg></button>
+  <button data-s="agenda" aria-label="Agenda"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="6.5" height="6.5" rx="2"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="2"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="2"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="2"/></svg></button>
+  <button data-s="chat" aria-label="Conversa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M4 5h16v11H9l-5 4z"/></svg></button>
+  <button data-s="settings" aria-label="Personalizar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4.5 4.5-6.5 8-6.5s7 2 8 6.5"/></svg></button>
+</nav>
+
+<!-- event modal -->
+<div class="modal" id="evModal">
+  <div class="sheet">
+    <h2 id="evModalTitle">Novo compromisso</h2>
+    <label class="f">O quê?</label><input class="in" id="evTitle" placeholder="Ex.: Yoga, reunião, dentista…">
+    <div class="two">
+      <div><label class="f">Dia</label><input type="date" class="in" id="evDate"></div>
+      <div><label class="f">Lembrar</label>
+        <select class="in" id="evRemind"><option value="-1">Não lembrar</option><option value="0">Na hora</option><option value="10">10 min antes</option><option value="30">30 min antes</option><option value="60">1 hora antes</option><option value="1440">1 dia antes</option></select>
+      </div>
+    </div>
+    <div class="two">
+      <div><label class="f">Começa</label><input type="time" class="in" id="evTime"></div>
+      <div><label class="f">Termina</label><input type="time" class="in" id="evEnd"></div>
+    </div>
+    <label class="f">Onde / com quem</label><input class="in" id="evPlace" placeholder="Ex.: Sala A5 · com Tiffany">
+    <label class="f">Cor / categoria</label>
+    <div class="chips" id="evCats" style="flex-wrap:wrap"></div>
+    <div class="btns">
+      <button class="btn" id="evSave">Salvar</button>
+      <button class="btn ghost" id="evIcs">Pôr no calendário do celular</button>
+      <button class="btn ghost" id="evGoogle">Google Agenda</button>
+      <button class="btn danger" id="evDel">Excluir</button>
+      <button class="btn ghost" id="evCancel">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============ estado ============ */
+const KEY = 'ana.v1';
+const PALETTE = ['#B9A3FF','#FFBE5C','#A9CBFF','#F7A8F0','#A8E6B8','#FFE27A','#FF9C8A','#8EE3E0'];
+const EMOJIS = ['ana','🌸','🤖','😊','🦋','🌙','☀️','🐱','👩🏽','💜','✨'];
+const MOODS = [['😄','ótimo'],['🙂','bem'],['😐','mais ou menos'],['😔','pra baixo'],['😫','cansado(a)']];
+const defaults = () => ({
+  settings:{ assistantName:'Ana', userName:'', emoji:'ana', color:'#B9A3FF', persona:'carinhosa', theme:'auto',
+    wake:false, speak:true, voiceURI:'', rate:0.95, pitch:1.0, calSync:false, speakAlarms:true,
+    greet:{morning:'08:00',afternoon:'13:00',night:'21:00'}, checkin:3, quietStart:'22:30', quietEnd:'07:00', apiKey:'' },
+  categories:[
+    {id:'trabalho',name:'Trabalho',color:'#A9CBFF'},
+    {id:'saude',name:'Saúde',color:'#A8E6B8'},
+    {id:'pessoal',name:'Pessoal',color:'#B9A3FF'},
+    {id:'estudo',name:'Estudo',color:'#FFE27A'},
+    {id:'lazer',name:'Lazer',color:'#FFBE5C'},
+    {id:'familia',name:'Família',color:'#F7A8F0'}
+  ],
+  events:[], phone:[], contacts:[], chat:[], moods:[], lastGreet:{}, lastCheckin:Date.now()
+});
+let D;
+try { D = Object.assign(defaults(), JSON.parse(localStorage.getItem(KEY) || '{}')); D.settings = Object.assign(defaults().settings, D.settings); }
+catch(e){ D = defaults(); }
+const S = D.settings;
+if (S.rate === 1.05 && S.pitch === 1.1){ S.rate = 0.95; S.pitch = 1.0; }   // voz mais tranquila
+const NATIVE = (window.AnaNative && window.AnaNative.isNative) ? window.AnaNative : null;   // app Android
+if (NATIVE) document.documentElement.classList.add('native');
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(D)); }catch(e){} clearTimeout(save.t); save.t = setTimeout(syncNative, 800); }
+function openLink(url){ if (NATIVE) NATIVE.openUrl(url); else { const w = window.open(url, '_blank'); if (!w) toast('Toque no botão verde na conversa para abrir.'); } }
+
+/* ============ util ============ */
+const $ = id => document.getElementById(id);
+const pad = n => String(n).padStart(2,'0');
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const hm = d => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+const parseYmd = s => { const [y,m,d] = s.split('-').map(Number); return new Date(y,m-1,d); };
+const addDays = (d,n) => { const x = new Date(d); x.setDate(x.getDate()+n); return x; };
+const DOW = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+const DOWFULL = ['domingo','segunda','terça','quarta','quinta','sexta','sábado'];
+const MON = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+const uid = () => Math.random().toString(36).slice(2,10);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+// remove acentos mantendo o mesmo tamanho da string (para cortar o original pelos índices)
+const norm = s => s.toLowerCase().split('').map(c => c.normalize('NFD').replace(/[̀-ͯ]/g,'') || c).map(c => c.length ? c[0] : c).join('');
+const catOf = id => id === '__phone' ? {id:'__phone', name:'Celular', color:'#E4E1EE'} : (D.categories.find(c => c.id === id) || D.categories[0] || {name:'Geral',color:'#B9A3FF'});
+const colorOf = e => e.color || catOf(e.cat).color;
+const evStart = e => { const d = parseYmd(e.date); if (e.time){ const [h,m] = e.time.split(':'); d.setHours(+h,+m,0,0); } else d.setHours(9,0,0,0); return d; };
+const first = () => S.userName ? S.userName.split(' ')[0] : '';
+function toast(t){ const el = $('toast'); el.textContent = t; el.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(()=>el.classList.remove('on'), 2600); }
+function period(d = new Date()){
+  const t = hm(d);
+  if (t >= '18:00' || t < '05:00') return 'night';
+  if (t >= '12:00') return 'afternoon';
+  return 'morning';
+}
+const GREET = {morning:'Bom dia', afternoon:'Boa tarde', night:'Boa noite'};
+function inQuiet(d = new Date()){
+  const t = hm(d), a = S.quietStart, b = S.quietEnd;
+  if (!a || !b || a === b) return false;
+  return a < b ? (t >= a && t < b) : (t >= a || t < b);
+}
+
+/* ============ personalidade ============ */
+const PERSONA = {
+  carinhosa:{ ok:['Prontinho! 💜','Feito, querida(o)!','Combinado! 😊'], how:'Oi{n}! Passando só pra saber: como você está agora? 💜',
+    mood:{'ótimo':'Que alegria ouvir isso! Aproveita essa energia boa ✨','bem':'Que bom! Fico feliz por você 😊','mais ou menos':'Entendo... quer me contar o que está pegando? Estou aqui.','pra baixo':'Poxa, sinto muito 💜 Respira fundo comigo. Se quiser desabafar, eu escuto.','cansado(a)':'Você merece uma pausa. Que tal uma água e 5 minutinhos de descanso?'} },
+  divertida:{ ok:['Feito! Sou demais, né? 😎','Anotadíssimo! 📝','Missão cumprida! 🚀'], how:'E aí{n}! Relatório de humor, por favor 😄 Como cê tá?',
+    mood:{'ótimo':'Uhuul! Esse é o espírito! 🎉','bem':'Boa! Bora manter assim 😄','mais ou menos':'Mais ou menos é quase bem! Quer que eu te conte uma piada?','pra baixo':'Ei, até o sol tem dia nublado ☁️ Tô aqui contigo.','cansado(a)':'Modo economia de energia ativado! Vai descansar um pouco 🔋'} },
+  objetiva:{ ok:['Feito.','Registrado.','Ok, pronto.'], how:'{N}como você está?',
+    mood:{'ótimo':'Ótimo. Registrado.','bem':'Bom. Registrado.','mais ou menos':'Registrado. Precisa de algo?','pra baixo':'Registrado. Considere uma pausa curta.','cansado(a)':'Registrado. Sugiro descansar 10 minutos.'} },
+  motivadora:{ ok:['Feito! Foco total! 💪','Anotado, campeã(o)!','Bora que bora! 🔥'], how:'Ei{n}! Check-in de energia: como você está? 💪',
+    mood:{'ótimo':'É isso! Você está on fire 🔥','bem':'Bora transformar esse “bem” em incrível! 💪','mais ou menos':'Um passo de cada vez. Qual a menor tarefa que você consegue fazer agora?','pra baixo':'Dias difíceis constroem pessoas fortes. Estou com você 💜','cansado(a)':'Descanso também é treino. Recarrega e volta mais forte!'} }
+};
+const P = () => PERSONA[S.persona] || PERSONA.carinhosa;
+const pick = a => a[Math.floor(Math.random()*a.length)];
+
+/* ============ voz (falar) ============ */
+let voices = [];
+function loadVoices(){
+  const sel = $('setVoice');
+  if (NATIVE){
+    let list = []; try { list = JSON.parse(NATIVE.voices()); } catch(e){}
+    if (!sel) return;
+    sel.innerHTML = '<option value="">Automática (feminina, tranquila)</option>' + list.map((v, i) => `<option value="${esc(v.name)}">Voz ${i+1} · ${v.country === 'BR' ? 'Brasil' : 'Portugal'}${v.online ? ' · mais natural (internet)' : ' · offline'}</option>`).join('');
+    sel.value = S.voiceURI; return;
+  }
+  voices = (speechSynthesis.getVoices() || []).filter(v => /^pt/i.test(v.lang));
+  if (!sel) return;
+  sel.innerHTML = '<option value="">Automática (feminina, tranquila)</option>' + voices.map(v => `<option value="${esc(v.voiceURI)}">${esc(v.name)} (${v.lang})</option>`).join('');
+  sel.value = S.voiceURI;
+}
+// escolhe a voz mais natural: vozes "Natural/Online/Neural" (Edge, Chrome) soam humanas; depois Google; depois femininas conhecidas
+function bestWebVoice(){
+  const score = v => (/pt-BR/i.test(v.lang) ? 40 : 0) + (/natural|online|neural/i.test(v.name) ? 30 : 0) + (/google/i.test(v.name) ? 15 : 0)
+    + (/francisca|thalita|luciana|maria|vitoria|leila|yara|female|feminina/i.test(v.name) ? 20 : 0) - (/antonio|daniel|felipe|male\b|masculin/i.test(v.name) ? 40 : 0);
+  return voices.slice().sort((a,b) => score(b) - score(a))[0];
+}
+if (NATIVE) loadVoices();
+else if ('speechSynthesis' in window){ loadVoices(); speechSynthesis.onvoiceschanged = loadVoices; }
+let speaking = false;
+function speak(text){
+  if (!S.speak) return;
+  const clean = text.replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu,'').replace(/\n+/g,'. ').replace(/•/g,'').replace(/—/g,',');
+  if (NATIVE){ try { if (!speak.vw && NATIVE.mediaVolume && NATIVE.mediaVolume() === 0){ speak.vw = 1; toast('🔊 Seu volume de mídia está no zero. Aumente para me ouvir!'); } } catch(e){} NATIVE.speak(clean); return; }
+  if (!('speechSynthesis' in window)) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(clean);
+  u.lang = 'pt-BR'; u.rate = +S.rate; u.pitch = +S.pitch;
+  const v = voices.find(v => v.voiceURI === S.voiceURI) || bestWebVoice();
+  if (v) u.voice = v;
+  u.onstart = () => { speaking = true; pauseEar(); anaSpeaking(true); };
+  u.onend = u.onerror = () => { speaking = false; resumeEar(); anaSpeaking(false); };
+  speechSynthesis.speak(u);
+}
+
+/* ============ escuta ("Ana") ============ */
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let rec = null, recOn = false, mode = 'wake', cmdTimer = null, manual = false;
+function wakeRegex(){
+  const n = norm(S.assistantName || 'Ana').replace(/[^a-z0-9 ]/g,'').trim();
+  const loose = n.replace(/([a-z])\1*/g, '$1+');      // "ana" -> "a+n+a+" (aceita "anna")
+  return new RegExp(`(^|[^a-z])(?:ei |oi |ola |e ai )?${loose}([^a-z]|$)`);
+}
+function ear(on, text){ $('ear').classList.toggle('on', on); if (text) $('earText').textContent = text; $('hero').classList.toggle('listening', on); }
+function setupRec(){
+  if (!SR) return null;
+  const r = new SR();
+  r.lang = 'pt-BR'; r.continuous = true; r.interimResults = true; r.maxAlternatives = 1;
+  r.onresult = ev => {
+    for (let i = ev.resultIndex; i < ev.results.length; i++){
+      const res = ev.results[i], txt = res[0].transcript.trim(), n = norm(txt);
+      if (mode === 'wake'){
+        const m = n.match(wakeRegex());
+        if (m){
+          const after = txt.slice(m.index + m[0].length).replace(/^[\s,.!?]+/,'');
+          if (res.isFinal){
+            if (after.length > 2) { handleHeard(after); }
+            else startCommand();
+          } else if (!after) { ear(true, `Oi${first() ? ', '+first() : ''}! Pode falar…`); }
+        }
+      } else if (mode === 'command'){
+        ear(true, txt);
+        if (res.isFinal && txt.length > 1){ handleHeard(txt.replace(wakeRegex(), ' ').trim() || txt); }
+      }
+    }
+  };
+  r.onerror = e => { if (e.error === 'not-allowed' || e.error === 'service-not-allowed'){ S.wake = false; save(); syncWakeUi(); toast('Permita o microfone para eu poder te ouvir.'); } };
+  r.onend = () => { recOn = false; if ((S.wake || mode === 'command') && !speaking && document.visibilityState === 'visible') setTimeout(startRec, 250); };
+  return r;
+}
+function startRec(){ if (!rec) rec = setupRec(); if (!rec || recOn || speaking) return; try { rec.start(); recOn = true; } catch(e){} syncMic(); }
+function stopRec(){ if (rec && recOn){ try{ rec.stop(); }catch(e){} } recOn = false; syncMic(); }
+function pauseEar(){ if (recOn){ try{ rec.abort(); }catch(e){} recOn = false; } }
+function resumeEar(){ if (S.wake || mode === 'command') setTimeout(startRec, 350); }
+function beep(){ try{ const a = new (window.AudioContext||window.webkitAudioContext)(), o = a.createOscillator(), g = a.createGain(); o.frequency.value = 880; g.gain.value = .06; o.connect(g); g.connect(a.destination); o.start(); o.frequency.exponentialRampToValueAtTime(1320, a.currentTime+.12); o.stop(a.currentTime+.16); }catch(e){} }
+function startCommand(){
+  mode = 'command'; beep(); ear(true, `Oi${first() ? ', '+first() : ''}! Pode falar…`);
+  clearTimeout(cmdTimer); cmdTimer = setTimeout(endCommand, 8000);
+  startRec();
+}
+function endCommand(){ clearTimeout(cmdTimer); mode = 'wake'; ear(false); if (!S.wake) stopRec(); }
+function handleHeard(text){ endCommand(); userSays(text, true); }
+function syncMic(){ $('micBtn').classList.toggle('live', NATIVE ? !!S.wake : !!(recOn && (S.wake || mode === 'command'))); }
+// chamadas vindas do app Android
+window.anaListening = on => { document.body.classList.toggle('listening-on', !!on); ear(on, `Oi${first() ? ', ' + first() : ''}! Pode falar…`); $('micBtn').classList.toggle('live', on || !!S.wake); };
+window.anaPartial = t => ear(true, t);
+window.anaCrash = txt => { addMsg('ana', '⚠️ Da última vez eu fechei sozinha por um erro. Tire um print desta mensagem e mande para quem cuida do app:\n\n' + String(txt).slice(0, 1200)); go('chat'); };
+window.anaHeard = t => userSays(t, true);
+window.anaResume = () => { refreshPhone(); renderAll(); tick(); };
+window.anaPermsChanged = () => { if (current === 'settings') renderSettings(); refreshPhone(); renderAll(); };
+window.anaBack = () => { if ($('evModal').classList.contains('on')){ $('evModal').classList.remove('on'); return true; } if (current !== 'home'){ go('home'); return true; } return false; };
+function syncWakeUi(){ $('setWake').checked = S.wake; syncMic(); }
+function micTap(){
+  if (NATIVE){ NATIVE.listen(); return; }
+  if (!SR){ toast('Este navegador não tem reconhecimento de voz. Use o Chrome.'); return; }
+  if ('speechSynthesis' in window) speechSynthesis.cancel();
+  startCommand();
+}
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible'){ if (S.wake && !NATIVE) startRec(); tick(); } });
+
+/* ============ entendimento de linguagem (local) ============ */
+const WD = {domingo:0,segunda:1,terca:2,quarta:3,quinta:4,sexta:5,sabado:6};
+function parseWhen(n){
+  // devolve {date, time, ranges:[[ini,fim]]}
+  const ranges = [], now = new Date(); let date = null, time = null, m;
+  const take = (re, fn) => { const mm = re.exec(n); if (mm){ ranges.push([mm.index, mm.index + mm[0].length]); fn(mm); return true; } return false; };
+  take(/\b(?:para |pra |no dia |na )?depois de amanha\b/, () => date = addDays(now,2)) ||
+  take(/\b(?:para |pra )?amanha\b/, () => date = addDays(now,1)) ||
+  take(/\b(?:para |pra )?hoje\b/, () => date = now) ||
+  take(/\b(?:na |no |para |pra )?(?:proxim[oa] )?(domingo|segunda|terca|quarta|quinta|sexta|sabado)(?:-feira| feira)?\b/, mm => { const t = WD[mm[1]]; let diff = (t - now.getDay() + 7) % 7; if (diff === 0) diff = 7; date = addDays(now, diff); }) ||
+  take(/\b(?:no |para |pra )?dia (\d{1,2})(?:\/(\d{1,2}))?\b/, mm => { let d = new Date(now.getFullYear(), mm[2] ? +mm[2]-1 : now.getMonth(), +mm[1]); if (d < new Date(ymd(now)+'T00:00')) d = mm[2] ? new Date(d.getFullYear()+1, d.getMonth(), d.getDate()) : new Date(d.getFullYear(), d.getMonth()+1, d.getDate()); date = d; }) ||
+  take(/\b(\d{1,2})\/(\d{1,2})\b/, mm => { let d = new Date(now.getFullYear(), +mm[2]-1, +mm[1]); if (d < new Date(ymd(now)+'T00:00')) d.setFullYear(d.getFullYear()+1); date = d; });
+
+  take(/\b(?:as |a |para as |pra |ao )?meio[ -]dia(?: e meia)?\b/, mm => time = /meia/.test(mm[0]) ? '12:30' : '12:00') ||
+  take(/\b(?:as |a |para as |pras )?meia[ -]noite\b/, () => time = '00:00') ||
+  take(/\b(?:as |a |para as |pras )?(\d{1,2})(?::|h|\s?horas?)\s?(\d{2})?(?:\s?(?:min|minutos))?(?: e (meia|\d{1,2}))?(?: (da manha|da tarde|da noite|da madrugada))?/, mm => {
+    let h = +mm[1], mi = mm[2] ? +mm[2] : mm[3] === 'meia' ? 30 : mm[3] ? +mm[3] : 0;
+    if (mm[4] && /tarde|noite/.test(mm[4]) && h < 12) h += 12;
+    if (h < 24 && mi < 60) time = `${pad(h)}:${pad(mi)}`;
+  }) ||
+  take(/\b(?:as |a |para as |pras )(\d{1,2})(?: e (meia|\d{1,2}))?(?: (da manha|da tarde|da noite))?\b/, mm => {
+    let h = +mm[1], mi = mm[2] === 'meia' ? 30 : mm[2] ? +mm[2] : 0;
+    if (mm[3] && /tarde|noite/.test(mm[3]) && h < 12) h += 12;
+    else if (!mm[3] && h >= 1 && h <= 6) h += 12;   // "às 3" -> 15h
+    if (h < 24) time = `${pad(h)}:${pad(mi)}`;
+  });
+  return { date, time, ranges };
+}
+function cutRanges(orig, ranges){
+  const keep = orig.split('');
+  ranges.forEach(([a,b]) => { for (let i = a; i < b; i++) keep[i] = '\u0000'; });
+  return keep.join('').replace(/\u0000+/g,' ').replace(/\s+/g,' ').trim();
+}
+function cleanTitle(t){
+  t = t.replace(/^(?:de|do|da|para|pra|um|uma|o|a|que|e|,)\s+/i,'').replace(/\s+(?:de|do|da|para|pra|no|na|em|e|,)$/i,'').replace(/[.,!?]+$/,'').trim();
+  t = t.replace(/^(?:de|do|da|para|pra|um|uma)\s+/i,'');
+  return t ? t[0].toUpperCase() + t.slice(1) : '';
+}
+function guessCat(n){
+  const rules = [
+    ['treino', /academia|treino|musculacao|crossfit|funcional/],
+    ['musica', /musica|ensaio|violao|guitarra|piano|canto|banda/],
+    ['leitura', /\bler\b|livro|leitura/],
+    ['cozinha', /cozinhar|receita|mercado|feira|almoco|jantar em casa/],
+    ['viagem', /viagem|viajar|voo|aeroporto|hotel/],
+    ['filmes', /filme|serie|cinema|netflix/],
+    ['games', /jogo|game|jogar|videogame|partida/],
+    ['natureza', /trilha|parque|natureza|praia|acampar/],
+    ['pets', /\bpet|cachorro|gato|veterinari|passear com/],
+    ['bemestar', /medita|yoga|ioga|respira|terapia|descanso/],
+    ['arte', /desenh|pintar|arte|artesanato/],
+    ['moda', /roupa|moda|salao|cabelo|unha|compras/],
+    ['tech', /codigo|programar|computador|tecnologia/],
+    ['esporte', /futebol|volei|basquete|corrida|natacao|esporte|bike|pedal/],
+    ['saude', /medic|dentist|academia|treino|yoga|ioga|pilates|corrid|remedio|exame|consulta|terapia|psic|nutri|caminhad/],
+    ['trabalho', /reuniao|trabalho|cliente|call|projeto|entrega|apresentacao|escritorio|chefe|meet/],
+    ['estudo', /aula|estud|prova|curso|faculdade|escola|ler |leitura|ingles/],
+    ['familia', /mae|pai|filh|familia|vo |avo|irma|esposa|marido|namorad/],
+    ['lazer', /festa|cinema|show|jantar|bar|praia|viagem|futebol|aniversario|passeio|happy/]
+  ];
+  for (const [id, re] of rules) if (re.test(n) && D.categories.some(c => c.id === id)) return id;
+  return D.categories.some(c => c.id === 'pessoal') ? 'pessoal' : D.categories[0]?.id;
+}
+function findContact(name){
+  const n = norm(name).trim();
+  return D.contacts.find(c => norm(c.name) === n) || D.contacts.find(c => norm(c.name).startsWith(n) || n.startsWith(norm(c.name).split(' ')[0]));
+}
+function allEvents(){ return D.events.concat(S.calSync ? (D.phone || []) : []); }
+function eventsOn(dateStr){ return allEvents().filter(e => e.date === dateStr).sort((a,b) => (a.time||'99').localeCompare(b.time||'99')); }
+function refreshPhone(){
+  if (!NATIVE || !S.calSync) return;
+  let list = []; try { list = JSON.parse(NATIVE.calendarRead(45)); } catch(e){ return; }
+  const mine = new Set(D.events.map(e => String(e.calId || '')));
+  D.phone = list.filter(p => !mine.has(String(p.id))).map(p => {
+    const b = new Date(p.begin), en = new Date(p.end);
+    return { id:'p' + p.id + '-' + p.begin, phone:true, title:p.title, date: p.allDay ? b.toISOString().slice(0,10) : ymd(b),
+      time: p.allDay ? '' : hm(b), end: p.allDay ? '' : hm(en), place:p.place, cat:'__phone', color:p.color, remind:-1 };
+  });
+  try { localStorage.setItem(KEY, JSON.stringify(D)); } catch(e){}
+}
+function calPayload(e){
+  if (!e.time){ const [y,m,d] = e.date.split('-').map(Number); return { title:e.title, place:e.place||'', allDay:true, begin:Date.UTC(y,m-1,d), end:Date.UTC(y,m-1,d+1), remind:+e.remind }; }
+  const s = evStart(e); let en = e.end ? evStart({ ...e, time:e.end }) : new Date(s.getTime() + 3600000); if (en <= s) en = new Date(s.getTime() + 3600000);
+  return { title:e.title, place:e.place||'', allDay:false, begin:s.getTime(), end:en.getTime(), remind:+e.remind };
+}
+function pushToPhone(e){ if (NATIVE && S.calSync){ if (e.calId) NATIVE.calendarDelete(String(e.calId)); e.calId = NATIVE.calendarInsert(JSON.stringify(calPayload(e))) || ''; } }
+function describeDay(dateStr, label){
+  const list = eventsOn(dateStr);
+  if (!list.length) return `${label} você não tem nada marcado. Dia livre! ✨`;
+  return `${label} você tem ${list.length} ${list.length > 1 ? 'compromissos' : 'compromisso'}:\n` + list.map(e => `• ${e.time ? e.time+' — ' : ''}${e.title}${e.place ? ' ('+e.place+')' : ''}`).join('\n');
+}
+function addEvent(ev){
+  const e = Object.assign({id:uid(), title:'Compromisso', date:ymd(new Date()), time:'', end:'', cat:guessCat(norm(ev.title||'')), place:'', remind:10, notified:false}, ev);
+  pushToPhone(e); D.events.push(e); save(); renderAll(); return e;
+}
+function waLink(phone, text){
+  const digits = (phone || '').replace(/\D/g,'');
+  const num = digits && digits.length <= 11 ? '55' + digits : digits;
+  return `https://wa.me/${num}${text ? '?text=' + encodeURIComponent(text) : ''}`;
+}
+function fmtDate(d){ const t = ymd(new Date()), x = ymd(d); if (x === t) return 'hoje'; if (x === ymd(addDays(new Date(),1))) return 'amanhã'; return `${DOWFULL[d.getDay()]}, ${d.getDate()} de ${MON[d.getMonth()]}`; }
+
+function localBrain(text){
+  const n = norm(text).replace(/[?!.]/g,'').trim(); let m;
+  const name = first() ? ', ' + first() : '';
+
+  if (/^(oi|ola|e ai|eai|hey|opa)\b/.test(n) && n.split(' ').length <= 3) return { reply: `Oi${name}! Em que posso te ajudar? 😊` };
+  if (/^bom dia/.test(n)) return { reply: `Bom dia${name}! ☀️ ` + describeDay(ymd(new Date()), 'Hoje') };
+  if (/^boa tarde/.test(n)) return { reply: `Boa tarde${name}! Como está sendo seu dia?` };
+  if (/^boa noite/.test(n)) return { reply: `Boa noite${name}! 🌙 ` + describeDay(ymd(addDays(new Date(),1)), 'Amanhã') };
+  if (/(obrigad|valeu|brigad)/.test(n)) return { reply: pick(['Imagina! 💜','Sempre que precisar!','De nada! 😊']) };
+  if (/(quem e voce|qual (e )?(o )?seu nome|se apresenta)/.test(n)) return { reply: `Eu sou a ${S.assistantName}, sua assistente! Organizo sua rotina com cores, te lembro das coisas e estou sempre por perto. 💜` };
+  if (/(qual (e )?(o )?meu nome|como eu me chamo)/.test(n)) return { reply: first() ? `Você é ${S.userName}! Nunca esqueceria. 😊` : 'Ainda não sei seu nome! Me conta em Personalizar.' };
+  if (/(do que eu gosto|o que eu gosto|meus gostos)/.test(n)) return { reply: D.profile && D.profile.likes && D.profile.likes.length ? `Você me contou que gosta de ${listPt(D.profile.likes.map(x => x.toLowerCase()))}. 💜` : 'Você ainda não me contou do que gosta. Refaça a apresentação em Personalizar!' };
+  if (/(piada|me faz rir|algo engracado)/.test(n)) return { reply: pick(JOKES) };
+  if (/(entediad|sem nada pra fazer|o que eu faco|me da uma ideia|sugere algo|sugestao|to de boa)/.test(n)) return { reply: ideaFor() };
+  if (/que horas/.test(n)) return { reply: `Agora são ${hm(new Date()).replace(':','h')}.` };
+  if (/que dia (e )?hoje|qual (a )?data/.test(n)) { const d = new Date(); return { reply: `Hoje é ${DOWFULL[d.getDay()]}, ${d.getDate()} de ${MON[d.getMonth()]}.` }; }
+
+  // humor
+  for (const [emoji, label] of MOODS){
+    const re = {'ótimo':/(estou|to|tou|me sinto) (otim|muito bem|feliz|incrivel)/, 'bem':/(estou|to|tou|me sinto) bem|^bem\b|tudo bem/, 'mais ou menos':/mais ou menos|mais o menos|meh/, 'pra baixo':/(estou|to|tou|me sinto) (triste|mal|pra baixo|ansios|estressad|chatead)/, 'cansado(a)':/(estou|to|tou|me sinto) (cansad|exaust|com sono)/}[label];
+    if (re.test(n)) { logMood(label, emoji, false); return { reply: P().mood[label] }; }
+  }
+
+  // agenda: consultar
+  if (/(o que|oque|quais|qual).*(tenho|agenda|compromisso|programa)|minha agenda|minha programacao/.test(n)){
+    const w = parseWhen(n); const d = w.date || new Date();
+    const label = ymd(d) === ymd(new Date()) ? 'Hoje' : ymd(d) === ymd(addDays(new Date(),1)) ? 'Amanhã' : fmtDate(d)[0].toUpperCase() + fmtDate(d).slice(1);
+    return { reply: describeDay(ymd(d), label), showDate: ymd(d) };
+  }
+
+  // lembrete
+  if ((m = /\b(?:me )?(?:lembr[ae]|lembre-me|lembrar)(?: -me)?(?: de| que)?\s+(.+)$/d.exec(n))){
+    const body = text.slice(m.indices[1][0]), nb = norm(body);
+    let mm = /\b(?:em|daqui a|daqui)\s+(\d+|um|uma|meia)\s*(minutos?|min|horas?|h)\b/.exec(nb);
+    if (mm){
+      const qty = mm[1] === 'meia' ? 0.5 : /^um/.test(mm[1]) ? 1 : +mm[1];
+      const mins = /^h/.test(mm[2]) ? qty*60 : qty;
+      const at = new Date(Date.now() + mins*60000);
+      const title = cleanTitle(cutRanges(body, [[mm.index, mm.index + mm[0].length]])) || 'Lembrete';
+      addEvent({ title, date: ymd(at), time: hm(at), remind: 0, cat: guessCat(norm(title)) });
+      return { reply: `${pick(P().ok)} Te lembro de “${title}” às ${hm(at)}.` };
+    }
+    const w = parseWhen(nb);
+    if (w.date || w.time){
+      const title = cleanTitle(cutRanges(body, w.ranges)) || 'Lembrete';
+      const d = w.date || new Date();
+      addEvent({ title, date: ymd(d), time: w.time || '09:00', remind: 0, cat: guessCat(norm(title)) });
+      return { reply: `${pick(P().ok)} Vou te lembrar de “${title}” ${fmtDate(d)} às ${w.time || '09:00'}.` };
+    }
+    return { reply: 'Quando devo te lembrar? Ex.: “me lembra de beber água em 30 minutos”.' };
+  }
+
+  // whatsapp: enviar
+  if ((m = /(?:manda|mande|mandar|envia|envie|enviar|escreve|escreva)\s+(?:um[a]?\s+)?(?:mensagem|msg|zap|whats(?:app)?|recado)?\s*(?:no\s+(?:whats(?:app)?|zap)\s+)?(?:para|pra|pro|ao|a)\s+(?:o\s+|a\s+)?(.+?)\s+(?:dizendo|falando|escrevendo|avisando|perguntando)\s+(?:que\s+)?(.+)$/d.exec(n))){
+    const who = text.slice(m.indices[1][0], m.indices[1][1]).trim();
+    const msg = text.slice(m.indices[2][0], m.indices[2][1]).trim();
+    return whatsappAction(who, msg);
+  }
+  if (/abr(e|ir|a) (o )?(whats|zap)/.test(n)) return { reply: 'Abrindo o WhatsApp…', link: { url: 'https://wa.me/', label: 'Abrir WhatsApp' } };
+  if ((m = /(?:liga|ligue|ligar|chama|telefona)\s+(?:para|pra|pro)\s+(?:o\s+|a\s+)?(.+)$/d.exec(n))){
+    const who = text.slice(m.indices[1][0], m.indices[1][1]).trim(); const c = findContact(who);
+    if (!c) return { reply: `Não achei “${who}” nos seus contatos. Cadastre em Personalizar → Contatos.` };
+    return { reply: `Ligando para ${c.name}…`, link: { url: 'tel:' + c.phone.replace(/[^\d+]/g,''), label: 'Ligar para ' + c.name, phone: true } };
+  }
+
+  // marcar compromisso
+  if ((m = /\b(?:marca|marque|marcar|agenda|agende|agendar|adiciona|adicione|adicionar|cria|crie|criar|coloca|coloque|colocar|anota|anote|bota|salva|salve)\b(?:\s+(?:na|pra|para)\s+(?:minha\s+)?agenda\b)?(?:\s+(?:um|uma)\b)?(?:\s+(?:compromisso|evento|reuniao|horario)\b)?(?:\s+(?:de|do|da|para|pra)\b)?\s*/d.exec(n))){
+    const rest = text.slice(m.index + m[0].length), nr = norm(rest);
+    const w = parseWhen(nr);
+    let title = cleanTitle(cutRanges(rest, w.ranges));
+    if (/reuniao/.test(n.slice(m.index, m.index + m[0].length)) && !/reuni/i.test(title)) title = 'Reunião ' + title[0].toLowerCase() + title.slice(1);
+    if (!title) return { reply: 'O que você quer que eu marque? Ex.: “marca dentista amanhã às 15h”.' };
+    const d = w.date || new Date();
+    const e = addEvent({ title: cleanTitle(title), date: ymd(d), time: w.time || '', cat: guessCat(norm(title)) });
+    return { reply: `${pick(P().ok)} Marquei “${e.title}” ${fmtDate(d)}${e.time ? ' às ' + e.time : ''} — cor ${catOf(e.cat).name}.`, showDate: e.date };
+  }
+
+  return null;
+}
+function whatsappAction(who, msg){
+  const digits = who.replace(/\D/g,'');
+  const c = digits.length >= 8 ? { name: who, phone: digits } : findContact(who);
+  if (!c){
+    return { reply: `Não tenho o número de “${who}”. Vou abrir o WhatsApp com a mensagem pronta pra você escolher o contato. (Dica: cadastre em Personalizar → Contatos.)`, link: { url: waLink('', msg), label: 'Escolher contato no WhatsApp' } };
+  }
+  return { reply: `Mensagem pronta para ${c.name}: “${msg}”. É só tocar em enviar no WhatsApp.`, link: { url: waLink(c.phone, msg), label: 'Abrir WhatsApp' } };
+}
+
+/* ============ inteligência com Claude (opcional) ============ */
+let ClaudeSDK = null;
+async function claudeBrain(text){
+  if (!ClaudeSDK) ClaudeSDK = (await import('https://cdn.jsdelivr.net/npm/@anthropic-ai/sdk@0.65.0/+esm')).default;
+  const client = new ClaudeSDK({ apiKey: S.apiKey, dangerouslyAllowBrowser: true });
+  const now = new Date();
+  const upcoming = D.events.filter(e => e.date >= ymd(addDays(now,-1)) && e.date <= ymd(addDays(now,14)))
+    .sort((a,b) => (a.date+a.time).localeCompare(b.date+b.time)).slice(0,40)
+    .map(e => `${e.date} ${e.time || '--:--'} ${e.title} [${catOf(e.cat).name}]${e.place ? ' @' + e.place : ''}`).join('\n') || '(nenhum)';
+  const personaTxt = { carinhosa:'carinhosa, acolhedora e gentil', divertida:'divertida, brincalhona e leve, com emojis', objetiva:'objetiva, curta e direta', motivadora:'motivadora e enérgica, como uma coach' }[S.persona];
+  const system = `Você é ${S.assistantName}, uma assistente pessoal brasileira que vive no celular de ${S.userName || 'seu usuário'}. Personalidade: ${personaTxt}.
+Responda sempre em português do Brasil, em no máximo 3 frases curtas (a resposta será falada em voz alta).
+Você pode executar ações devolvendo itens em "actions":
+- add_event: marcar compromisso (title, date AAAA-MM-DD, time HH:MM ou "", category = um destes ids: ${D.categories.map(c => c.id + '=' + c.name).join(', ')}).
+- reminder: lembrete daqui a N minutos (title, minutes).
+- whatsapp: preparar mensagem no WhatsApp (contact = nome, message = texto). Contatos salvos: ${D.contacts.map(c => c.name).join(', ') || '(nenhum)'}.
+- call: ligar para um contato (contact).
+Use "actions": [] quando for só conversa. Nunca invente que leu mensagens do WhatsApp: você só consegue preparar mensagens para envio.
+${profileText()}
+Agora: ${DOWFULL[now.getDay()]}, ${ymd(now)} ${hm(now)}.
+Agenda dos próximos dias:
+${upcoming}`;
+  const history = D.chat.filter(m => m.text).slice(-12).map(m => ({ role: m.from === 'me' ? 'user' : 'assistant', content: m.text }));
+  while (history.length && history[0].role !== 'user') history.shift();
+  if (!history.length || history[history.length-1].content !== text) history.push({ role:'user', content:text });
+  const str = { type:'string' };
+  const schema = { type:'object', additionalProperties:false, required:['reply','actions'], properties:{
+    reply: str,
+    actions: { type:'array', items: { type:'object', additionalProperties:false,
+      required:['type','title','date','time','category','minutes','contact','message'],
+      properties:{ type:{ type:'string', enum:['add_event','reminder','whatsapp','call'] }, title:str, date:str, time:str, category:str, minutes:{ type:'integer' }, contact:str, message:str } } } } };
+  const resp = await client.beta.messages.create({
+    model: 'claude-opus-5-5',
+    max_tokens: 4096,
+    betas: ['server-side-fallback-2026-07-01'],
+    fallbacks: 'default',
+    output_config: { effort: 'low', format: { type: 'json_schema', schema } },
+    system,
+    messages: history
+  });
+  if (resp.stop_reason === 'refusal') return { reply: 'Desculpa, sobre isso eu não consigo ajudar.' };
+  const raw = (resp.content.find(b => b.type === 'text') || {}).text || '{}';
+  const out = JSON.parse(raw);
+  const result = { reply: out.reply || '…' };
+  for (const a of out.actions || []){
+    if (a.type === 'add_event' && a.title){
+      const e = addEvent({ title:a.title, date:/^\d{4}-\d{2}-\d{2}$/.test(a.date) ? a.date : ymd(now), time:/^\d{2}:\d{2}$/.test(a.time) ? a.time : '', cat: D.categories.some(c => c.id === a.category) ? a.category : guessCat(norm(a.title)) });
+      result.showDate = e.date;
+    } else if (a.type === 'reminder' && a.minutes > 0){
+      const at = new Date(Date.now() + a.minutes*60000);
+      addEvent({ title:a.title || 'Lembrete', date:ymd(at), time:hm(at), remind:0 });
+    } else if (a.type === 'whatsapp'){
+      const w = whatsappAction(a.contact || '', a.message || ''); result.link = w.link;
+    } else if (a.type === 'call'){
+      const c = findContact(a.contact || '');
+      if (c) result.link = { url:'tel:' + c.phone.replace(/[^\d+]/g,''), label:'Ligar para ' + c.name, phone:true };
+    }
+  }
+  return result;
+}
+
+/* ============ conversa ============ */
+function addMsg(from, text, extra = {}){
+  D.chat.push(Object.assign({ from, text, ts: Date.now() }, extra));
+  if (D.chat.length > 200) D.chat = D.chat.slice(-200);
+  save(); renderChat();
+}
+async function userSays(text, byVoice){
+  text = text.trim(); if (!text) return;
+  addMsg('me', text);
+  let r = null;
+  if (S.apiKey){
+    $('chatStatus').textContent = 'pensando…';
+    try { r = await claudeBrain(text); }
+    catch(e){ console.warn(e); r = localBrain(text); if (!r) r = { reply: 'Não consegui falar com a inteligência agora (verifique a chave ou a internet).' }; }
+    $('chatStatus').textContent = 'sua assistente';
+  } else r = localBrain(text);
+  if (!r) r = { reply: `Ainda não sei fazer isso${first() ? ', ' + first() : ''}. Tente: “marca academia amanhã às 7h”, “o que eu tenho hoje?”, “me lembra de beber água em 20 minutos” ou “manda mensagem pra Maria dizendo que já chego”.` };
+  addMsg('ana', r.reply, r.link ? { link: r.link } : {});
+  speak(r.reply);
+  if (r.showDate){ selected = r.showDate; renderHome(); }
+  if (r.link){
+    // tentativa de abrir direto; se o navegador bloquear, o botão fica na conversa
+    if (r.link.phone && !NATIVE) location.href = r.link.url;
+    else openLink(r.link.url);
+  }
+  if (byVoice && current !== 'chat' && (r.link || r.reply.length > 90)) go('chat');
+}
+function logMood(label, emoji, reply = true){
+  D.moods.push({ ts: Date.now(), mood: label }); D.lastCheckin = Date.now(); save();
+  if (reply){ addMsg('me', `${emoji} Estou ${label}`); const t = P().mood[label]; addMsg('ana', t); speak(t); }
+  renderHome();
+}
+
+/* ============ notificações e rotina ============ */
+let swReg = null;
+if (!NATIVE && 'serviceWorker' in navigator && location.protocol !== 'file:'){
+  navigator.serviceWorker.register('sw.js').then(r => swReg = r).catch(() => {});
+}
+async function notify(title, body, tag){
+  if (NATIVE){ NATIVE.notifyUser(title, body); return; }
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+  const opts = { body, tag, icon: 'icon.svg', badge: 'icon.svg', vibrate: [120,60,120], renotify: true };
+  try { if (swReg) await swReg.showNotification(title, opts); else new Notification(title, opts); } catch(e){ try { new Notification(title, opts); } catch(_){} }
+}
+function anaSays(text, notifTitle){
+  addMsg('ana', text);
+  if (document.visibilityState === 'visible') speak(text);
+  if (!NATIVE) notify(notifTitle || S.assistantName, text, 'ana-' + Date.now());
+}
+function tick(){
+  if (obActive) return;
+  const now = new Date(), today = ymd(now), t = hm(now);
+  // lembretes de compromissos
+  for (const e of D.events){
+    if (e.notified || +e.remind < 0 || !e.time) continue;
+    const start = evStart(e), at = start.getTime() - (+e.remind)*60000;
+    if (Date.now() >= at && Date.now() < start.getTime() + 60*60000){
+      e.notified = true; save();
+      const when = +e.remind === 0 ? 'Agora' : +e.remind >= 1440 ? 'Amanhã' : `Em ${e.remind} min`;
+      anaSays(`⏰ ${when}: ${e.title}${e.place ? ' — ' + e.place : ''} (${e.time}).`, `${S.assistantName} · lembrete`);
+    } else if (Date.now() >= start.getTime() + 60*60000) { e.notified = true; save(); }
+  }
+  // bom dia / boa tarde / boa noite
+  const order = ['morning','afternoon','night'], cur = period(now);
+  for (const p of order){
+    const gt = S.greet[p]; if (!gt) continue;
+    if (t >= gt && D.lastGreet[p] !== today && p === cur){
+      D.lastGreet[p] = today; save();
+      const n = first() ? ', ' + first() : '';
+      let msg;
+      if (p === 'morning') msg = `Bom dia${n}! ☀️ ` + describeDay(today, 'Hoje');
+      else if (p === 'afternoon') msg = `Boa tarde${n}! Como está sendo o seu dia? ` + (eventsOn(today).filter(e => e.time > t).length ? `Ainda tem ${eventsOn(today).filter(e => e.time > t).length} compromisso(s) hoje.` : 'Sua tarde está livre.');
+      else msg = `Boa noite${n}! 🌙 ` + describeDay(ymd(addDays(now,1)), 'Amanhã') + ' Descanse bem.';
+      anaSays(msg, GREET[p] + '!');
+      break;
+    }
+  }
+  // "como você está?"
+  if (+S.checkin > 0 && !inQuiet(now) && Date.now() - (D.lastCheckin || 0) > S.checkin*3600000){
+    D.lastCheckin = Date.now();
+    const txt = P().how.replace('{n}', first() ? ', ' + first() : '').replace('{N}', first() ? first() + ', ' : '');
+    D.chat.push({ from:'ana', text: txt, ts: Date.now(), moodAsk: true }); save(); renderChat();
+    if (document.visibilityState === 'visible') speak(txt);
+    if (!NATIVE) notify(S.assistantName, txt, 'ana-checkin');
+  }
+  renderHeroText();
+}
+setInterval(tick, 30000);
+
+// No app Android: agenda os avisos no próprio celular (tocam mesmo com a Ana fechada)
+function syncNative(){
+  if (!NATIVE) return;
+  const out = [], now = new Date(), horizon = Date.now() + 30*86400000, n = first() ? ', ' + first() : '';
+  for (const e of D.events){
+    if (+e.remind < 0 || !e.time) continue;
+    const at = evStart(e).getTime() - (+e.remind)*60000;
+    if (at <= Date.now() || at > horizon) continue;
+    const when = +e.remind === 0 ? 'Agora' : +e.remind >= 1440 ? 'Amanhã' : `Em ${e.remind} min`;
+    out.push({ id:'ev-' + e.id, at, title:`${S.assistantName} · lembrete`, body:`⏰ ${when}: ${e.title}${e.place ? ' — ' + e.place : ''} (${e.time}).` });
+  }
+  for (let d = 0; d < 3; d++){
+    const day = addDays(now, d), k = ymd(day);
+    for (const p of ['morning','afternoon','night']){
+      const gt = S.greet[p]; if (!gt) continue;
+      const [h, m] = gt.split(':').map(Number), at = new Date(day.getFullYear(), day.getMonth(), day.getDate(), h, m).getTime();
+      if (at <= Date.now() || (d === 0 && D.lastGreet[p] === k)) continue;
+      let body;
+      if (p === 'morning') body = `Bom dia${n}! ☀️ ` + describeDay(k, 'Hoje');
+      else if (p === 'afternoon') body = `Boa tarde${n}! Como está sendo o seu dia?`;
+      else body = `Boa noite${n}! 🌙 ` + describeDay(ymd(addDays(day,1)), 'Amanhã') + ' Descanse bem.';
+      out.push({ id:`greet-${p}-${k}`, at, title: GREET[p] + '!', body });
+    }
+  }
+  if (+S.checkin > 0){
+    let t = Math.max(Date.now(), (D.lastCheckin || 0)) + S.checkin*3600000, c = 0;
+    while (t < Date.now() + 2*86400000 && c < 12){
+      if (!inQuiet(new Date(t))){ out.push({ id:'checkin-' + c, at:t, title:S.assistantName, body:P().how.replace('{n}', n).replace('{N}', first() ? first() + ', ' : '') }); c++; }
+      t += S.checkin*3600000;
+    }
+  }
+  try { NATIVE.syncAlarms(JSON.stringify(out)); NATIVE.setSpeakAlarms(!!S.speakAlarms); NATIVE.setName(S.assistantName); NATIVE.setVoice(S.voiceURI || '', +S.rate, +S.pitch); } catch(e){}
+}
+
+/* ============ ICS / Google ============ */
+function icsFor(list){
+  const dt = (d) => `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}00`;
+  const lines = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Ana//Assistente//PT-BR','CALSCALE:GREGORIAN'];
+  for (const e of list){
+    const s = evStart(e); let en = e.end ? evStart({ ...e, time: e.end }) : new Date(s.getTime() + 3600000);
+    if (en <= s) en = new Date(s.getTime() + 3600000);
+    lines.push('BEGIN:VEVENT', `UID:${e.id}@ana`, `DTSTAMP:${dt(new Date())}`,
+      e.time ? `DTSTART:${dt(s)}` : `DTSTART;VALUE=DATE:${e.date.replace(/-/g,'')}`,
+      e.time ? `DTEND:${dt(en)}` : `DTEND;VALUE=DATE:${ymd(addDays(parseYmd(e.date),1)).replace(/-/g,'')}`,
+      `SUMMARY:${e.title.replace(/[,;]/g,'\\$&')}`, `CATEGORIES:${catOf(e.cat).name}`);
+    if (e.place) lines.push(`LOCATION:${e.place.replace(/[,;]/g,'\\$&')}`);
+    if (+e.remind >= 0) lines.push('BEGIN:VALARM','ACTION:DISPLAY',`DESCRIPTION:${e.title}`,`TRIGGER:-PT${+e.remind}M`,'END:VALARM');
+    lines.push('END:VEVENT');
+  }
+  lines.push('END:VCALENDAR');
+  return lines.join('\r\n');
+}
+function download(name, content, type){
+  if (NATIVE){ toast(NATIVE.saveFile(name, content, type) ? `Salvo em Downloads: ${name}` : 'Não consegui salvar.'); return; }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([content], { type })); a.download = name;
+  document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+}
+function googleLink(e){
+  const s = evStart(e), en = e.end ? evStart({ ...e, time: e.end }) : new Date(s.getTime() + 3600000);
+  const f = d => `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}00`;
+  return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(e.title)}&dates=${f(s)}/${f(en)}&location=${encodeURIComponent(e.place||'')}`;
+}
+
+/* ============ render ============ */
+let selected = ymd(new Date()), current = 'home', catFilter = 'all', editing = null;
+function applyTheme(){
+  document.documentElement.style.setProperty('--theme', S.color);
+  if (S.theme === 'auto') document.documentElement.removeAttribute('data-theme'); else document.documentElement.setAttribute('data-theme', S.theme);
+  $('avatar').innerHTML = $('avatar2').innerHTML = S.emoji === 'ana' ? anaSVG('face') : esc(S.emoji);
+  $('heroAna').innerHTML = anaSVG('full'); $('earFace').innerHTML = anaSVG('face');
+  $('avatar').style.background = $('avatar2').style.background = S.color;
+  $('chatName').textContent = S.assistantName;
+  document.title = S.assistantName;
+  $('wakeHelp').textContent = NATIVE ? `Diga “Ei, ${S.assistantName}” mesmo com o app fechado ou a tela desligada` : `Fale “${S.assistantName}” e o seu pedido (com o app aberto)`;
+  $('chatHint').textContent = `Diga “${S.assistantName}, marca academia amanhã às 7h” ou toque no microfone.`;
+}
+function renderHeroText(){
+  const now = new Date(), p = period(now);
+  $('greet').textContent = GREET[p] + '!';
+  const lastMood = D.moods[D.moods.length-1];
+  const moodToday = lastMood && ymd(new Date(lastMood.ts)) === ymd(now) && (Date.now() - lastMood.ts < 4*3600000);
+  const next = D.events.filter(e => e.date === ymd(now) && e.time && e.time >= hm(now)).sort((a,b) => a.time.localeCompare(b.time))[0];
+  $('greetSub').textContent = moodToday ? (next ? `Próximo: ${next.title} às ${next.time}` : `Você está ${lastMood.mood} hoje. Conte comigo!`) : `Eu sou a ${S.assistantName}. Como você está?`;
+  $('heroMoods').innerHTML = MOODS.map(([e,l]) => `<button data-mood="${l}" data-e="${e}" class="${moodToday && lastMood.mood === l ? 'sel' : ''}" aria-label="${l}">${e}</button>`).join('');
+}
+function renderHome(){
+  const now = new Date();
+  $('helloName').textContent = `Olá${first() ? ', ' + first() : ''}`;
+  $('todayLbl').textContent = `Hoje ${now.getDate()} ${MON[now.getMonth()]}.`;
+  renderHeroText();
+  // semana
+  const sel = parseYmd(selected), start = addDays(sel, -sel.getDay());
+  let w = '';
+  for (let i = 0; i < 7; i++){
+    const d = addDays(start, i), k = ymd(d), has = allEvents().some(e => e.date === k);
+    w += `<button class="day ${k === selected ? 'sel' : ''} ${k === ymd(now) ? 'today' : ''}" data-day="${k}">${has ? '<i></i>' : ''}<small>${DOW[i]}</small><b>${d.getDate()}</b></button>`;
+  }
+  $('week').innerHTML = w;
+  // plano
+  const list = eventsOn(selected);
+  $('planTitle').textContent = selected === ymd(now) ? 'Sua programação' : selected === ymd(addDays(now,1)) ? 'Amanhã' : `${DOW[sel.getDay()]}, ${sel.getDate()} ${MON[sel.getMonth()]}`;
+  let h = '';
+  if (!list.length) h = `<div class="empty">Nada marcado. Diga “${esc(S.assistantName)}, marca…” ou toque em + Adicionar.</div>`;
+  list.forEach((e, i) => {
+    const c = catOf(e.cat), past = evStart(e) < now && e.date <= ymd(now);
+    h += `<button class="ev ${i === 0 && list.length > 1 ? 'big' : ''} ${past ? 'done' : ''}" style="background:${colorOf(e)}" data-ev="${e.id}">
+      <span class="tag">${esc(c.name)}</span><h3>${esc(e.title)}</h3>
+      <p>${sel.getDate()} ${MON[sel.getMonth()]}.${e.time ? '<br>' + e.time + (e.end ? '–' + e.end : '') : ''}${e.place ? '<br>' + esc(e.place) : ''}</p>
+      ${+e.remind >= 0 && e.time ? `<span class="who">🔔 ${+e.remind === 0 ? 'na hora' : +e.remind >= 1440 ? '1 dia antes' : e.remind + ' min antes'}</span>` : ''}</button>`;
+  });
+  h += `<div class="quick">
+    <button data-q="wa" aria-label="WhatsApp"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l1.3-3.9A8 8 0 1 1 8 19z"/><path d="M9 9.5c0 3 2.5 5.5 5.5 5.5l1-1.5-2-1-1 .8c-1-.4-1.8-1.2-2.2-2.2l.8-1-1-2z"/></svg></button>
+    <button data-q="add" aria-label="Novo compromisso"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M4 10h16M9 3v4M15 3v4M12 13v4M10 15h4"/></svg></button>
+    <button data-q="talk" aria-label="Falar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
+  </div>`;
+  $('plan').innerHTML = h;
+}
+function renderAgenda(){
+  $('catFilter').innerHTML = `<button class="chip ${catFilter === 'all' ? 'on' : ''}" data-cf="all">Todas</button>` +
+    D.categories.map(c => `<button class="chip ${catFilter === c.id ? 'on' : ''}" data-cf="${c.id}"><i style="background:${c.color}"></i>${esc(c.name)}</button>`).join('');
+  const today = ymd(new Date());
+  const list = allEvents().filter(e => e.date >= today && (catFilter === 'all' || e.cat === catFilter)).sort((a,b) => (a.date + (a.time||'99')).localeCompare(b.date + (b.time||'99')));
+  if (!list.length){ $('agendaList').innerHTML = `<div class="empty" style="margin-top:8px">Nenhum compromisso pela frente.</div>`; return; }
+  let h = '', last = '';
+  for (const e of list){
+    if (e.date !== last){ last = e.date; const d = parseYmd(e.date); h += `<div class="dayhead">${fmtDate(d)}${fmtDate(d).includes(',') ? '' : ' · ' + d.getDate() + ' ' + MON[d.getMonth()]}</div>`; }
+    const c = catOf(e.cat);
+    h += `<button class="row" data-ev="${e.id}"><span class="bar" style="background:${colorOf(e)}"></span><span class="t">${e.time || 'dia todo'}</span><div><b>${esc(e.title)}</b><span>${esc(c.name)}${e.place ? ' · ' + esc(e.place) : ''}</span></div></button>`;
+  }
+  $('agendaList').innerHTML = h;
+}
+function renderChat(){
+  if (!D.chat.length){
+    D.chat.push({ from:'ana', ts:Date.now(), text:`Oi${first() ? ', ' + first() : ''}! Eu sou a ${S.assistantName} 💜\nPosso organizar sua agenda por cores, te lembrar das coisas, preparar mensagens no WhatsApp e te dar bom dia todo dia.\nAtive “Ouvir quando eu chamar” em Personalizar e é só dizer “${S.assistantName}…”.` });
+    save();
+  }
+  const el = $('chat');
+  el.innerHTML = D.chat.map((m, i) => {
+    const d = new Date(m.ts);
+    let extra = '';
+    if (m.link) extra += `<br><a class="act" href="${esc(m.link.url)}" ${m.link.phone ? '' : 'target="_blank" rel="noopener"'}>${esc(m.link.label)}</a>`;
+    if (m.moodAsk && i === D.chat.length - 1) extra += `<div class="moods">${MOODS.map(([e,l]) => `<button data-mood="${l}" data-e="${e}" aria-label="${l}">${e}</button>`).join('')}</div>`;
+    return `<div class="msg ${m.from === 'me' ? 'me' : 'ana'}">${esc(m.text)}${extra}<small>${pad(d.getHours())}:${pad(d.getMinutes())}</small></div>`;
+  }).join('');
+  if (current === 'chat') requestAnimationFrame(() => window.scrollTo(0, document.body.scrollHeight));
+}
+function renderSettings(){
+  $('setAName').value = S.assistantName; $('setUName').value = S.userName;
+  $('setEmoji').innerHTML = EMOJIS.map(e => `<button class="${e === S.emoji ? 'sel' : ''}" data-emoji="${e}" style="${e === 'ana' ? 'overflow:hidden;background:var(--theme)' : ''}">${e === 'ana' ? anaSVG('face') : e}</button>`).join('');
+  $('setColor').innerHTML = PALETTE.map(c => `<button class="${c === S.color ? 'sel' : ''}" style="background:${c}" data-color="${c}" aria-label="cor ${c}"></button>`).join('');
+  $('setPersona').value = S.persona; $('setTheme').value = S.theme;
+  $('setSpeak').checked = S.speak; $('setRate').value = S.rate; $('setPitch').value = S.pitch;
+  syncWakeUi();
+  $('gMorning').value = S.greet.morning; $('gAfternoon').value = S.greet.afternoon; $('gNight').value = S.greet.night;
+  $('setCheckin').value = String(S.checkin); $('qStart').value = S.quietStart; $('qEnd').value = S.quietEnd;
+  $('setKey').value = S.apiKey;
+  if (NATIVE){
+    let pm = {}; try { pm = JSON.parse(NATIVE.perms()); } catch(e){}
+    const rows = [['mic','Microfone','Para ouvir você chamar'],['notif','Notificações','Lembretes, bom dia, boa noite'],['overlay','Aparecer sobre outros apps','Para abrir sozinha quando você chamar'],['battery','Sem economia de bateria','Para não ser desligada pelo celular'],['calendar','Calendário','Ler e salvar compromissos']];
+    $('permList').innerHTML = rows.map(([k,t,d]) => `<div class="perm"><div><span>${t}</span><small>${d}</small></div>${pm[k] ? '<span class="ok">✓ ok</span>' : `<button class="btn" data-perm="${k}">Permitir</button>`}</div>`).join('');
+    $('setCal').checked = !!S.calSync; $('setSpeakAlarms').checked = !!S.speakAlarms;
+    S.wake = !!NATIVE.wakeOn(); syncWakeUi();
+  }
+  const np = 'Notification' in window ? Notification.permission : 'unsupported';
+  $('notifState').textContent = { granted:'Ativadas ✓', denied:'Bloqueadas no navegador', default:'Desativadas', unsupported:'Não suportado aqui' }[np];
+  $('askNotif').style.display = np === 'granted' || np === 'unsupported' ? 'none' : '';
+  $('catList').innerHTML = D.categories.map((c, i) => `<div class="list-item"><input type="color" value="${c.color}" data-ci="${i}" data-k="color"><input class="in" value="${esc(c.name)}" data-ci="${i}" data-k="name"><button class="x" data-delcat="${i}" aria-label="remover">✕</button></div>`).join('');
+  $('contactList').innerHTML = D.contacts.length ? D.contacts.map((c, i) => `<div class="list-item"><input class="in" placeholder="Nome" value="${esc(c.name)}" data-pi="${i}" data-k="name"><input class="in" placeholder="Número" inputmode="tel" value="${esc(c.phone)}" data-pi="${i}" data-k="phone"><button class="x" data-delct="${i}" aria-label="remover">✕</button></div>`).join('') : '<p class="note" style="margin-top:0">Nenhum contato ainda.</p>';
+  loadVoices();
+}
+function renderAll(){ applyTheme(); renderHome(); renderAgenda(); renderChat(); }
+
+/* ============ navegação ============ */
+function go(s){
+  current = s;
+  document.querySelectorAll('.screen').forEach(x => x.classList.toggle('on', x.id === 's-' + s));
+  document.querySelectorAll('.nav button').forEach(b => b.classList.toggle('on', b.dataset.s === s));
+  $('composer').style.display = s === 'chat' ? 'flex' : 'none';
+  if (s === 'settings') renderSettings();
+  if (s === 'agenda') renderAgenda();
+  if (s === 'chat') renderChat(); else window.scrollTo(0,0);
+}
+$('nav').addEventListener('click', e => { const b = e.target.closest('button'); if (b) go(b.dataset.s); });
+
+/* ============ modal de evento ============ */
+function openEvent(id, preset = {}){
+  editing = id ? D.events.find(e => e.id === id) : null;
+  const e = editing || Object.assign({ title:'', date:selected, time:'', end:'', cat:'pessoal', place:'', remind:10 }, preset);
+  $('evModalTitle').textContent = editing ? 'Editar compromisso' : 'Novo compromisso';
+  $('evTitle').value = e.title; $('evDate').value = e.date; $('evTime').value = e.time; $('evEnd').value = e.end || '';
+  $('evPlace').value = e.place || ''; $('evRemind').value = String(e.remind ?? 10);
+  $('evCats').dataset.sel = D.categories.some(c => c.id === e.cat) ? e.cat : D.categories[0]?.id;
+  renderEvCats();
+  $('evDel').style.display = editing ? '' : 'none';
+  $('evModal').classList.add('on');
+  if (!editing) setTimeout(() => $('evTitle').focus(), 200);
+}
+function renderEvCats(){
+  const sel = $('evCats').dataset.sel;
+  $('evCats').innerHTML = D.categories.map(c => `<button class="chip ${c.id === sel ? 'on' : ''}" data-evcat="${c.id}"><i style="background:${c.color}"></i>${esc(c.name)}</button>`).join('');
+}
+function readEvent(){
+  return { title: $('evTitle').value.trim() || 'Compromisso', date: $('evDate').value || selected, time: $('evTime').value, end: $('evEnd').value, place: $('evPlace').value.trim(), remind: +$('evRemind').value, cat: $('evCats').dataset.sel };
+}
+$('evCats').addEventListener('click', e => { const b = e.target.closest('[data-evcat]'); if (b){ $('evCats').dataset.sel = b.dataset.evcat; renderEvCats(); } });
+$('evSave').onclick = () => {
+  const v = readEvent();
+  if (editing){ Object.assign(editing, v, { notified:false }); pushToPhone(editing); save(); renderAll(); }
+  else addEvent(v);
+  selected = v.date; $('evModal').classList.remove('on'); renderAll(); toast('Salvo ✓');
+};
+$('evDel').onclick = () => { if (editing && confirm('Excluir este compromisso?')){ if (NATIVE && editing.calId) NATIVE.calendarDelete(String(editing.calId)); D.events = D.events.filter(e => e !== editing); save(); $('evModal').classList.remove('on'); renderAll(); } };
+$('evCancel').onclick = () => $('evModal').classList.remove('on');
+$('evModal').addEventListener('click', e => { if (e.target.id === 'evModal') $('evModal').classList.remove('on'); });
+$('evIcs').onclick = () => {
+  if (NATIVE){
+    if (!JSON.parse(NATIVE.perms()).calendar){ NATIVE.askPerm('calendar'); return; }
+    const id = NATIVE.calendarInsert(JSON.stringify(calPayload(readEvent())));
+    if (id && editing){ editing.calId = id; save(); }
+    toast(id ? 'Colocado no calendário do celular ✓' : 'Não consegui acessar o calendário.'); return;
+  }
+  const v = Object.assign({ id: editing?.id || uid() }, readEvent()); download(`${v.title}.ics`, icsFor([v]), 'text/calendar'); };
+$('evGoogle').onclick = () => openLink(googleLink(readEvent()));
+
+/* ============ eventos da UI ============ */
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-day],[data-ev],[data-mood],[data-q],[data-cf],[data-emoji],[data-color],[data-delcat],[data-delct],[data-perm]');
+  if (!t) return;
+  if (t.dataset.perm){ NATIVE && NATIVE.askPerm(t.dataset.perm); return; }
+  if (t.dataset.day){ selected = t.dataset.day; renderHome(); }
+  else if (t.dataset.ev){ if (t.dataset.ev[0] === 'p' && !D.events.some(x => x.id === t.dataset.ev)) toast('Este compromisso é do calendário do celular.'); else openEvent(t.dataset.ev); }
+  else if (t.dataset.mood) logMood(t.dataset.mood, t.dataset.e);
+  else if (t.dataset.q === 'add') openEvent(null);
+  else if (t.dataset.q === 'talk') micTap();
+  else if (t.dataset.q === 'wa') openLink('https://wa.me/');
+  else if (t.dataset.cf){ catFilter = t.dataset.cf; renderAgenda(); }
+  else if (t.dataset.emoji){ S.emoji = t.dataset.emoji; save(); applyTheme(); renderSettings(); }
+  else if (t.dataset.color){ S.color = t.dataset.color; save(); applyTheme(); renderSettings(); }
+  else if (t.dataset.delcat){ if (D.categories.length > 1){ D.categories.splice(+t.dataset.delcat, 1); save(); renderSettings(); renderAll(); } }
+  else if (t.dataset.delct){ D.contacts.splice(+t.dataset.delct, 1); save(); renderSettings(); }
+});
+document.addEventListener('input', e => {
+  const t = e.target;
+  if (t.dataset.ci !== undefined){ D.categories[+t.dataset.ci][t.dataset.k] = t.value; save(); renderHome(); }
+  if (t.dataset.pi !== undefined){ D.contacts[+t.dataset.pi][t.dataset.k] = t.value; save(); }
+});
+$('micBtn').onclick = micTap;
+$('chatMic').onclick = micTap;
+$('addFromHome').onclick = () => openEvent(null);
+$('fab').onclick = () => openEvent(null);
+$('icsAll').onclick = () => { const l = D.events.filter(e => e.date >= ymd(new Date())); if (!l.length) return toast('Nada para exportar.'); download('agenda-ana.ics', icsFor(l), 'text/calendar'); toast('Abra o arquivo para pôr no calendário do celular.'); };
+$('chatSend').onclick = () => { const v = $('chatInput').value; $('chatInput').value = ''; userSays(v); };
+$('chatInput').addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); $('chatSend').click(); } });
+$('clearChat').onclick = () => { if (confirm('Limpar a conversa?')){ D.chat = []; save(); renderChat(); } };
+
+// configurações
+const bind = (id, fn, ev = 'change') => $(id).addEventListener(ev, e => { fn(e.target); save(); });
+bind('setAName', t => { S.assistantName = t.value.trim() || 'Ana'; applyTheme(); renderHome(); }, 'input');
+bind('setUName', t => { S.userName = t.value.trim(); renderHome(); }, 'input');
+bind('setPersona', t => S.persona = t.value);
+bind('setTheme', t => { S.theme = t.value; applyTheme(); });
+bind('setSpeak', t => S.speak = t.checked);
+bind('setVoice', t => S.voiceURI = t.value);
+bind('setRate', t => S.rate = +t.value);
+bind('setPitch', t => S.pitch = +t.value);
+bind('gMorning', t => S.greet.morning = t.value);
+bind('gAfternoon', t => S.greet.afternoon = t.value);
+bind('gNight', t => S.greet.night = t.value);
+bind('setCheckin', t => { S.checkin = +t.value; D.lastCheckin = Date.now(); });
+bind('qStart', t => S.quietStart = t.value);
+bind('qEnd', t => S.quietEnd = t.value);
+bind('setKey', t => S.apiKey = t.value.trim(), 'input');
+bind('setCal', t => { S.calSync = t.checked; if (S.calSync && !JSON.parse(NATIVE.perms()).calendar) NATIVE.askPerm('calendar'); refreshPhone(); renderAll(); });
+bind('setSpeakAlarms', t => S.speakAlarms = t.checked);
+bind('setWake', t => {
+  if (NATIVE){ S.wake = t.checked; NATIVE.setWake(S.wake); syncMic(); if (S.wake) toast(`Pronto! Diga “Ei, ${S.assistantName}” mesmo com o app fechado.`); return; }
+  if (!SR){ t.checked = false; S.wake = false; toast('Use o Google Chrome para eu poder te ouvir.'); return; }
+  S.wake = t.checked;
+  if (S.wake){ mode = 'wake'; startRec(); toast(`Pronto! É só dizer “${S.assistantName}”.`); } else stopRec();
+});
+$('testVoice').onclick = () => { syncNative(); const was = S.speak; S.speak = true; speak(`Oi${first() ? ', ' + first() : ''}! Eu sou a ${S.assistantName}. Assim que eu falo.`); S.speak = was; };
+$('askNotif').onclick = async () => {
+  if (!('Notification' in window)) return;
+  const p = await Notification.requestPermission(); renderSettings();
+  if (p === 'granted') notify(S.assistantName, `Pronto${first() ? ', ' + first() : ''}! Agora eu consigo te mandar lembretes 💜`, 'ana-hello');
+};
+$('addCat').onclick = () => { D.categories.push({ id: uid(), name: 'Nova', color: PALETTE[D.categories.length % PALETTE.length] }); save(); renderSettings(); };
+$('addContact').onclick = () => { D.contacts.push({ name:'', phone:'' }); save(); renderSettings(); };
+$('exportData').onclick = () => { const c = JSON.parse(JSON.stringify(D)); c.settings.apiKey = ''; download('ana-backup.json', JSON.stringify(c, null, 2), 'application/json'); };
+$('importData').onclick = () => $('importFile').click();
+$('importFile').onchange = async e => {
+  try { const j = JSON.parse(await e.target.files[0].text()); const key = S.apiKey; D = Object.assign(defaults(), j); D.settings = Object.assign(defaults().settings, j.settings, { apiKey: key }); save(); location.reload(); }
+  catch(_){ toast('Arquivo inválido.'); }
+};
+$('resetData').onclick = () => { if (confirm('Apagar todos os dados da Ana neste aparelho?')){ localStorage.removeItem(KEY); location.reload(); } };
+
+
+/* ============ personagem: Ana (mulher animada, cabelo curto) ============ */
+function anaSVG(mode){
+  const full = mode !== 'face';
+  const vb = full ? '0 0 200 250' : '46 26 112 138';
+  const HAIR = '#2A1A16', SKIN = '#EDB892', SKIN2 = '#E0A47E';
+  return `<svg class="ana-svg" viewBox="${vb}" aria-hidden="true">
+  ${full ? `<g class="a-body">
+    <path d="M30 252 C32 206 64 188 100 188 C136 188 168 206 170 252 Z" fill="var(--theme)"/>
+    <path d="M30 252 C32 206 64 188 100 188 C136 188 168 206 170 252 Z" fill="#000" opacity=".06"/>
+    <path d="M86 166 L86 190 Q100 202 114 190 L114 166 Z" fill="${SKIN2}"/>
+    <path d="M78 192 Q100 214 122 192" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".75"/>
+    <circle cx="100" cy="222" r="5" fill="#FFBE5C"/>
+  </g>
+  <g class="a-arm"><path d="M152 222 C168 202 174 182 170 160" stroke="var(--theme)" stroke-width="18" stroke-linecap="round" fill="none"/>
+    <circle cx="170" cy="150" r="12" fill="${SKIN}"/><path d="M164 141 l-3 -8 M170 139 l0 -9 M176 141 l3 -8" stroke="${SKIN}" stroke-width="5" stroke-linecap="round"/></g>` : ''}
+  <g class="a-head">
+    <path d="M52 106 C46 58 76 32 104 32 C136 32 158 58 152 108 C151 128 146 144 138 152 L66 152 C58 144 53 128 52 106 Z" fill="${HAIR}"/>
+    <ellipse cx="62" cy="110" rx="7" ry="10" fill="${SKIN2}"/><ellipse cx="142" cy="110" rx="7" ry="10" fill="${SKIN2}"/>
+    <circle cx="61" cy="124" r="3.6" fill="#FFBE5C"/><circle cx="143" cy="124" r="3.6" fill="#FFBE5C"/>
+    <path d="M65 102 C65 68 81 54 102 54 C123 54 139 68 139 102 C139 136 122 160 102 160 C82 160 65 136 65 102 Z" fill="${SKIN}"/>
+    <path d="M57 106 C51 64 78 38 106 40 C134 42 153 66 147 104 C143 86 133 72 119 68 C108 82 86 90 62 92 Z" fill="${HAIR}"/>
+    <path d="M118 69 C127 77 133 87 137 99" stroke="#4A3029" stroke-width="2" fill="none" opacity=".6"/>
+    <path d="M84 60 C96 54 110 52 122 56" stroke="#5B3C33" stroke-width="3" fill="none" opacity=".5" stroke-linecap="round"/>
+    <ellipse cx="80" cy="124" rx="8.5" ry="4.8" fill="#F48C9A" opacity=".45"/><ellipse cx="124" cy="124" rx="8.5" ry="4.8" fill="#F48C9A" opacity=".45"/>
+    <path class="a-brow" d="M74 93 Q83 88 92 92" stroke="${HAIR}" stroke-width="3.2" fill="none" stroke-linecap="round"/>
+    <path class="a-brow" d="M112 92 Q121 88 130 93" stroke="${HAIR}" stroke-width="3.2" fill="none" stroke-linecap="round"/>
+    <g class="a-eyes">
+      <g class="a-eye"><ellipse cx="83" cy="107" rx="5.6" ry="7.2" fill="${HAIR}"/><circle cx="85.2" cy="104.3" r="1.9" fill="#fff"/><path d="M76 101 l-3 -2.5" stroke="${HAIR}" stroke-width="2" stroke-linecap="round"/></g>
+      <g class="a-eye"><ellipse cx="121" cy="107" rx="5.6" ry="7.2" fill="${HAIR}"/><circle cx="123.2" cy="104.3" r="1.9" fill="#fff"/><path d="M128 101 l3 -2.5" stroke="${HAIR}" stroke-width="2" stroke-linecap="round"/></g>
+    </g>
+    <path d="M102 112 Q99 121 103.5 123" stroke="#C98A68" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+    <g class="a-mouth">
+      <path class="a-smile" d="M90 136 Q102 146 114 136" stroke="#B5485A" stroke-width="3.6" fill="none" stroke-linecap="round"/>
+      <path class="a-open" d="M90.5 134 Q102 133 113.5 134 Q111.5 149 102 149 Q92.5 149 90.5 134 Z" fill="#8E2F45"/>
+    </g>
+  </g></svg>`;
+}
+let talkTimer = null, talkWaiters = [];
+function anaSpeaking(on){
+  document.body.classList.toggle('talking', !!on);
+  if (on) { clearTimeout(talkTimer); anaSpeaking.started = Date.now(); }
+  else { const w = talkWaiters; talkWaiters = []; w.forEach(f => f()); }
+}
+window.anaSpeaking = anaSpeaking;
+// fala e espera terminar (com animação mesmo se a voz do aparelho falhar)
+function say(text){
+  return new Promise(resolve => {
+    let done = false; const fin = () => { if (!done){ done = true; resolve(); } };
+    talkWaiters.push(fin);
+    const before = Date.now();
+    speak(text);
+    const est = Math.max(1800, text.length * 75);
+    // se a voz não começar, anima a boca pelo tempo estimado e segue
+    setTimeout(() => { if (!done && (!anaSpeaking.started || anaSpeaking.started < before)){ document.body.classList.add('talking'); talkTimer = setTimeout(() => { document.body.classList.remove('talking'); fin(); }, est); } }, 1500);
+    setTimeout(fin, est + 6000);
+  });
+}
+function typeInto(el, text, ms = 42){
+  return new Promise(res => { el.textContent = ''; let i = 0; const t = setInterval(() => { el.textContent = text.slice(0, ++i); if (i >= text.length){ clearInterval(t); res(); } }, ms); });
+}
+window.anaNotHeard = p => {
+  if (p === 'nomatch'){ const t = 'Não consegui te ouvir direito. Pode repetir? Toque no microfone ou me chame de novo.'; toast('🙉 ' + t); speak(t); }
+  else if (p === 'perm') toast('Permita o microfone em Personalizar → Permissões.');
+  else if (p === 'unavailable') toast('Instale ou atualize o app Google para eu entender sua voz.');
+};
+window.anaVoiceProblem = p => {
+  const t = p === 'nolang' ? 'Para eu falar com você, instale a voz “Português (Brasil)”: Personalizar → Configurar voz do celular.' : 'Não encontrei um motor de voz no celular. Instale o “Google Speech Services” na Play Store.';
+  if (!anaVoiceProblem.shown){ anaVoiceProblem.shown = 1; addMsg('ana', '🔇 ' + t); toast(t); }
+};
+const JOKES = ['Por que o livro de matemática ficou triste? Porque tinha muitos problemas! 😄','O que o pato disse para a pata? Vem quá! 🦆','Qual é o café mais perigoso do mundo? O ex-presso! ☕','Por que a plantinha não foi atendida no hospital? Porque só tinha médico de plantão! 🌱','O que a vaca foi fazer no espaço? Visitar a via láctea! 🐄'];
+const IDEAS = {
+  'Música':['montar uma playlist nova para a semana','aprender o refrão daquela música que não sai da cabeça'],
+  'Esportes':['fazer uma caminhada de 20 minutos','assistir os melhores lances do seu time'],
+  'Academia':['fazer um treino rápido de 15 minutos em casa','alongar por 10 minutos'],
+  'Leitura':['ler 10 páginas daquele livro','procurar um livro novo para começar'],
+  'Cozinhar':['testar uma receita nova hoje','preparar um lanche caprichado'],
+  'Viagens':['planejar a próxima viagem dos sonhos','ver fotos de um lugar que você quer conhecer'],
+  'Filmes e séries':['começar aquela série que todo mundo comenta','rever um filme favorito'],
+  'Games':['jogar uma partida rapidinha','chamar um amigo para jogar online'],
+  'Natureza':['tomar um sol e respirar ar puro','cuidar das plantas'],
+  'Moda':['montar um look novo com o que já tem','organizar o guarda-roupa'],
+  'Arte':['desenhar qualquer coisa por 10 minutos','fazer algo criativo sem compromisso'],
+  'Tecnologia':['aprender um atalho novo no celular','assistir um vídeo sobre algo que te intriga'],
+  'Pets':['brincar com seu pet','levar seu pet para passear'],
+  'Meditação':['fazer 5 minutos de respiração','meditar ouvindo um som calmo'],
+  'Estudos':['revisar um assunto por 25 minutos','assistir uma aula curtinha'],
+  'Família':['ligar para alguém da família','marcar um almoço em família'],
+  'Trabalho':['organizar as tarefas de amanhã','limpar a caixa de e-mails'],
+  'Festas':['chamar os amigos para um encontro','planejar o próximo rolê']
+};
+function ideaFor(){
+  const likes = (D.profile && D.profile.likes && D.profile.likes.length) ? D.profile.likes : Object.keys(IDEAS);
+  const l = pick(likes), idea = pick(IDEAS[l] || ['beber uma água e dar uma volta']);
+  return `Que tal ${idea}? ${l === 'Meditação' ? '🧘' : '✨'} Quer que eu coloque na sua agenda?`;
+}
+function listPt(a){ return a.length < 2 ? (a[0] || '') : a.slice(0,-1).join(', ') + ' e ' + a[a.length-1]; }
+function profileText(){
+  const pf = D.profile; if (!pf || !pf.done) return '';
+  return `Sobre ${pf.name || 'o usuário'}: ${pf.age ? pf.age + ' anos; ' : ''}gosta de ${listPt(pf.likes || []) || '(não informou)'}; rotina: ${pf.occupation || '-'}, acorda ${pf.wake || '?'} e dorme ${pf.sleep || '?'}. Use isso para personalizar sugestões.`;
+}
+
+/* ============ apresentação + criação da assistente ideal ============ */
+const LIKES = [['Música','🎵'],['Esportes','⚽'],['Academia','💪'],['Leitura','📚'],['Cozinhar','🍳'],['Viagens','✈️'],['Filmes e séries','🎬'],['Games','🎮'],['Natureza','🌿'],['Moda','👗'],['Arte','🎨'],['Tecnologia','💻'],['Pets','🐶'],['Meditação','🧘'],['Estudos','🎓'],['Família','👨‍👩‍👧'],['Trabalho','💼'],['Festas','🎉']];
+const LIKE_CAT = { 'Música':['musica','Música','#F7A8F0'], 'Esportes':['esporte','Esportes','#A8E6B8'], 'Academia':['treino','Treino','#8EE3E0'], 'Leitura':['leitura','Leitura','#FFE27A'], 'Cozinhar':['cozinha','Cozinha','#FF9C8A'], 'Viagens':['viagem','Viagens','#A9CBFF'], 'Filmes e séries':['filmes','Filmes','#C9B6FF'], 'Games':['games','Games','#8EE3E0'], 'Natureza':['natureza','Natureza','#A8E6B8'], 'Moda':['moda','Moda','#F7A8F0'], 'Arte':['arte','Arte','#FFBE5C'], 'Tecnologia':['tech','Tecnologia','#A9CBFF'], 'Pets':['pets','Pets','#FFBE5C'], 'Meditação':['bemestar','Bem-estar','#A8E6B8'], 'Estudos':['estudo','Estudo','#FFE27A'], 'Família':['familia','Família','#F7A8F0'], 'Trabalho':['trabalho','Trabalho','#A9CBFF'], 'Festas':['lazer','Lazer','#FFBE5C'] };
+const PERSONAS = { carinhosa:['💜 Carinhosa','Acolhedora, cuida de você com jeitinho'], divertida:['😄 Divertida','Leve, brincalhona e cheia de emojis'], objetiva:['🎯 Objetiva','Direto ao ponto, sem enrolação'], motivadora:['🔥 Motivadora','Te empurra pra frente, estilo coach'] };
+const OCCUP = ['Trabalho','Estudo','Trabalho e estudo','Cuido da casa','Aposentado(a)','Outro'];
+let obActive = false, ob = {};
+const WELCOME = 'Seja bem-vinda! Eu sou a Ana, a sua assistente, e vou te mostrar o quão divertido pode ser se a gente colorir a nossa rotina!';
+
+function suggestPersona(pf){
+  const L = new Set(pf.likes || []), a = +pf.age || 30;
+  if (a >= 60) return 'carinhosa';
+  if (L.has('Academia') || L.has('Esportes')) return 'motivadora';
+  if (a < 26 && ['Games','Festas','Música','Filmes e séries'].some(x => L.has(x))) return 'divertida';
+  if (L.has('Meditação') || L.has('Família')) return 'carinhosa';
+  if (L.has('Tecnologia') || L.has('Trabalho') || /Trabalho/.test(pf.occupation || '')) return 'objetiva';
+  return a < 30 ? 'divertida' : 'carinhosa';
+}
+function suggestColor(pf){ const l = (pf.likes || [])[0]; return l && LIKE_CAT[l] ? (PALETTE.includes(LIKE_CAT[l][2]) ? LIKE_CAT[l][2] : '#B9A3FF') : '#B9A3FF'; }
+const addMin = (t, m) => { const [h, mi] = (t || '07:00').split(':').map(Number); const x = ((h*60 + mi + m) % 1440 + 1440) % 1440; return `${pad(Math.floor(x/60))}:${pad(x%60)}`; };
+
+function buildModel(pf){
+  const persona = pf.persona || suggestPersona(pf);
+  const color = pf.color || suggestColor(pf);
+  const a = +pf.age || 30;
+  const wake = pf.wake || '07:00', sleep = pf.sleep || '23:00';
+  const base = [];
+  const occ = pf.occupation || '';
+  if (/Trabalho|Outro/.test(occ) || !occ) base.push(['trabalho','Trabalho','#A9CBFF']);
+  if (/Estudo/.test(occ)) base.push(['estudo','Estudo','#FFE27A']);
+  if (/casa/i.test(occ)) base.push(['casa','Casa','#FFE27A']);
+  base.push(['saude','Saúde','#A8E6B8'], ['pessoal','Pessoal','#B9A3FF'], ['familia','Família','#F7A8F0'], ['lazer','Lazer','#FFBE5C']);
+  const cats = [];
+  for (const c of base.concat((pf.likes || []).map(l => LIKE_CAT[l]).filter(Boolean))) if (!cats.some(x => x[0] === c[0]) && cats.length < 10) cats.push(c);
+  return {
+    persona, color,
+    greet: { morning: wake, afternoon: wake >= '11:00' ? addMin(wake, 180) : '13:00', night: addMin(sleep, -30) },
+    quietStart: sleep, quietEnd: wake,
+    rate: a >= 60 ? 0.86 : a >= 45 ? 0.92 : 0.97, pitch: 1.0,
+    checkin: a >= 60 ? 5 : 3,
+    categories: cats.map(([id, name, color]) => ({ id, name, color }))
+  };
+}
+function applyModel(pf, m){
+  S.userName = pf.name || S.userName; S.persona = m.persona; S.color = m.color;
+  S.greet = m.greet; S.quietStart = m.quietStart; S.quietEnd = m.quietEnd;
+  S.rate = m.rate; S.pitch = m.pitch; S.checkin = m.checkin; D.lastCheckin = Date.now();
+  // mantém categorias que já têm compromissos
+  const used = new Set(D.events.map(e => e.cat));
+  const keep = D.categories.filter(c => used.has(c.id) && !m.categories.some(x => x.id === c.id));
+  D.categories = m.categories.concat(keep);
+  const today = ymd(new Date()), t = hm(new Date());
+  for (const p of ['morning','afternoon','night']) if (S.greet[p] <= t) D.lastGreet[p] = today; // não cumprimenta logo em seguida
+  D.profile = Object.assign({}, pf, { done: true, at: Date.now() }); delete D.profile.step;
+  save(); applyTheme(); renderAll();
+}
+
+function obBg(){
+  const cols = ['#B9A3FF','#FFBE5C','#A9CBFF','#F7A8F0','#A8E6B8','#FFE27A'];
+  $('obBg').innerHTML = cols.map((c, i) => `<i style="background:${c};width:${90 + i*22}px;height:${90 + i*22}px;left:${[-30,70,-40,60,10,75][i]}%;top:${[8,4,55,62,85,30][i]}%;animation-delay:${-i*1.4}s;filter:blur(${i % 2 ? 2 : 0}px)"></i>`).join('');
+}
+function startOnboarding(){
+  obActive = true; ob = { step:0, likes: [] }; obBg();
+  $('ob').classList.add('on');
+  stageWelcome();
+}
+function endOnboarding(){ obActive = false; $('ob').classList.remove('on'); document.body.classList.remove('talking'); renderAll(); setTimeout(tick, 1500); }
+
+function stageWelcome(){
+  $('obStage').innerHTML = `<div class="ob-hero"><div class="ob-char enter waving" id="obChar">${anaSVG('full')}</div><div class="bubble" id="obBubble"></div></div>
+  <div class="ob-actions"><button class="btn big" id="obGo" style="display:none">Vamos lá! ✨</button><button class="btn big" id="obTap">▶ Toque para conhecer a Ana</button><button class="link" id="obSkip">Pular apresentação</button></div>`;
+  const run = async () => {
+    $('obTap').style.display = 'none';
+    const ch = $('obChar'); ch.classList.remove('waving'); void ch.offsetWidth; ch.classList.add('waving');
+    await Promise.all([typeInto($('obBubble'), WELCOME, 48), say(WELCOME)]);
+    $('obGo').style.display = '';
+  };
+  $('obTap').onclick = run;
+  $('obGo').onclick = () => stageQuestion(0);
+  $('obSkip').onclick = () => { applyModel({ name: S.userName, likes: [] }, buildModel({})); endOnboarding(); };
+  if (NATIVE){ $('obTap').style.display = 'none'; setTimeout(run, 1100); }  // no app ela já entra falando
+}
+
+const QUESTIONS = [
+  { q: () => 'Primeiro, como você quer que eu te chame?', body: () => `<input class="ob-in" id="obName" placeholder="Seu nome ou apelido" maxlength="30" autocomplete="given-name" value="${esc(ob.name || S.userName || '')}">`,
+    ok: () => { const v = $('obName').value.trim(); if (!v){ toast('Me diz seu nome? 😊'); return false; } ob.name = v; return true; }, focus: 'obName' },
+  { q: () => `Prazer, ${ob.name.split(' ')[0]}! Quantos anos você tem?`, body: () => `<input class="ob-in" id="obAge" type="number" inputmode="numeric" min="5" max="110" placeholder="Sua idade" value="${esc(ob.age || '')}"><button class="link" id="obNoAge" style="margin-top:8px">Prefiro não dizer</button>`,
+    ok: () => { const v = +$('obAge').value; if (v && (v < 5 || v > 110)){ toast('Hmm, essa idade não parece certa 😅'); return false; } ob.age = v || ''; return true; }, focus: 'obAge',
+    after: () => { $('obNoAge').onclick = () => { ob.age = ''; stageQuestion(ob.step + 1); }; } },
+  { q: () => 'Do que você mais gosta? Pode escolher vários!', body: () => `<div class="likes" id="obLikes">${LIKES.map(([l, e]) => `<button data-like="${l}" class="${ob.likes.includes(l) ? 'sel' : ''}">${e} ${l}</button>`).join('')}</div>`,
+    ok: () => { if (!ob.likes.length){ toast('Escolhe pelo menos uma coisinha 💜'); return false; } return true; },
+    after: () => { $('obLikes').onclick = e => { const b = e.target.closest('[data-like]'); if (!b) return; const l = b.dataset.like; ob.likes = ob.likes.includes(l) ? ob.likes.filter(x => x !== l) : ob.likes.concat(l); b.classList.toggle('sel'); }; } },
+  { q: () => 'Como é a sua rotina? Assim eu sei a hora certa de te dar bom dia e boa noite.', body: () => `
+      <div class="two"><div><div class="ob-label">Acordo às</div><input class="ob-in" type="time" id="obWake" value="${ob.wake || '07:00'}"></div><div><div class="ob-label">Durmo às</div><input class="ob-in" type="time" id="obSleep" value="${ob.sleep || '23:00'}"></div></div>
+      <div class="ob-label">No dia a dia eu…</div><div class="likes" id="obOcc">${OCCUP.map(o => `<button data-occ="${o}" class="${ob.occupation === o ? 'sel' : ''}">${o}</button>`).join('')}</div>`,
+    ok: () => { ob.wake = $('obWake').value || '07:00'; ob.sleep = $('obSleep').value || '23:00'; return true; },
+    after: () => { $('obOcc').onclick = e => { const b = e.target.closest('[data-occ]'); if (!b) return; ob.occupation = b.dataset.occ; [...$('obOcc').children].forEach(x => x.classList.toggle('sel', x === b)); }; } },
+  { q: () => 'E como você quer que eu seja com você? Já separei uma sugestão!', body: () => {
+      const sug = suggestPersona(ob); if (!ob.persona) ob.persona = sug; if (!ob.color) ob.color = suggestColor(ob);
+      return `<div class="personas" id="obPers">${Object.entries(PERSONAS).map(([k, [t, d]]) => `<button data-p="${k}" class="${ob.persona === k ? 'sel' : ''}"><b>${t}${k === sug ? '<span class="sug">sugerido pra você</span>' : ''}</b><span>${d}</span></button>`).join('')}</div>
+      <div class="ob-label">Minha cor favorita</div><div class="swatches" id="obColor">${PALETTE.map(c => `<button style="background:${c}" data-c="${c}" class="${ob.color === c ? 'sel' : ''}" aria-label="cor"></button>`).join('')}</div>`; },
+    ok: () => true,
+    after: () => {
+      $('obPers').onclick = e => { const b = e.target.closest('[data-p]'); if (!b) return; ob.persona = b.dataset.p; [...$('obPers').children].forEach(x => x.classList.toggle('sel', x === b)); };
+      $('obColor').onclick = e => { const b = e.target.closest('[data-c]'); if (!b) return; ob.color = b.dataset.c; document.documentElement.style.setProperty('--theme', ob.color); [...$('obColor').children].forEach(x => x.classList.toggle('sel', x === b)); };
+      if (ob.color) document.documentElement.style.setProperty('--theme', ob.color);
+    } }
+];
+function stageQuestion(i){
+  ob.step = i; const Q = QUESTIONS[i], text = Q.q();
+  $('obStage').innerHTML = `<div class="ob-dots">${QUESTIONS.map((_, k) => `<i class="${k <= i ? 'on' : ''}"></i>`).join('')}</div>
+    <div class="ob-q"><div class="mini">${anaSVG('face')}</div><div class="bubble" id="obQ"></div></div>
+    <div class="ob-body">${Q.body()}</div>
+    <div class="ob-actions"><button class="btn big" id="obNext">${i === QUESTIONS.length - 1 ? 'Criar minha Ana ✨' : 'Continuar'}</button>${i > 0 ? '<button class="link" id="obBack">Voltar</button>' : ''}</div>`;
+  typeInto($('obQ'), text, 28); speak(text);
+  if (Q.after) Q.after();
+  if (Q.focus) setTimeout(() => { const el = $(Q.focus); if (el) el.focus(); }, 350);
+  $('obNext').onclick = () => { if (Q.ok()) { if (i < QUESTIONS.length - 1) stageQuestion(i + 1); else stageGenerate(); } };
+  if ($('obBack')) $('obBack').onclick = () => stageQuestion(i - 1);
+  const inp = $('obStage').querySelector('input.ob-in:not([type=time])');
+  if (inp) inp.addEventListener('keydown', e => { if (e.key === 'Enter') $('obNext').click(); });
+}
+async function stageGenerate(){
+  const steps = ['Escolhendo a sua cor','Ajustando o meu jeitinho','Criando as cores da sua agenda','Planejando seu bom dia e boa noite','Afinando a minha voz'];
+  $('obStage').innerHTML = `<div class="gen"><div class="ob-char">${anaSVG('full')}</div><b style="font-size:20px">Criando a sua Ana ideal…</b><div class="bar"><i id="obBar"></i></div><ul id="obSteps">${steps.map(t => `<li>${t}</li>`).join('')}</ul></div>`;
+  speak(`Só um instante, ${ob.name.split(' ')[0]}. Estou me ajeitando do seu jeito!`);
+  const model = buildModel(ob);
+  for (let k = 0; k < steps.length; k++){
+    await new Promise(r => setTimeout(r, 650));
+    $('obSteps').children[k].classList.add('ok'); $('obBar').style.width = ((k + 1) / steps.length * 100) + '%';
+  }
+  applyModel(ob, model);
+  await new Promise(r => setTimeout(r, 400));
+  stageResult(model);
+}
+function stageResult(m){
+  const nm = ob.name.split(' ')[0], P_ = PERSONAS[m.persona];
+  const line = { carinhosa:'Vou cuidar de você com muito carinho.', divertida:'Prometo deixar seus dias mais leves e divertidos!', objetiva:'Vou ser direta e te ajudar a resolver tudo rapidinho.', motivadora:'Vou te dar aquele empurrão pra você brilhar!' }[m.persona];
+  const text = `Prontinho, ${nm}! Criei uma Ana só sua. ${line} Vamos colorir a sua rotina?`;
+  $('obStage').innerHTML = `<div class="ob-q" style="margin-top:4px"><div class="mini">${anaSVG('face')}</div><div class="bubble" id="obR"></div></div>
+    <div class="res"><h3>A sua Ana ✨</h3>
+      <div class="r"><span>🎨</span><span>Cor</span><span style="margin-left:auto;width:26px;height:26px;border-radius:50%;background:${m.color}"></span></div>
+      <div class="r"><span>💬</span><span>${P_[0]} · ${P_[1]}</span></div>
+      <div class="r"><span>☀️</span><span>Bom dia às ${m.greet.morning} · Boa noite às ${m.greet.night}</span></div>
+      <div class="r"><span>💜</span><span>Pergunto como você está a cada ${m.checkin} horas (nunca enquanto você dorme)</span></div>
+      <div class="r"><span>🗂️</span><div class="cats">${m.categories.map(c => `<em style="background:${c.color}">${esc(c.name)}</em>`).join('')}</div></div>
+      <div class="r"><span>🗣️</span><span>Voz ${m.rate < 0.9 ? 'calma e pausada' : 'tranquila'}${ob.likes.length ? ' · sugestões de ' + esc(listPt(ob.likes.slice(0,3).map(x => x.toLowerCase()))) : ''}</span></div>
+    </div>
+    <div class="ob-actions">${NATIVE ? '<button class="btn big" id="obWakeOn">🎙️ Ativar “Ei, Ana” mesmo com o app fechado</button>' : ''}<button class="btn big ${NATIVE ? 'ghost' : ''}" id="obDone">Começar 🚀</button></div>`;
+  typeInto($('obR'), text, 30); say(text);
+  $('obDone').onclick = endOnboarding;
+  if ($('obWakeOn')) $('obWakeOn').onclick = () => { S.wake = true; save(); NATIVE.setWake(true); endOnboarding(); };
+}
+// usado pelo teste automático
+window.obTest = () => { ob = { name:'Teste', age:30, likes:['Música','Academia'], wake:'07:00', sleep:'23:00', occupation:'Trabalho' }; applyModel(ob, buildModel(ob)); endOnboarding(); };
+
+/* ============ início ============ */
+if (NATIVE){ S.wake = !!NATIVE.wakeOn(); refreshPhone(); }
+if (!D.profile || !D.profile.done) obActive = true;
+renderAll();
+tick();
+syncNative();
+if (S.wake && SR && !NATIVE) startRec();
+if (new URLSearchParams(location.search).get('s')) go(new URLSearchParams(location.search).get('s'));
+if (S.emoji === '🌸') { S.emoji = 'ana'; save(); applyTheme(); }
+$('heroAna').onclick = micTap;
+$('redoOb').onclick = () => { go('home'); startOnboarding(); };
+$('voiceSettings').onclick = () => NATIVE && NATIVE.openVoiceSettings();
+if (!D.profile || !D.profile.done) startOnboarding();
+</script>
+</body>
+</html>
